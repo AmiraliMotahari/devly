@@ -88,7 +88,8 @@ export function SplitPdf({ tool }: ToolComponentProps) {
         const copiedPages = await newDoc.copyPages(doc, pages);
         copiedPages.forEach((page) => newDoc.addPage(page));
         const newBytes = await newDoc.save();
-        const blob = new Blob([newBytes], { type: "application/pdf" });
+        const buffer = new Uint8Array(newBytes);
+        const blob = new Blob([buffer], { type: "application/pdf" });
         const pageLabel =
           pages.length === 1
             ? `page-${pages[0] + 1}`
@@ -164,7 +165,7 @@ export function SplitPdf({ tool }: ToolComponentProps) {
             if (e.dataTransfer.files.length > 0)
               handleFile(e.dataTransfer.files);
           }}
-          className="relative flex min-h-[160px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50 hover:bg-accent/50"
+          className="relative flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50 hover:bg-accent/50"
         >
           <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
           <p className="text-sm font-medium">

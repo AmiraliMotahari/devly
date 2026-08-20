@@ -93,7 +93,7 @@ export function ColorConverter({ tool }: ToolComponentProps) {
             className="h-10 w-20 cursor-pointer rounded-md border border-border"
           />
         </div>
-        <div className="space-y-2 flex-1 min-w-[160px]">
+        <div className="space-y-2 flex-1 min-w-40">
           <label className="text-sm font-medium">HEX</label>
           <Input value={hex} onChange={(e) => setHex(e.target.value)} placeholder="#3b82f6" />
         </div>

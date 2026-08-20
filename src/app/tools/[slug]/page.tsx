@@ -4,6 +4,7 @@ import { ToolShell } from "@/components/tool-shell";
 import { RelatedTools } from "@/components/related-tools";
 import { ToolLoader } from "@/components/tool-loader";
 import { getToolBySlug, toolDefinitions } from "@/tools";
+import { appName } from "@/lib/constants";
 
 type PageProps = {
   params: Promise<{ slug: string | undefined }>;
@@ -32,13 +33,13 @@ export async function generateMetadata({
       canonical: `/tools/${tool.slug}`,
     },
     openGraph: {
-      title: `${title} | UtilityHub`,
+      title: `${title} | ${appName}`,
       description,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | UtilityHub`,
+      title: `${title} | ${appName}`,
       description,
     },
   };
