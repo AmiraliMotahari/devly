@@ -1,12 +1,13 @@
+import { ThemeProvider } from "@/components/providers/theme.provider";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { appName, siteUrl } from "@/lib/constants";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/theme.provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import { appName, siteUrl } from "@/lib/constants";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,8 +41,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: `${appName} — Your everyday file & web toolkit`,
-    description: `A single place for file, media, developer, data, text, PDF and general-purpose utilities. Fast, private, and free.",
-    siteName: "${appName}`,
+    description:
+      "A single place for file, media, developer, data, text, PDF and general-purpose utilities. Fast, private, and free.",
+    siteName: appName,
   },
   twitter: {
     card: "summary_large_image",
@@ -59,21 +61,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider>
-            <div className="flex min-h-screen flex-col">
-              <SiteHeader />
-              <main className="flex-1">{children}</main>
-              <SiteFooter />
-            </div>
-            <Toaster richColors />
-          </TooltipProvider>
-        </ThemeProvider>
+        <Suspense>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TooltipProvider>
+              <div className="flex min-h-screen flex-col">
+                <Suspense>
+                  <SiteHeader />
+                </Suspense>
+                <main className="flex-1">{children}</main>
+                <Suspense>
+                  <SiteFooter />
+                </Suspense>
+              </div>
+              <Toaster richColors />
+            </TooltipProvider>
+          </ThemeProvider>
+        </Suspense>
       </body>
     </html>
   );

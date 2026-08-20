@@ -1,14 +1,23 @@
 "use client";
 
+import { CommandPalette } from "@/components/command-palette";
+import { ModeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { appName } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { Menu, SearchIcon, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Sparkles, Cat } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/theme-toggle";
-import { CommandPalette } from "@/components/command-palette";
-import { cn } from "@/lib/utils";
-import { appName } from "@/lib/constants";
+import GitHubIcon from "./github.icon";
+import Logo from "./logo";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "./ui/input-group";
+import { Kbd } from "./ui/kbd";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -31,9 +40,7 @@ export function SiteHeader() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Sparkles className="h-4 w-4" />
-              </div>
+              <Logo />
               <span className="text-lg tracking-tight">{appName}</span>
             </Link>
             <nav className="hidden items-center gap-1 md:flex">
@@ -53,10 +60,7 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden gap-2 sm:flex"
+            <InputGroup
               onClick={() => {
                 const event = new KeyboardEvent("keydown", {
                   key: "k",
@@ -66,11 +70,15 @@ export function SiteHeader() {
                 document.dispatchEvent(event);
               }}
             >
-              <span className="text-muted-foreground">Search</span>
-              <kbd className="pointer-events-none rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium">
-                ⌘K
-              </kbd>
-            </Button>
+              <InputGroupText className="min-w-25" >Search...</InputGroupText>
+              <InputGroupAddon>
+                <SearchIcon />
+              </InputGroupAddon>
+              <InputGroupAddon align="inline-end">
+                <Kbd>⌘</Kbd>
+                <Kbd>K</Kbd>
+              </InputGroupAddon>
+            </InputGroup>
             <ModeToggle />
             <Button
               variant="ghost"
@@ -79,7 +87,7 @@ export function SiteHeader() {
               className="hidden sm:flex"
             >
               <Link href="https://github.com" aria-label="GitHub">
-                <Cat className="h-5 w-5" />
+                <GitHubIcon />
               </Link>
             </Button>
             <Button

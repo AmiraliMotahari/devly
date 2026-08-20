@@ -8,6 +8,7 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     padding: 0,
     boxSizing: "border-box",
+    fontFamily: "system-ui, sans-serif",
   },
   container: {
     display: "flex",
@@ -60,7 +61,7 @@ export default function GlobalError({
     <html lang="en">
       <body style={styles.body}>
         <div style={styles["container"]}>
-          <h2 style={styles["header"]}>Error</h2>
+          <h2 style={styles["header"]}>Critical Error</h2>
 
           <div style={styles["innerContainer"]}>
             <button

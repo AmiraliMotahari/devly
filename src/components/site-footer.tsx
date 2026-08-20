@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { Sparkles, ShieldCheck, Zap, Heart } from "lucide-react";
-import { TOOL_CATEGORIES, CATEGORY_META } from "@/tools";
 import { appName } from "@/lib/constants";
+import { CATEGORY_META, TOOL_CATEGORIES } from "@/tools";
+import { Heart, ShieldCheck, Zap } from "lucide-react";
+import Link from "next/link";
+import Logo from "./logo";
 
 export function SiteFooter() {
   return (
@@ -10,9 +11,7 @@ export function SiteFooter() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Sparkles className="h-4 w-4" />
-              </div>
+              <Logo />
               <span className="text-lg">{appName}</span>
             </Link>
             <p className="mt-3 text-sm text-muted-foreground">

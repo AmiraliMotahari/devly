@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,18 +9,18 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { toolDefinitions, CATEGORY_META } from "@/tools";
-import { searchTools } from "@/tools/search";
-import { Shield, Star, Clock, Folder } from "lucide-react";
-import { appName } from "@/lib/constants";
+} from '@/components/ui/command';
+import { toolDefinitions, CATEGORY_META } from '@/tools';
+import { searchTools } from '@/tools/search';
+import { Shield, Star, Clock, Folder } from 'lucide-react';
+import { appName } from '@/lib/constants';
 
 const RECENT_KEY = `${appName}-recent-tools`;
 const FAVORITE_KEY = `${appName}-favorites`;
 
 function getRecentSlugs(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
   } catch {
     return [];
   }
@@ -28,7 +28,7 @@ function getRecentSlugs(): string[] {
 
 function getFavoriteSlugs(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(FAVORITE_KEY) ?? "[]");
+    return JSON.parse(localStorage.getItem(FAVORITE_KEY) ?? '[]');
   } catch {
     return [];
   }
@@ -36,18 +36,18 @@ function getFavoriteSlugs(): string[] {
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const router = useRouter();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setOpen((o) => !o);
       }
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, []);
 
   const results = query ? searchTools(query, 8) : [];
@@ -62,7 +62,7 @@ export function CommandPalette() {
 
   const navigate = (path: string) => {
     setOpen(false);
-    setQuery("");
+    setQuery('');
     router.push(path);
   };
 
@@ -108,18 +108,16 @@ export function CommandPalette() {
 
         {!query && (
           <CommandGroup heading="Categories">
-            {(Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]).map(
-              (cat) => (
-                <CommandItem
-                  key={cat}
-                  value={CATEGORY_META[cat].label}
-                  onSelect={() => navigate(`/category/${cat}`)}
-                >
-                  <Folder className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {CATEGORY_META[cat].label}
-                </CommandItem>
-              ),
-            )}
+            {(Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]).map((cat) => (
+              <CommandItem
+                key={cat}
+                value={CATEGORY_META[cat].label}
+                onSelect={() => navigate(`/category/${cat}`)}
+              >
+                <Folder className="mr-2 h-4 w-4 text-muted-foreground" />
+                {CATEGORY_META[cat].label}
+              </CommandItem>
+            ))}
           </CommandGroup>
         )}
 
