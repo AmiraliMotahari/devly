@@ -14,8 +14,7 @@ import Logo from "./logo";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupInput,
-  InputGroupText,
+  InputGroupText
 } from "./ui/input-group";
 import { Kbd } from "./ui/kbd";
 
@@ -70,7 +69,7 @@ export function SiteHeader() {
                 document.dispatchEvent(event);
               }}
             >
-              <InputGroupText className="min-w-25" >Search...</InputGroupText>
+              <InputGroupText className="min-w-25">Search...</InputGroupText>
               <InputGroupAddon>
                 <SearchIcon />
               </InputGroupAddon>

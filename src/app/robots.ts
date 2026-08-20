@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/constants";
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
@@ -6,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: new URL("/sitemap.xml", process.env.NEXT_PUBLIC_URL).toString(),
+    sitemap: new URL("/sitemap.xml", siteUrl).toString(),
   };
 }

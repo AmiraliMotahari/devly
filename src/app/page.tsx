@@ -1,10 +1,10 @@
 "use client";
 
+import { GeneralSearch } from "@/components/general-search";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { CATEGORY_META, searchTools, toolDefinitions } from "@/tools";
+import { CATEGORY_META, toolDefinitions } from "@/tools";
 import type { ToolCategory } from "@/types/tool";
 import {
   ArrowRight,
@@ -24,8 +24,6 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image: ImageIcon,
@@ -52,14 +50,6 @@ const POPULAR_SLUGS = [
 ];
 
 export default function HomePage() {
-  const [query, setQuery] = useState("");
-  const router = useRouter();
-
-  const results = useMemo(() => {
-    if (!query.trim()) return [];
-    return searchTools(query, 6);
-  }, [query]);
-
   const popularTools = POPULAR_SLUGS.map((slug) =>
     toolDefinitions.find((t) => t.slug === slug),
   ).filter((t): t is NonNullable<typeof t> => t !== undefined);
@@ -68,19 +58,12 @@ export default function HomePage() {
     .filter((t) => t.available && t.category !== "developer")
     .slice(0, 8);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (results.length > 0) {
-      router.push(`/tools/${results[0].tool.slug}`);
-    }
-  };
-
   return (
     <div className="animate-fade-in">
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border/60">
-        <div className="absolute inset-0 bg-linear-to-b from-primary/5 via-transparent to-transparent" />
-        <div className="container mx-auto px-4 py-20 text-center">
+        <div className="absolute inset-0 bg-linear-to-b from-primary/5 via-transparent to-transparent z-10" />
+        <div className="relative container mx-auto px-4 py-20 text-center z-20">
           <Badge variant="outline" className="mb-4 gap-1.5">
             <Sparkles className="h-3 w-3 text-primary" />
             {toolDefinitions.filter((t) => t.available).length} tools and
@@ -94,43 +77,7 @@ export default function HomePage() {
             in your browser. No sign-up, no uploads, completely private.
           </p>
 
-          <form onSubmit={handleSearch} className="mx-auto mt-8 max-w-xl">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search for a tool... (e.g. compress image, merge pdf, json)"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="h-14 pl-12 pr-4 text-base shadow-sm"
-                autoFocus
-              />
-              {results.length > 0 && (
-                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
-                  {results.map(({ tool }) => (
-                    <Link
-                      key={tool.id}
-                      href={`/tools/${tool.slug}`}
-                      className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-accent"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">{tool.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {tool.description}
-                        </p>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className="ml-2 shrink-0 text-xs"
-                      >
-                        {CATEGORY_META[tool.category].label}
-                      </Badge>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </form>
+          <GeneralSearch className={"mx-auto mt-8 max-w-xl z-10"} />
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">

@@ -1,26 +1,27 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { toolDefinitions, CATEGORY_META } from '@/tools';
-import { searchTools } from '@/tools/search';
-import { Shield, Star, Clock, Folder } from 'lucide-react';
-import { appName } from '@/lib/constants';
+  CommandList
+} from "@/components/ui/command";
+import { appName } from "@/lib/constants";
+import { CATEGORY_META, toolDefinitions } from "@/tools";
+import { searchTools } from "@/tools/search";
+import { Clock, Folder, Shield, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const RECENT_KEY = `${appName}-recent-tools`;
 const FAVORITE_KEY = `${appName}-favorites`;
 
 function getRecentSlugs(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
+    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
   } catch {
     return [];
   }
@@ -28,7 +29,7 @@ function getRecentSlugs(): string[] {
 
 function getFavoriteSlugs(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(FAVORITE_KEY) ?? '[]');
+    return JSON.parse(localStorage.getItem(FAVORITE_KEY) ?? "[]");
   } catch {
     return [];
   }
@@ -36,18 +37,18 @@ function getFavoriteSlugs(): string[] {
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setOpen((o) => !o);
       }
     };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, []);
 
   const results = query ? searchTools(query, 8) : [];
@@ -62,13 +63,14 @@ export function CommandPalette() {
 
   const navigate = (path: string) => {
     setOpen(false);
-    setQuery('');
+    setQuery("");
     router.push(path);
   };
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput
+      <Command>
+        <CommandInput
         placeholder="Search for a tool..."
         value={query}
         onValueChange={setQuery}
@@ -139,6 +141,9 @@ export function CommandPalette() {
           </CommandGroup>
         )}
       </CommandList>
+      </Command>
     </CommandDialog>
+
+
   );
 }
