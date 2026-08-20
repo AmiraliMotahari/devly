@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/providers/theme.provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { appName, siteUrl } from "@/lib/constants";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,7 +66,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           disableTransitionOnChange
         >
           <TooltipProvider>
-            {children}
+            <div className="flex min-h-screen flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
             <Toaster richColors />
           </TooltipProvider>
         </ThemeProvider>
