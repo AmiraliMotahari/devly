@@ -38,6 +38,11 @@ function getFavoriteSlugs(): string[] {
   }
 }
 
+type ComboboxValue = {
+  source: "tools" | "category";
+  target: string;
+};
+
 export function GeneralSearch({}: { className?: string }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -58,17 +63,23 @@ export function GeneralSearch({}: { className?: string }) {
   };
 
   return (
-    <Combobox>
+    <Combobox
+      onValueChange={(v: ComboboxValue | null) => {
+        if (!v) return;
+        navigate(`/${v.source}/${v.target}`);
+      }}
+    >
       <ComboboxInput
         value={query}
         placeholder="Search for a tool... (e.g. compress image, merge pdf, json)"
         onChange={(e) => setQuery(e.target.value)}
+        className={"mx-auto mt-8 max-w-xl h-12"}
+        showTrigger={false}
       />
       <ComboboxContent>
-        {/* {query && !results?.length ? (
+        {query && !results?.length ? (
           <ComboboxEmpty>No tools found.</ComboboxEmpty>
-        ) : null} */}
-        <ComboboxEmpty>No tools found.</ComboboxEmpty>
+        ) : null}
 
         <ComboboxList>
           {!query && favorites.length ? (
@@ -80,8 +91,12 @@ export function GeneralSearch({}: { className?: string }) {
                   return (
                     <ComboboxItem
                       key={"fav-" + t.id}
-                      value={t.name}
-                      onSelect={() => navigate(`/tools/${t.slug}`)}
+                      value={
+                        {
+                          source: "tools",
+                          target: t.slug,
+                        } satisfies ComboboxValue
+                      }
                     >
                       <Star className="mr-2 h-4 w-4 text-amber-500" />
                       {t.name}
@@ -100,8 +115,12 @@ export function GeneralSearch({}: { className?: string }) {
                   return (
                     <ComboboxItem
                       key={`recent-${t.id}`}
-                      value={t.name}
-                      onSelect={() => navigate(`/tools/${t.slug}`)}
+                      value={
+                        {
+                          source: "tools",
+                          target: t.slug,
+                        } satisfies ComboboxValue
+                      }
                     >
                       <Star className="mr-2 h-4 w-4 text-amber-500" />
                       {t.name}
@@ -120,8 +139,12 @@ export function GeneralSearch({}: { className?: string }) {
                   return (
                     <ComboboxItem
                       key={`cat-${c}`}
-                      value={CATEGORY_META[c].label}
-                      onSelect={() => navigate(`/category/${c}`)}
+                      value={
+                        {
+                          source: "category",
+                          target: c,
+                        } satisfies ComboboxValue
+                      }
                     >
                       <Star className="mr-2 h-4 w-4 text-amber-500" />
                       {CATEGORY_META[c].label}
@@ -140,8 +163,12 @@ export function GeneralSearch({}: { className?: string }) {
                   return (
                     <ComboboxItem
                       key={`tools-${t.tool.id}`}
-                      value={t.tool.name}
-                      onSelect={() => navigate(`/tools/${t.tool.slug}`)}
+                      value={
+                        {
+                          source: "tools",
+                          target: t.tool.slug,
+                        } satisfies ComboboxValue
+                      }
                     >
                       <Shield className="mr-2 h-4 w-4 text-muted-foreground" />
                       {t.tool.name}

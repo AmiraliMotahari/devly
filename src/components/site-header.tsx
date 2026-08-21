@@ -11,12 +11,10 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import GitHubIcon from "./github.icon";
 import Logo from "./logo";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText
-} from "./ui/input-group";
-import { Kbd } from "./ui/kbd";
+import { InputGroup, InputGroupAddon, InputGroupText } from "./ui/input-group";
+import { Kbd, KbdGroup } from "./ui/kbd";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsApple } from "@/hooks/use-isApple";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -30,6 +28,8 @@ const NAV_LINKS = [
 ];
 
 export function SiteHeader() {
+  const isMobile = useIsMobile();
+  const isApple = useIsApple();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
@@ -60,6 +60,7 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-1">
             <InputGroup
+              className="hidden sm:flex"
               onClick={() => {
                 const event = new KeyboardEvent("keydown", {
                   key: "k",
@@ -73,10 +74,16 @@ export function SiteHeader() {
               <InputGroupAddon>
                 <SearchIcon />
               </InputGroupAddon>
-              <InputGroupAddon align="inline-end">
-                <Kbd>⌘</Kbd>
-                <Kbd>K</Kbd>
-              </InputGroupAddon>
+              {!isMobile ? (
+                <InputGroupAddon align="inline-end">
+                  <KbdGroup>
+                    {isApple ? <Kbd>⌘</Kbd> : <Kbd>Ctr</Kbd>}
+                    <Kbd>K</Kbd>
+                  </KbdGroup>
+                </InputGroupAddon>
+              ) : (
+                <></>
+              )}
             </InputGroup>
             <ModeToggle />
             <Button
