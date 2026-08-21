@@ -240,7 +240,7 @@ export default function HomePage() {
             What you process stays yours.
           </p>
           <Button asChild className="mt-6">
-            <Link href="/category/files">Browse tools</Link>
+            <Link href="/category">Browse tools</Link>
           </Button>
         </div>
       </section>

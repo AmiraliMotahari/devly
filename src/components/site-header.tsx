@@ -3,18 +3,24 @@
 import { CommandPalette } from "@/components/command-palette";
 import { ModeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTrigger
+} from "@/components/ui/sheet";
+import { useIsApple } from "@/hooks/use-isApple";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { appName } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Menu, SearchIcon, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GitHubIcon from "./github.icon";
 import Logo from "./logo";
 import { InputGroup, InputGroupAddon, InputGroupText } from "./ui/input-group";
 import { Kbd, KbdGroup } from "./ui/kbd";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useIsApple } from "@/hooks/use-isApple";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -27,10 +33,52 @@ const NAV_LINKS = [
   { href: "/category/converters", label: "Converters" },
 ];
 
+const MobileNav = () => {
+  const pathname = usePathname();
+  const isMobile = useIsMobile();
+
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!isMobile) setOpen(false);
+
+    return () => setOpen(false);
+  }, [isMobile]);
+
+  if (!isMobile) return null;
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" size={"icon"}>
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="pt-14 px-3">
+        <nav className="flex flex-col gap-1">
+          {NAV_LINKS.map((link) => (
+            <SheetClose key={link.href} asChild>
+              <Link
+                href={link.href}
+                className={cn(
+                  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  pathname === link.href && "bg-accent text-foreground",
+                )}
+              >
+                {link.label}
+              </Link>
+            </SheetClose>
+          ))}
+        </nav>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
 export function SiteHeader() {
   const isMobile = useIsMobile();
   const isApple = useIsApple();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   return (
@@ -96,41 +144,9 @@ export function SiteHeader() {
                 <GitHubIcon />
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              aria-label="Menu"
-              onClick={() => setMobileOpen((o) => !o)}
-            >
-              {mobileOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+            <MobileNav />
           </div>
         </div>
-
-        {mobileOpen && (
-          <div className="border-t px-4 py-3 md:hidden">
-            <nav className="flex flex-col gap-1">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                    pathname === link.href && "bg-accent text-foreground",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </header>
       <CommandPalette />
     </>
