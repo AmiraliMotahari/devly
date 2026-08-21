@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CATEGORY_META, getToolsByCategory, TOOL_CATEGORIES } from "@/tools";
 import {
   ArrowRight,
@@ -17,6 +18,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Image: ImageIcon,
@@ -31,8 +33,9 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Table,
 };
 
+type PageParams = Promise<{ category: string | undefined }>;
 type PageProps = {
-  params: Promise<{ category: string | undefined }>;
+  params: PageParams;
 };
 
 export async function generateStaticParams() {
@@ -54,7 +57,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function CategoryPage({ params }: PageProps) {
+const CategoryDetails = async ({ params }: { params: PageParams }) => {
   const awaitedParams = await params;
   const cat = awaitedParams.category as keyof typeof CATEGORY_META;
 
@@ -112,5 +115,46 @@ export default async function CategoryPage({ params }: PageProps) {
         </div>
       )}
     </div>
+  );
+};
+
+export default async function CategoryPage({ params }: PageProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-12 animate-fade-in">
+          <div className="mb-8">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Skeleton className="h-6 w-6" />
+            </div>
+            <Skeleton className="w-2/5 h-9" />
+            <Skeleton className="w-3/5 h-7 mt-2" />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card
+                key={`category-skeleton-card-${i}`}
+                className="group h-full transition-all hover:border-primary/50 hover:shadow-md"
+              >
+                <CardContent className="p-5">
+                  <Skeleton className="w-full h-5" />
+                  <Skeleton className="w-full h-10 mt-1" />
+                  <div className="mt-3 flex items-center gap-2">
+                    <Skeleton className="w-12 h-5 rounded-full" />
+                    <Skeleton className="w-12 h-5 rounded-full" />
+                    <span className="ml-auto text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                      Open <ArrowRight className="inline h-3 w-3" />
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <CategoryDetails params={params} />
+    </Suspense>
   );
 }

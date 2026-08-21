@@ -1,9 +1,10 @@
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import type { ToolDefinition } from '@/types/tool';
-import { getRelatedTools, CATEGORY_META } from '@/tools';
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import type { ToolDefinition } from "@/types/tool";
+import { getRelatedTools, CATEGORY_META } from "@/tools";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function RelatedTools({ tool }: { tool: ToolDefinition }) {
   const related = getRelatedTools(tool);
@@ -27,6 +28,29 @@ export function RelatedTools({ tool }: { tool: ToolDefinition }) {
               </CardContent>
             </Card>
           </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function RelatedToolsSkeleton() {
+  return (
+    <div className="container mx-auto max-w-4xl px-4 pb-12">
+      <Skeleton className="mb-4 h-7 w-32" />
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="rounded-xl border bg-card">
+            <div className="flex items-center justify-between p-4">
+              <div className="min-w-0 flex-1">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="mt-2 h-5 w-20" />
+              </div>
+
+              <Skeleton className="ml-2 h-4 w-4 shrink-0 rounded-full" />
+            </div>
+          </div>
         ))}
       </div>
     </div>

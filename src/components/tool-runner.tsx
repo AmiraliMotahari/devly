@@ -16,6 +16,7 @@ import type {
 } from "@/types/tool";
 import JSZip from "jszip";
 import { appName } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ToolRunnerProps {
   tool: ToolDefinition;
@@ -319,6 +320,72 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
           onDownloadAll={results.length > 1 ? handleDownloadAll : undefined}
         />
       )}
+    </div>
+  );
+}
+
+
+type ToolRunnerSkeletonProps= {
+  showOptions?: boolean;
+}
+
+export function ToolRunnerSkeleton({
+  showOptions = true,
+}: ToolRunnerSkeletonProps) {
+  return (
+    <div className="space-y-6">
+      {/* Upload zone */}
+      <div className="rounded-xl border border-dashed border-border bg-muted/10 p-8">
+        <div className="flex flex-col items-center justify-center text-center">
+          <Skeleton className="mb-4 h-12 w-12 rounded-lg" />
+
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="mt-2 h-4 w-64 max-w-full" />
+
+          <Skeleton className="mt-4 h-9 w-28 rounded-md" />
+        </div>
+      </div>
+
+      {/* Options */}
+      {showOptions && (
+        <div className="rounded-xl border bg-card">
+          <div className="p-6">
+            <Skeleton className="mb-5 h-4 w-16" />
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              {/* Option 1 */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-9 w-full rounded-md" />
+              </div>
+
+              {/* Option 2 */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-2 flex-1 rounded-full" />
+                  <Skeleton className="h-4 w-10" />
+                </div>
+              </div>
+
+              {/* Option 3 */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-9 w-full rounded-md" />
+              </div>
+
+              {/* Option 4 */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-9 w-full rounded-md" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Process button */}
+      <Skeleton className="h-11 w-full rounded-md" />
     </div>
   );
 }

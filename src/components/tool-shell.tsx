@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,16 +7,18 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Badge } from '@/components/ui/badge';
-import { ShieldCheck, Server, RefreshCw } from 'lucide-react';
-import type { ToolDefinition } from '@/types/tool';
-import { CATEGORY_META } from '@/tools';
+} from "@/components/ui/breadcrumb";
+import { Badge } from "@/components/ui/badge";
+import { ShieldCheck, Server, RefreshCw } from "lucide-react";
+import type { ToolDefinition } from "@/types/tool";
+import { CATEGORY_META } from "@/tools";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ToolRunnerSkeleton } from "./tool-runner";
 
-interface ToolShellProps {
+type ToolShellProps = {
   tool: ToolDefinition;
   children: React.ReactNode;
-}
+};
 
 export function ToolShell({ tool, children }: ToolShellProps) {
   const category = CATEGORY_META[tool.category];
@@ -52,12 +54,12 @@ export function ToolShell({ tool, children }: ToolShellProps) {
         <p className="mt-2 text-lg text-muted-foreground">{tool.description}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1.5">
-            {tool.processingMode === 'client' ? (
+            {tool.processingMode === "client" ? (
               <>
                 <ShieldCheck className="h-3 w-3 text-success" />
                 Local processing
               </>
-            ) : tool.processingMode === 'server' ? (
+            ) : tool.processingMode === "server" ? (
               <>
                 <Server className="h-3 w-3 text-warning" />
                 Server processing
@@ -78,10 +80,13 @@ export function ToolShell({ tool, children }: ToolShellProps) {
         </div>
       </div>
 
-      {tool.processingMode === 'client' && (
+      {tool.processingMode === "client" && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
           <ShieldCheck className="h-4 w-4 shrink-0" />
-          <span>Your files are processed locally in your browser and never uploaded to a server.</span>
+          <span>
+            Your files are processed locally in your browser and never uploaded
+            to a server.
+          </span>
         </div>
       )}
 
@@ -92,7 +97,8 @@ export function ToolShell({ tool, children }: ToolShellProps) {
           <RefreshCw className="mx-auto mb-3 h-8 w-8 text-warning" />
           <h3 className="text-lg font-semibold">Coming soon</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tool.unavailableReason ?? 'This tool requires backend infrastructure that is not yet available.'}
+            {tool.unavailableReason ??
+              "This tool requires backend infrastructure that is not yet available."}
           </p>
         </div>
       )}
@@ -120,12 +126,85 @@ export function ToolShell({ tool, children }: ToolShellProps) {
             {tool.faq.map((item, i) => (
               <div key={i}>
                 <h3 className="font-medium">{item.question}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{item.answer}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {item.answer}
+                </p>
               </div>
             ))}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function ToolShellSkeleton() {
+  return (
+    <div className="container mx-auto max-w-4xl px-4 py-8">
+      {/* Breadcrumb */}
+      <div className="mb-6 flex items-center gap-2">
+        <Skeleton className="h-4 w-12" />
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-28" />
+      </div>
+
+      {/* Header */}
+      <div className="mb-6">
+        <Skeleton className="h-9 w-2/3 max-w-md" />
+
+        <Skeleton className="mt-3 h-6 w-full max-w-2xl" />
+        <Skeleton className="mt-2 h-6 w-4/5 max-w-xl" />
+
+        {/* Badges */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Skeleton className="h-6 w-32 rounded-md" />
+          <Skeleton className="h-6 w-28 rounded-md" />
+          <Skeleton className="h-6 w-32 rounded-md" />
+        </div>
+      </div>
+
+      {/* Local processing notice */}
+      <div className="mb-6 flex min-h-12 items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-4 py-3">
+        <Skeleton className="h-4 w-4 shrink-0 rounded-sm" />
+        <Skeleton className="h-4 w-96 max-w-full" />
+      </div>
+
+      {/* Tool runner */}
+      <ToolRunnerSkeleton />
+
+      {/* How it works */}
+      <div className="mt-12">
+        <Skeleton className="mb-4 h-6 w-32" />
+
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="flex gap-3">
+              <Skeleton className="h-6 w-6 shrink-0 rounded-full" />
+
+              <div className="flex-1 space-y-2 pt-1">
+                <Skeleton className="h-4 w-full max-w-2xl" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* FAQ */}
+      <div className="mt-12">
+        <Skeleton className="mb-4 h-6 w-16" />
+
+        <div className="space-y-5">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="space-y-2">
+              <Skeleton className="h-5 w-3/5 max-w-lg" />
+              <Skeleton className="h-4 w-full max-w-2xl" />
+              <Skeleton className="h-4 w-4/5 max-w-xl" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
