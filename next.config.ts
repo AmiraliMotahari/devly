@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   experimental: {
     typedEnv: true,
+    useOffline: true,
   },
 };
 
