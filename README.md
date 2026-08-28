@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project: devly
 
-## Getting Started
+## Overview
+**devly** is a Next.js application built with React 19, TypeScript, and Tailwind CSS. It follows a modern frontend architecture using shadcn UI components and Radix UI primitives.
 
-First, run the development server:
+## Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Core Layers
+
+1. **App Layer (`src/app`)**
+   - Main routing and page definitions
+   - Layout management (`layout.tsx`)
+   - Global styles and assets (`globals.css`)
+   - Error handling (`error.tsx`, `global-error.tsx`)
+   - Dynamic routes and categories
+
+2. **Components (`src/components`)**
+   - Reusable UI building blocks
+   - Navigation and tooling components
+   - Theme and provider wrappers
+   - Upload zone and utility components
+
+3. **Hooks (`src/hooks`)**
+   - Custom hook implementations
+   - Device detection (`use-mobile`)
+   - Apple-specific logic (`use-isApple`)
+
+4. **Lib (`src/lib`)**
+   - Shared utilities and constants
+   - Security-related file handling
+   - Helper functions
+
+### Technology Stack
+
+- **Framework**: Next.js 16.3.1
+- **Runtime**: React 19.2.8
+- **Language**: TypeScript 5.x
+- **Styling**: Tailwind CSS + shadcn UI (Radix Nova)
+- **Icons**: Lucide React
+- **State Management**: Class-Variance-Authority (CVA)
+
+### Key Features
+
+- Full-stack-like experience with embedded tools
+- Theme toggling and localization support
+- File security module for safe file operations
+- Custom hooks for cross-cutting concerns
+- Component-driven architecture with clear separation of concerns
+
+## Project Structure
+
+```
+src/
+├── app/                 # Routing & page definitions
+│   ├── about/          # About page
+│   ├── category/       # Category listings
+│   ├── error.tsx       # Error display
+│   ├── globals.css     # Global styles
+│   ├── layout.tsx      # Root layout
+│   ├── manifest.ts     # Manifest data
+│   ├── not-found.tsx   # 404 page
+│   ├── opengraph-image.jpeg
+│   ├── page.tsx        # Main landing page
+│   └── privacy/        # Privacy-related components
+├── components/          # Reusable UI components
+│   ├── ui/             # Basic UI elements
+│   ├── providers/      # Context providers
+│   ├── result-panel/   # Result display
+│   ├── site-footer/    # Footer components
+│   ├── site-header/    # Header components
+│   ├── theme-toggle/   # Theme switching
+│   ├── tool-*          # Tooling interfaces
+│   └── command-palette/ # Search/command palette
+├── hooks/               # Custom hooks
+│   ├── use-isApple.ts
+│   └── use-mobile.ts
+└── lib/                 # Shared utilities
+    ├── constants.ts
+    ├── file-security.ts
+    └── utils.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Package Manager**: pnpm v10.15.1
+- **Build Command**: `pnpm build`
+- **Dev Command**: `pnpm dev`
+- **Linting**: `pnpm lint`
+- **Type Checking**: Built-in via Next.js TS configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Dependencies
 
-## Learn More
+Core dependencies include `@base-ui/react`, `class-variance-authority`, `cmdk`, `pdf-lib`, `qrcode`, `radix-ui`, and various Next.js ecosystem packages.
 
-To learn more about Next.js, take a look at the following resources:
+## Summary
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+devly is a modern, component-rich Next.js application designed for developer productivity with integrated tools, theme support, and secure file handling. The project follows a clean architectural pattern separating concerns between routing, presentation, and business logic.
