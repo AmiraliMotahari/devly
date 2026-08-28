@@ -106,6 +106,32 @@ const TOOL_COMPONENTS: Record<
       import("@/tools/pdf/split-pdf").then((m) => ({ default: m.SplitPdf })),
     { loading },
   ),
+  "compress-pdf": dynamic(
+    () =>
+      import("@/tools/pdf/compress-pdf").then((m) => ({
+        default: m.CompressPdf,
+      })),
+    { loading },
+  ),
+  "rotate-pdf": dynamic(
+    () =>
+      import("@/tools/pdf/rotate-pdf").then((m) => ({ default: m.RotatePdf })),
+    { loading },
+  ),
+  "pdf-to-images": dynamic(
+    () =>
+      import("@/tools/pdf/pdf-to-images").then((m) => ({
+        default: m.PdfToImages,
+      })),
+    { loading },
+  ),
+  "extract-images": dynamic(
+    () =>
+      import("@/tools/pdf/extract-images").then((m) => ({
+        default: m.ExtractImages,
+      })),
+    { loading },
+  ),
   "create-zip": dynamic(
     () =>
       import("@/tools/files/create-zip").then((m) => ({
@@ -183,10 +209,66 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "json-schema-generator": dynamic(
+    () =>
+      import("@/tools/developer/json-schema-generator").then((m) => ({
+        default: m.JsonSchemaGenerator,
+      })),
+    { loading },
+  ),
+  "yaml-formatter": dynamic(
+    () =>
+      import("@/tools/developer/yaml-formatter").then((m) => ({
+        default: m.YamlFormatter,
+      })),
+    { loading },
+  ),
+  "xml-formatter": dynamic(
+    () =>
+      import("@/tools/developer/xml-formatter").then((m) => ({
+        default: m.XmlFormatter,
+      })),
+    { loading },
+  ),
+  "jwt-decoder": dynamic(
+    () =>
+      import("@/tools/developer/jwt-decoder").then((m) => ({
+        default: m.JwtDecoder,
+      })),
+    { loading },
+  ),
+  "cron-parser": dynamic(
+    () =>
+      import("@/tools/developer/cron-parser").then((m) => ({
+        default: m.CronParser,
+      })),
+    { loading },
+  ),
   "qr-code-generator": dynamic(
     () =>
       import("@/tools/web/qr-code-generator").then((m) => ({
         default: m.QrCodeGenerator,
+      })),
+    { loading },
+  ),
+  "meta-tag-generator": dynamic(
+    () =>
+      import("@/tools/web/meta-tag-generator").then((m) => ({
+        default: m.MetaTagGenerator,
+      })),
+    { loading },
+  ),
+  "robots-generator": dynamic(
+    () =>
+      import("@/tools/web/robots-generator").then((m) => ({
+        default: m.RobotsGenerator,
+      })),
+    { loading },
+  ),
+  "sitemap-generator": dynamic(
+    () =>
+      import("@/tools/web/sitemap-generator").then((m) => ({
+        default: m.SitemapGenerator,
       })),
     { loading },
   ),
@@ -215,6 +297,34 @@ const TOOL_COMPONENTS: Record<
     () =>
       import("@/tools/text/whitespace-cleaner").then((m) => ({
         default: m.WhitespaceCleaner,
+      })),
+    { loading },
+  ),
+  "markdown-to-html": dynamic(
+    () =>
+      import("@/tools/text/markdown-to-html").then((m) => ({
+        default: m.MarkdownToHtml,
+      })),
+    { loading },
+  ),
+  "html-to-markdown": dynamic(
+    () =>
+      import("@/tools/text/html-to-markdown").then((m) => ({
+        default: m.HtmlToMarkdown,
+      })),
+    { loading },
+  ),
+  "html-minifier": dynamic(
+    () =>
+      import("@/tools/text/html-minifier").then((m) => ({
+        default: m.HtmlMinifier,
+      })),
+    { loading },
+  ),
+  "text-diff": dynamic(
+    () =>
+      import("@/tools/text/text-diff").then((m) => ({
+        default: m.TextDiff,
       })),
     { loading },
   ),
