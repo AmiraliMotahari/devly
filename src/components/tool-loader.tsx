@@ -61,6 +61,41 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "rotate-image": dynamic(
+    () =>
+      import("@/tools/image/rotate-image").then((m) => ({
+        default: m.RotateImage,
+      })),
+    { loading },
+  ),
+  "flip-image": dynamic(
+    () =>
+      import("@/tools/image/flip-image").then((m) => ({
+        default: m.FlipImage,
+      })),
+    { loading },
+  ),
+  "image-filters": dynamic(
+    () =>
+      import("@/tools/image/image-filters").then((m) => ({
+        default: m.ImageFilters,
+      })),
+    { loading },
+  ),
+  "favicon-generator": dynamic(
+    () =>
+      import("@/tools/image/favicon-generator").then((m) => ({
+        default: m.FaviconGenerator,
+      })),
+    { loading },
+  ),
+  "social-image-optimizer": dynamic(
+    () =>
+      import("@/tools/image/social-image-optimizer").then((m) => ({
+        default: m.SocialImageOptimizer,
+      })),
+    { loading },
+  ),
   "merge-pdf": dynamic(
     () =>
       import("@/tools/pdf/merge-pdf").then((m) => ({ default: m.MergePdf })),
