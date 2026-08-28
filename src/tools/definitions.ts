@@ -820,6 +820,312 @@ export const toolDefinitions: ToolDefinition[] = [
     relatedToolSlugs: [],
     available: true,
   },
+
+  // ── Data ──────────────────────────────────────────────
+  {
+    id: "data-csv-to-json",
+    slug: "csv-to-json",
+    name: "CSV to JSON",
+    description:
+      "Convert CSV data to JSON format. Support for headers and nested objects.",
+    category: "data",
+    aliases: ["csv json", "convert csv", "csv to json"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "separator",
+        label: "Separator",
+        type: "select",
+        default: "comma",
+        options: [
+          { label: "Comma", value: "comma" },
+          { label: "Semicolon", value: "semicolon" },
+          { label: "Tab", value: "tab" },
+          { label: "Pipe", value: "pipe" },
+        ],
+      },
+      {
+        key: "hasHeaders",
+        label: "Has Headers",
+        type: "switch",
+        default: true,
+      },
+      {
+        key: "normalizeHeaders",
+        label: "Normalize Headers",
+        type: "switch",
+        default: true,
+      },
+    ],
+    keywords: ["csv", "json", "convert", "data"],
+    relatedToolSlugs: ["json-to-csv", "csv-to-xml"],
+    faq: [
+      {
+        question: "Can I convert large CSV files?",
+        answer:
+          "Yes, but very large files may be slow. For best results, keep files under 1MB.",
+      },
+      {
+        question: "What if my CSV doesn't have headers?",
+        answer:
+          "Disable the 'Has Headers' option and the tool will generate generic column names (col1, col2, etc.).",
+      },
+    ],
+    howItWorks: [
+      "Paste or upload your CSV data",
+      "Select separator and header options",
+      "Data is converted in your browser",
+      "Download the JSON file",
+    ],
+    available: true,
+  },
+  {
+    id: "data-csv-to-xml",
+    slug: "csv-to-xml",
+    name: "CSV to XML",
+    description:
+      "Convert CSV data to XML format. Support for headers and nested objects with proper escaping.",
+    category: "data",
+    aliases: ["csv xml", "convert csv", "csv to xml"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "separator",
+        label: "Separator",
+        type: "select",
+        default: "comma",
+        options: [
+          { label: "Comma", value: "comma" },
+          { label: "Semicolon", value: "semicolon" },
+          { label: "Tab", value: "tab" },
+          { label: "Pipe", value: "pipe" },
+        ],
+      },
+      {
+        key: "hasHeaders",
+        label: "Has Headers",
+        type: "switch",
+        default: true,
+      },
+      {
+        key: "rootElement",
+        label: "Root Element Name",
+        type: "text",
+        default: "data",
+      },
+    ],
+    keywords: ["csv", "xml", "convert", "data"],
+    relatedToolSlugs: ["json-to-csv", "xml-to-json"],
+    available: true,
+  },
+  {
+    id: "data-xml-to-json",
+    slug: "xml-to-json",
+    name: "XML to JSON",
+    description:
+      "Convert XML data to JSON format. Support for nested elements and attributes.",
+    category: "data",
+    aliases: ["xml json", "convert xml", "xml to json"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "keepAttributes",
+        label: "Keep Attributes",
+        type: "switch",
+        default: true,
+        help: "Preserve XML attributes in the JSON output",
+      },
+      {
+        key: "rootElement",
+        label: "Root Element",
+        type: "switch",
+        default: false,
+        help: "Extract data from a specific root element instead of the root",
+      },
+    ],
+    keywords: ["xml", "json", "convert", "data"],
+    relatedToolSlugs: ["csv-to-xml", "json-to-yaml"],
+    available: true,
+  },
+  {
+    id: "data-json-to-yaml",
+    slug: "json-to-yaml",
+    name: "JSON to YAML",
+    description:
+      "Convert JSON data to YAML format. Supports arrays of objects and nested structures with proper indentation.",
+    category: "data",
+    aliases: ["json yaml", "convert json", "json to yaml"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "indentSize",
+        label: "Indent Size",
+        type: "select",
+        default: "2",
+        options: [
+          { label: "2 spaces", value: "2" },
+          { label: "4 spaces", value: "4" },
+          { label: "Tab", value: "tab" },
+        ],
+      },
+      {
+        key: "pretty",
+        label: "Pretty Print",
+        type: "switch",
+        default: true,
+      },
+    ],
+    keywords: ["json", "yaml", "convert", "data"],
+    relatedToolSlugs: ["xml-to-json", "yaml-to-json"],
+    available: true,
+  },
+  {
+    id: "data-yaml-to-json",
+    slug: "yaml-to-json",
+    name: "YAML to JSON",
+    description:
+      "Convert YAML data to JSON format. Support for nested structures and complex data types.",
+    category: "data",
+    aliases: ["yaml json", "convert yaml", "yaml to json"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "keepComments",
+        label: "Keep Comments",
+        type: "switch",
+        default: false,
+        help: "Preserve comments from YAML in the JSON output",
+      },
+      {
+        key: "preserveOrder",
+        label: "Preserve Order",
+        type: "switch",
+        default: false,
+        help: "Maintain original key order when converting to JSON",
+      },
+    ],
+    keywords: ["yaml", "json", "convert", "data"],
+    relatedToolSlugs: ["json-to-yaml"],
+    available: true,
+  },
+  {
+    id: "data-json-to-csv",
+    slug: "json-to-csv",
+    name: "JSON to CSV",
+    description:
+      "Convert JSON data to CSV format. Supports arrays of objects with flexible formatting.",
+    category: "data",
+    aliases: ["json csv", "convert json", "json to csv"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "separator",
+        label: "Separator",
+        type: "select",
+        default: "comma",
+        options: [
+          { label: "Comma", value: "comma" },
+          { label: "Semicolon", value: "semicolon" },
+          { label: "Tab", value: "tab" },
+        ],
+      },
+      {
+        key: "flattenNested",
+        label: "Flatten Nested Objects",
+        type: "switch",
+        default: false,
+        help: "Converts nested objects into dot-notation CSV rows",
+      },
+      {
+        key: "consistentColumns",
+        label: "Consistent Columns",
+        type: "switch",
+        default: true,
+        help: "Ensures all objects have the same column set",
+      },
+    ],
+    keywords: ["json", "csv", "convert", "data"],
+    relatedToolSlugs: ["csv-to-json", "csv-to-xml"],
+    faq: [
+      {
+        question: "Can I convert nested JSON to CSV?",
+        answer:
+          "Yes, enable 'Flatten Nested Objects' to convert nested structures into dot-notation CSV rows.",
+      },
+      {
+        question: "What if my JSON objects have different keys?",
+        answer:
+          "Enable 'Consistent Columns' to include all keys across all objects, filling missing values with empty strings.",
+      },
+    ],
+    howItWorks: [
+      "Paste or upload your JSON data",
+      "Select separator and formatting options",
+      "Data is converted in your browser",
+      "Download the CSV file",
+    ],
+    available: true,
+  },
+
+  // ── Unit Converter ────────────────────────────────────
+  {
+    id: "converter-unit",
+    slug: "unit-converter",
+    name: "Unit Converter",
+    description:
+      "Convert between units of length, weight, temperature, speed, data size and more.",
+    category: "converters",
+    aliases: ["measurement", "metric", "imperial"],
+    inputKind: "none",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "category",
+        label: "Category",
+        type: "select",
+        default: "length",
+        options: [
+          { label: "Length", value: "length" },
+          { label: "Weight", value: "weight" },
+          { label: "Temperature", value: "temperature" },
+          { label: "Speed", value: "speed" },
+          { label: "Data Size", value: "data" },
+          { label: "Area", value: "area" },
+          { label: "Volume", value: "volume" },
+        ],
+      },
+    ],
+    keywords: ["unit", "convert", "measurement", "metric", "imperial"],
+    relatedToolSlugs: [],
+    available: true,
+  },
 ];
 
 export function getToolBySlug(slug: string): ToolDefinition | undefined {
