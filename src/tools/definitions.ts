@@ -382,6 +382,135 @@ export const toolDefinitions: ToolDefinition[] = [
     relatedToolSlugs: ["create-zip"],
     available: true,
   },
+  {
+    id: "files-zip-create-encrypted",
+    slug: "create-encrypted-zip",
+    name: "Password ZIP",
+    description:
+      "Create a password-protected ZIP archive. Files are encrypted with AES-256 for maximum security.",
+    category: "files",
+    aliases: ["encrypt zip", "password zip", "secure zip", "protected zip"],
+    inputKind: "file",
+    outputKind: "file",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    acceptFileTypes: [],
+    maxFileSizeMB: 500,
+    maxFiles: 200,
+    options: [
+      {
+        key: "password",
+        label: "Password",
+        type: "text",
+        default: "",
+        help: "The password used to encrypt the ZIP archive.",
+      },
+    ],
+    keywords: ["zip", "password", "encrypt", "secure", "archive"],
+    relatedToolSlugs: ["create-zip", "extract-zip", "checksum-generator"],
+    faq: [
+      {
+        question: "Is my password stored or sent anywhere?",
+        answer:
+          "No. Everything happens in your browser. The password is never sent to any server.",
+      },
+      {
+        question: "What encryption is used?",
+        answer:
+          "AES-256 encryption is used, which is the strongest encryption available for ZIP files.",
+      },
+    ],
+    howItWorks: [
+      "Upload one or more files",
+      "Enter a strong password",
+      "A password-protected ZIP is created in your browser",
+      "Download the encrypted ZIP file",
+    ],
+    available: true,
+  },
+  {
+    id: "files-checksum",
+    slug: "checksum-generator",
+    name: "Checksum Generator",
+    description:
+      "Generate MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes for any file. Verify data integrity instantly.",
+    category: "files",
+    aliases: ["file hash", "file integrity", "verify file", "hash file"],
+    inputKind: "file",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: true,
+    requiresAuthentication: false,
+    acceptFileTypes: [],
+    maxFileSizeMB: 500,
+    maxFiles: 50,
+    options: [
+      {
+        key: "algorithms",
+        label: "Algorithms",
+        type: "select",
+        default: "all",
+        options: [
+          { label: "All algorithms", value: "all" },
+          { label: "MD5 only", value: "md5" },
+          { label: "SHA-1 only", value: "sha1" },
+          { label: "SHA-256 only", value: "sha256" },
+          { label: "SHA-384 only", value: "sha384" },
+          { label: "SHA-512 only", value: "sha512" },
+        ],
+      },
+    ],
+    keywords: ["checksum", "hash", "md5", "sha", "integrity", "verify"],
+    relatedToolSlugs: ["create-zip", "hash-generator"],
+    faq: [
+      {
+        question: "Are my files uploaded to a server?",
+        answer:
+          "No. All hashing is performed locally in your browser using the Web Crypto API.",
+      },
+    ],
+    howItWorks: [
+      "Upload one or more files",
+      "Select which hash algorithms to compute",
+      "Hashes are generated in your browser",
+      "Copy or download the checksums",
+    ],
+    available: true,
+  },
+  {
+    id: "files-metadata",
+    slug: "file-metadata",
+    name: "File Metadata",
+    description:
+      "View detailed metadata for any file: type, size, MIME type, last modified date and more.",
+    category: "files",
+    aliases: ["file info", "file properties", "file details"],
+    inputKind: "file",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: true,
+    requiresAuthentication: false,
+    acceptFileTypes: [],
+    maxFileSizeMB: 500,
+    maxFiles: 50,
+    keywords: ["metadata", "file info", "properties", "details", "type"],
+    relatedToolSlugs: ["checksum-generator", "create-zip"],
+    faq: [
+      {
+        question: "What metadata is shown?",
+        answer:
+          "File name, size, type (MIME), last modified date, and file extension are displayed.",
+      },
+    ],
+    howItWorks: [
+      "Upload one or more files",
+      "File metadata is read locally",
+      "View detailed information about each file",
+      "No data is uploaded",
+    ],
+    available: true,
+  },
 
   // ── Developer ───────────────────────────────────────────
   {

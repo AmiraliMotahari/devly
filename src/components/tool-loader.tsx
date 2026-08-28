@@ -85,6 +85,27 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "create-encrypted-zip": dynamic(
+    () =>
+      import("@/tools/files/create-encrypted-zip").then((m) => ({
+        default: m.CreateEncryptedZip,
+      })),
+    { loading },
+  ),
+  "checksum-generator": dynamic(
+    () =>
+      import("@/tools/files/checksum-generator").then((m) => ({
+        default: m.ChecksumGenerator,
+      })),
+    { loading },
+  ),
+  "file-metadata": dynamic(
+    () =>
+      import("@/tools/files/file-metadata").then((m) => ({
+        default: m.FileMetadata,
+      })),
+    { loading },
+  ),
   "json-formatter": dynamic(
     () =>
       import("@/tools/developer/json-formatter").then((m) => ({
@@ -187,6 +208,48 @@ const TOOL_COMPONENTS: Record<
     () =>
       import("@/tools/converters/unit-converter").then((m) => ({
         default: m.UnitConverter,
+      })),
+    { loading },
+  ),
+  "csv-to-json": dynamic(
+    () =>
+      import("@/tools/data/csv-to-json").then((m) => ({
+        default: m.CsvToJsonTool,
+      })),
+    { loading },
+  ),
+  "json-to-csv": dynamic(
+    () =>
+      import("@/tools/data/json-to-csv").then((m) => ({
+        default: m.JsonToCsvTool,
+      })),
+    { loading },
+  ),
+  "csv-to-xml": dynamic(
+    () =>
+      import("@/tools/data/csv-to-xml").then((m) => ({
+        default: m.CsvToXmlTool,
+      })),
+    { loading },
+  ),
+  "xml-to-json": dynamic(
+    () =>
+      import("@/tools/data/xml-to-json").then((m) => ({
+        default: m.XmlToJsonTool,
+      })),
+    { loading },
+  ),
+  "json-to-yaml": dynamic(
+    () =>
+      import("@/tools/data/json-to-yaml").then((m) => ({
+        default: m.JsonToYamlTool,
+      })),
+    { loading },
+  ),
+  "yaml-to-json": dynamic(
+    () =>
+      import("@/tools/data/yaml-to-json").then((m) => ({
+        default: m.YamlToJsonTool,
       })),
     { loading },
   ),
