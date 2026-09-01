@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { v4, v5, v7 } from "uuid";
+import { v1, v3, v4, v5, v6, v7 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,19 +19,34 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Play, RefreshCw } from "lucide-react";
 
-type Version = "v4" | "v5" | "v7";
+type Version = "v1" | "v3" | "v4" | "v5" | "v6" | "v7";
 
 const VERSION_INFO: Record<Version, { label: string; hint: string }> = {
+  v1: {
+    label: "v1 — Time-based",
+    hint: "Gregorian timestamp + clock sequence + node. Unique even at high generation rates.",
+  },
+  v3: {
+    label: "v3 — Namespaced MD5 (legacy)",
+    hint: "Deterministic like v5 but with MD5 — kept for compatibility with older systems.",
+  },
   v4: { label: "v4 — Random", hint: "Fully random, the universal default." },
   v5: {
     label: "v5 — Namespaced SHA-1",
     hint: "Deterministic: the same name + namespace always yields the same UUID.",
   },
+  v6: {
+    label: "v6 — Reordered time (v1 variant)",
+    hint: "Like v1 but with a sortable timestamp layout — better as database keys.",
+  },
   v7: {
     label: "v7 — Timestamp-sortable",
-    hint: "Millisecond timestamp prefix — sortable, great for database keys.",
+    hint: "Millisecond Unix timestamp prefix — sortable, great for database keys.",
   },
 };
+
+// Namespaced versions (v3/v5) share the namespace + name inputs
+const NAMESPACED: readonly Version[] = ["v3", "v5"];
 
 const NAMESPACE_PRESETS = [
   { label: "URL", value: v5.URL },
@@ -61,10 +76,16 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
 
   const generateOne = (): string => {
     switch (version) {
+      case "v1":
+        return v1();
+      case "v3":
+        return v3(name, namespace);
       case "v4":
         return v4();
       case "v5":
         return v5(name, namespace);
+      case "v6":
+        return v6();
       case "v7":
         return v7();
     }
@@ -78,7 +99,7 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
       if (uppercase) id = id.toUpperCase();
       next.push(id);
     }
-    // v5 is deterministic — generating "count" of the same name+namespace
+    // v3/v5 are deterministic — generating "count" of the same name+namespace
     // yields identical UUIDs; that's expected, show it honestly.
     setUuids(Array.from(new Set(next)));
   };
@@ -122,7 +143,7 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
         </div>
       </div>
 
-      {version === "v5" && (
+      {NAMESPACED.includes(version) && (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor="uuid-namespace">Namespace</Label>

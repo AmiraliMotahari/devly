@@ -571,13 +571,6 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
-  "hex-to-oklch": dynamic(
-    () =>
-      import("@/tools/colors/hex-to-oklch").then((m) => ({
-        default: m.HexToOklch,
-      })),
-    { loading },
-  ),
   "css-color-vars-converter": dynamic(
     () =>
       import("@/tools/colors/css-color-vars-converter").then((m) => ({
