@@ -1,6 +1,22 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolSelect,
+} from "@/components/tool-forms";
 import { load as yamlLoad, dump as yamlDump } from "js-yaml";
+
+const INDENT_OPTIONS = [
+  { label: "2 spaces", value: "2" },
+  { label: "4 spaces", value: "4" },
+  { label: "Tab", value: "tab" },
+];
 
 export function YamlFormatter({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -24,68 +40,48 @@ export function YamlFormatter({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/yaml" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "formatted.yaml";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">YAML Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your YAML here..."
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
-        />
-      </div>
+    <ToolContainer>
+      <ToolInput
+        id="yaml-input"
+        label="YAML Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste your YAML here..."
+        rows={10}
+      />
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Indent size</label>
-        <select
-          value={indent}
-          onChange={(e) => setIndent(e.target.value as "2" | "4" | "tab")}
-          className="p-2 border rounded"
-        >
-          <option value="2">2 spaces</option>
-          <option value="4">4 spaces</option>
-          <option value="tab">Tab</option>
-        </select>
-      </div>
+      <ToolSelect
+        label="Indent size"
+        value={indent}
+        onValueChange={(v) => setIndent(v as "2" | "4" | "tab")}
+        options={INDENT_OPTIONS}
+      />
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <ToolError message={error} />}
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleFormat}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Format
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleFormat}
+        onClear={handleClear}
+        runLabel="Format"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">Formatted YAML</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="yaml-output"
+          label="Formatted YAML"
+          value={output}
+          filename="formatted.yaml"
+          mimeType="text/yaml"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

@@ -1,5 +1,16 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+} from "@/components/tool-forms";
 
 type JsonSchema = {
   type?: string | string[];
@@ -100,79 +111,54 @@ export function JsonToJsonSchemaTool({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "schema.json";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">JSON Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder='Paste your JSON data, e.g. {"name":"John","age":30,"email":"john@example.com"}'
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="json-input"
+        label="JSON Input"
+        value={input}
+        onChange={setInput}
+        placeholder='Paste your JSON data, e.g. {"name":"John","age":30,"email":"john@example.com"}'
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolCheckbox
+          label="Mark All Properties Required"
+          checked={inferRequired}
+          onCheckedChange={setInferRequired}
         />
-      </div>
+        <ToolCheckbox
+          label="Detect String Formats (email, date, uri, uuid, ipv4)"
+          checked={detectFormat}
+          onCheckedChange={setDetectFormat}
+        />
+      </ToolRow>
 
-      <div className="flex flex-wrap gap-4">
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={inferRequired}
-              onChange={(e) => setInferRequired(e.target.checked)}
-            />
-            Mark All Properties Required
-          </label>
-        </div>
+      {error && <ToolError message={error} />}
 
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={detectFormat}
-              onChange={(e) => setDetectFormat(e.target.checked)}
-            />
-            Detect String Formats (email, date, uri, uuid, ipv4)
-          </label>
-        </div>
-      </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Generate Schema
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download Schema
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Generate Schema"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">JSON Schema Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="schema-output"
+          label="JSON Schema Output"
+          value={output}
+          filename="schema.json"
+          mimeType="application/json"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

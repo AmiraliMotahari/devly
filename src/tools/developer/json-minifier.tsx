@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { Copy, Check, AlertCircle, Play } from 'lucide-react';
@@ -33,8 +33,8 @@ export function JsonMinifier({ tool }: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">JSON input</label>
       <Textarea
         value={input}
@@ -44,11 +44,11 @@ export function JsonMinifier({ tool }: ToolComponentProps) {
       />
       </div>
       <Button onClick={minify} disabled={!input}>
-        <Play className="mr-2 h-4 w-4" /> Minify
+        <Play data-icon="inline-start" /> Minify
       </Button>
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Invalid JSON</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -59,7 +59,7 @@ export function JsonMinifier({ tool }: ToolComponentProps) {
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">Minified output</label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                 {copied ? 'Copied' : 'Copy'}
               </Button>
             </div>

@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Copy, Play, RefreshCw } from "lucide-react";
@@ -48,11 +50,12 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Count</label>
-          <input
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uuid-count" className="text-sm font-medium">Count</label>
+          <Input
+            id="uuid-count"
             type="number"
             min={1}
             max={1000}
@@ -60,38 +63,27 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
             onChange={(e) =>
               setCount(Math.min(1000, Math.max(1, Number(e.target.value))))
             }
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
           />
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Uppercase</label>
-          <button
-            role="switch"
-            aria-checked={uppercase}
-            onClick={() => setUppercase(!uppercase)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${uppercase ? "bg-primary" : "bg-muted"}`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${uppercase ? "translate-x-6" : "translate-x-1"}`}
-            />
-          </button>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uuid-uppercase" className="text-sm font-medium">Uppercase</label>
+          <Switch
+            id="uuid-uppercase"
+            checked={uppercase}
+            onCheckedChange={setUppercase}
+          />
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Hyphens</label>
-          <button
-            role="switch"
-            aria-checked={hyphens}
-            onClick={() => setHyphens(!hyphens)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${hyphens ? "bg-primary" : "bg-muted"}`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${hyphens ? "translate-x-6" : "translate-x-1"}`}
-            />
-          </button>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uuid-hyphens" className="text-sm font-medium">Hyphens</label>
+          <Switch
+            id="uuid-hyphens"
+            checked={hyphens}
+            onCheckedChange={setHyphens}
+          />
         </div>
       </div>
       <Button onClick={generate}>
-        <Play className="mr-2 h-4 w-4" /> Generate UUIDs
+        <Play data-icon="inline-start" /> Generate UUIDs
       </Button>
       {uuids.length > 0 && (
         <Card>
@@ -102,10 +94,10 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
               </label>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" onClick={copyAll}>
-                  <Copy className="h-4 w-4" /> Copy all
+                  <Copy className="size-4" /> Copy all
                 </Button>
                 <Button variant="ghost" size="sm" onClick={generate}>
-                  <RefreshCw className="h-4 w-4" /> Regenerate
+                  <RefreshCw className="size-4" /> Regenerate
                 </Button>
               </div>
             </div>

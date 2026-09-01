@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { UploadZone, type UploadedFile } from "@/components/upload-zone";
 import { ResultPanel } from "@/components/result-panel";
 import { detectMimeType, sanitizeFilename } from "@/lib/file-security";
@@ -179,29 +184,23 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
                 <h3 className="mb-4 text-sm font-semibold">Options</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {tool.options.map((opt) => (
-                    <div key={opt.key} className="space-y-2">
-                      <label
-                        className="text-sm font-medium"
-                        htmlFor={`opt-${opt.key}`}
-                      >
-                        {opt.label}
-                      </label>
+                    <div key={opt.key} className="flex flex-col gap-2">
+                      <Label htmlFor={`opt-${opt.key}`}>{opt.label}</Label>
                       {opt.type === "slider" && (
                         <div className="flex items-center gap-3">
-                          <input
+                          <Slider
                             id={`opt-${opt.key}`}
-                            type="range"
                             min={opt.min}
                             max={opt.max}
-                            step={opt.step}
-                            value={Number(options[opt.key])}
-                            onChange={(e) =>
+                            step={opt.step ?? 1}
+                            value={[Number(options[opt.key])]}
+                            onValueChange={([v]) =>
                               setOptions((prev) => ({
                                 ...prev,
-                                [opt.key]: Number(e.target.value),
+                                [opt.key]: v,
                               }))
                             }
-                            className="h-2 flex-1 cursor-pointer appearance-none rounded-full bg-muted accent-primary"
+                            className="flex-1"
                           />
                           <span className="w-12 text-right text-sm font-medium tabular-nums">
                             {options[opt.key]}
@@ -209,50 +208,41 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
                         </div>
                       )}
                       {opt.type === "select" && (
-                        <select
-                          id={`opt-${opt.key}`}
+                        <Select
                           value={String(options[opt.key])}
-                          onChange={(e) =>
+                          onValueChange={(v) =>
                             setOptions((prev) => ({
                               ...prev,
-                              [opt.key]: e.target.value,
+                              [opt.key]: v,
                             }))
                           }
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          {opt.options?.map((o) => (
-                            <option key={o.value} value={o.value}>
-                              {o.label}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger id={`opt-${opt.key}`} className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {opt.options?.map((o) => (
+                              <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       )}
                       {opt.type === "switch" && (
-                        <button
+                        <Switch
                           id={`opt-${opt.key}`}
-                          role="switch"
-                          aria-checked={Boolean(options[opt.key])}
-                          onClick={() =>
+                          checked={Boolean(options[opt.key])}
+                          onCheckedChange={(v) =>
                             setOptions((prev) => ({
                               ...prev,
-                              [opt.key]: !prev[opt.key],
+                              [opt.key]: v,
                             }))
                           }
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            options[opt.key] ? "bg-primary" : "bg-muted"
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${
-                              options[opt.key]
-                                ? "translate-x-6"
-                                : "translate-x-1"
-                            }`}
-                          />
-                        </button>
+                        />
                       )}
                       {opt.type === "number" && (
-                        <input
+                        <Input
                           id={`opt-${opt.key}`}
                           type="number"
                           min={opt.min}
@@ -265,11 +255,10 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
                               [opt.key]: Number(e.target.value),
                             }))
                           }
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         />
                       )}
                       {opt.type === "text" && (
-                        <input
+                        <Input
                           id={`opt-${opt.key}`}
                           type="text"
                           value={String(options[opt.key])}
@@ -279,7 +268,6 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
                               [opt.key]: e.target.value,
                             }))
                           }
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         />
                       )}
                       {opt.help && (

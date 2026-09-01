@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { Copy, Check, AlertCircle, ArrowRight } from 'lucide-react';
@@ -39,7 +39,7 @@ export function Base64EncodeDecode({ tool }: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="flex gap-2">
         <Button variant={mode === 'encode' ? 'default' : 'outline'} size="sm" onClick={() => { setMode('encode'); setOutput(''); }}>
           Encode
@@ -48,7 +48,7 @@ export function Base64EncodeDecode({ tool }: ToolComponentProps) {
           Decode
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">{mode === 'encode' ? 'Text to encode' : 'Base64 to decode'}</label>
         <Textarea
           value={input}
@@ -58,11 +58,11 @@ export function Base64EncodeDecode({ tool }: ToolComponentProps) {
         />
       </div>
       <Button onClick={run} disabled={!input}>
-        <ArrowRight className="mr-2 h-4 w-4" /> {mode === 'encode' ? 'Encode' : 'Decode'}
+        <ArrowRight data-icon="inline-start" /> {mode === 'encode' ? 'Encode' : 'Decode'}
       </Button>
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -73,7 +73,7 @@ export function Base64EncodeDecode({ tool }: ToolComponentProps) {
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">Result</label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                 {copied ? 'Copied' : 'Copy'}
               </Button>
             </div>

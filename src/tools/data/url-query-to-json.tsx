@@ -1,8 +1,27 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+  ToolSelect,
+} from "@/components/tool-forms";
+import { Input } from "@/components/ui/input";
 import qs from "qs";
 
 type ArrayFormat = "indices" | "brackets" | "repeat" | "comma";
+
+const ARRAY_FORMAT_OPTIONS = [
+  { label: "Brackets (a[]=x)", value: "brackets" },
+  { label: "Indices (a[0]=x)", value: "indices" },
+  { label: "Repeat (a=x&a=y)", value: "repeat" },
+  { label: "Comma (a=x,y)", value: "comma" },
+];
 
 export function UrlQueryToJsonTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -31,83 +50,64 @@ export function UrlQueryToJsonTool({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.json";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">Query String Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste a query string, e.g. ?name=John&tags[]=a&tags[]=b"
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="query-input"
+        label="Query String Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste a query string, e.g. ?name=John&tags[]=a&tags[]=b"
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolSelect
+          label="Array Format"
+          value={arrayFormat}
+          onValueChange={(v) => setArrayFormat(v as ArrayFormat)}
+          options={ARRAY_FORMAT_OPTIONS}
         />
-      </div>
-
-      <div className="flex flex-wrap gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Array Format</label>
-          <select
-            value={arrayFormat}
-            onChange={(e) => setArrayFormat(e.target.value as ArrayFormat)}
-            className="p-2 border rounded"
-          >
-            <option value="brackets">a[]=x&a[]=y</option>
-            <option value="indices">a[0]=x&a[1]=y</option>
-            <option value="repeat">a=x&a=y</option>
-            <option value="comma">a=x,y</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Max Depth</label>
-          <input
+        <div className="flex flex-col gap-2">
+          <label htmlFor="depth" className="text-sm font-medium">
+            Max Depth
+          </label>
+          <Input
+            id="depth"
             type="number"
             min={1}
             max={10}
             value={depth}
-            onChange={(e) => setDepth(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
-            className="w-20 p-2 border rounded"
+            onChange={(e) => setDepth(Number(e.target.value))}
+            className="w-24"
           />
         </div>
-      </div>
+      </ToolRow>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <ToolError message={error} />}
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download JSON
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">JSON Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="json-output"
+          label="JSON Output"
+          value={output}
+          filename="converted.json"
+          mimeType="application/json"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

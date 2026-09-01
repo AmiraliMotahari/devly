@@ -1,6 +1,25 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+  ToolSelect,
+} from "@/components/tool-forms";
 import { type CsvSeparator, csvToArray, normalizeSeparator } from "./lib";
+
+const SEPARATOR_OPTIONS = [
+  { label: "Comma", value: "," },
+  { label: "Semicolon", value: ";" },
+  { label: "Tab", value: "tab" },
+  { label: "Pipe", value: "|" },
+];
 
 export function CsvToJsonTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -29,82 +48,55 @@ export function CsvToJsonTool({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.json";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">CSV Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your CSV data here..."
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="csv-input"
+        label="CSV Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste your CSV data here..."
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolSelect
+          label="Separator"
+          value={separator}
+          onValueChange={(v) => setSeparator(v as CsvSeparator)}
+          options={SEPARATOR_OPTIONS}
         />
-      </div>
+        <ToolCheckbox
+          label="Has Headers"
+          checked={hasHeaders}
+          onCheckedChange={setHasHeaders}
+        />
+      </ToolRow>
 
-      <div className="flex gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Separator</label>
-          <select
-            value={separator}
-            onChange={(e) => setSeparator(e.target.value as CsvSeparator)}
-            className="p-2 border rounded"
-          >
-            <option value=",">Comma</option>
-            <option value=";">Semicolon</option>
-            <option value="tab">Tab</option>
-            <option value="|">Pipe</option>
-          </select>
-        </div>
+      {error && <ToolError message={error} />}
 
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={hasHeaders}
-              onChange={(e) => setHasHeaders(e.target.checked)}
-            />
-            Has Headers
-          </label>
-        </div>
-      </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download JSON
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">JSON Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="json-output"
+          label="JSON Output"
+          value={output}
+          filename="converted.json"
+          mimeType="application/json"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

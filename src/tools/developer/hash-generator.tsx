@@ -1,9 +1,16 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { Copy, Check, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
@@ -33,21 +40,22 @@ export function HashGenerator({ tool }: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Algorithm</label>
-        <select
-          value={algorithm}
-          onChange={(e) => setAlgorithm(e.target.value)}
-          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-        >
-          <option value="SHA-1">SHA-1</option>
-          <option value="SHA-256">SHA-256</option>
-          <option value="SHA-384">SHA-384</option>
-          <option value="SHA-512">SHA-512</option>
-        </select>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="hash-algorithm" className="text-sm font-medium">Algorithm</label>
+        <Select value={algorithm} onValueChange={setAlgorithm}>
+          <SelectTrigger id="hash-algorithm" className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="SHA-1">SHA-1</SelectItem>
+            <SelectItem value="SHA-256">SHA-256</SelectItem>
+            <SelectItem value="SHA-384">SHA-384</SelectItem>
+            <SelectItem value="SHA-512">SHA-512</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Input text</label>
         <Textarea
           value={input}
@@ -57,7 +65,7 @@ export function HashGenerator({ tool }: ToolComponentProps) {
         />
       </div>
       <Button onClick={run} disabled={!input}>
-        <Play className="mr-2 h-4 w-4" /> Generate hash
+        <Play data-icon="inline-start" /> Generate hash
       </Button>
       {output && (
         <Card>
@@ -65,7 +73,7 @@ export function HashGenerator({ tool }: ToolComponentProps) {
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">{algorithm} hash</label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                 {copied ? 'Copied' : 'Copy'}
               </Button>
             </div>

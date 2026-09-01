@@ -1,5 +1,9 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import { ToolActions, ToolContainer, ToolError, ToolField } from "@/components/tool-forms";
+import { Input } from "@/components/ui/input";
 
 type CronResult = {
   valid: boolean;
@@ -165,65 +169,68 @@ export function CronParser({}: ToolComponentProps) {
     setResult(parsed);
   };
 
+  const handleClear = () => {
+    setInput("");
+    setResult(null);
+    setError("");
+  };
+
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">Cron Expression</label>
-        <input
-          type="text"
+    <ToolContainer>
+      <ToolField
+        label="Cron Expression"
+        htmlFor="cron-input"
+        help="Format: [second] minute hour day-of-month month day-of-week — 5 fields (minutes) or 6 fields (with seconds)"
+      >
+        <Input
+          id="cron-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="e.g. 0 9 * * 1-5 (weekdays at 9 AM)"
-          className="w-full p-3 border rounded font-mono text-sm"
+          className="font-mono"
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          Format: <code>[second] minute hour day-of-month month day-of-week</code> — 5 fields (minutes) or 6 fields (with seconds)
-        </p>
-      </div>
+      </ToolField>
 
-      <button
-        onClick={handleParse}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Parse
-      </button>
+      {error && <ToolError message={error} />}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <ToolActions
+        onRun={handleParse}
+        onClear={handleClear}
+        runLabel="Parse"
+        disabled={!input.trim()}
+      />
 
       {result && (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {result.valid ? (
             <>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Description</label>
-                <p className="p-3 border rounded bg-green-50 dark:bg-green-950/30 text-sm">
+              <ToolField label="Description" htmlFor="cron-description">
+                <p
+                  id="cron-description"
+                  className="rounded-md border bg-success/5 p-3 text-sm text-success"
+                >
                   {result.description}
                 </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">
-                  Next 5 executions
-                </label>
-                <ul className="border rounded divide-y">
+              </ToolField>
+              <ToolField label="Next 5 executions">
+                <ul className="divide-y rounded-md border">
                   {result.nextRuns.map((run, i) => (
-                    <li key={i} className="p-3 text-sm font-mono">
+                    <li key={i} className="p-3 font-mono text-sm">
                       {run.toLocaleString()}
                     </li>
                   ))}
                 </ul>
-              </div>
+              </ToolField>
             </>
           ) : (
-            <div className="p-3 border rounded bg-red-50 dark:bg-red-950/30 text-sm text-red-700 dark:text-red-300">
-              <strong>Error:</strong> {result.error}
-            </div>
+            <ToolError message={result.error ?? "Invalid cron expression"} />
           )}
         </div>
       )}
 
       <div className="border-t pt-4 text-xs text-muted-foreground">
-        <p className="font-medium mb-1">Examples:</p>
-        <ul className="space-y-1">
+        <p className="mb-1 font-medium">Examples:</p>
+        <ul className="flex flex-col gap-1">
           <li><code>0 9 * * 1-5</code> — 9 AM on weekdays</li>
           <li><code>*/15 * * * *</code> — every 15 minutes</li>
           <li><code>0 0 1 * *</code> — first day of each month at midnight</li>
@@ -231,6 +238,6 @@ export function CronParser({}: ToolComponentProps) {
           <li><code>30 */10 * * * *</code> — at second 30 of every 10th minute (6-field)</li>
         </ul>
       </div>
-    </div>
+    </ToolContainer>
   );
 }

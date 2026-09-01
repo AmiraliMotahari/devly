@@ -1,6 +1,25 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+  ToolSelect,
+} from "@/components/tool-forms";
 import { type CsvSeparator, jsonArrayToCsv } from "./lib";
+
+const SEPARATOR_OPTIONS = [
+  { label: "Comma", value: "," },
+  { label: "Semicolon", value: ";" },
+  { label: "Tab", value: "tab" },
+  { label: "Pipe", value: "|" },
+];
 
 export function JsonToCsvTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -40,93 +59,60 @@ export function JsonToCsvTool({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">JSON Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder='Paste your JSON array here, e.g. [{"name":"Alice","age":30}]'
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="json-input"
+        label="JSON Input"
+        value={input}
+        onChange={setInput}
+        placeholder='Paste your JSON array here, e.g. [{"name":"Alice","age":30}]'
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolSelect
+          label="Separator"
+          value={separator}
+          onValueChange={(v) => setSeparator(v as CsvSeparator)}
+          options={SEPARATOR_OPTIONS}
         />
-      </div>
+        <ToolCheckbox
+          label="Flatten Nested Objects"
+          checked={flattenNested}
+          onCheckedChange={setFlattenNested}
+        />
+        <ToolCheckbox
+          label="Consistent Columns"
+          checked={consistentColumns}
+          onCheckedChange={setConsistentColumns}
+        />
+      </ToolRow>
 
-      <div className="flex flex-wrap gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Separator</label>
-          <select
-            value={separator}
-            onChange={(e) => setSeparator(e.target.value as CsvSeparator)}
-            className="p-2 border rounded"
-          >
-            <option value=",">Comma</option>
-            <option value=";">Semicolon</option>
-            <option value="tab">Tab</option>
-            <option value="|">Pipe</option>
-          </select>
-        </div>
+      {error && <ToolError message={error} />}
 
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={flattenNested}
-              onChange={(e) => setFlattenNested(e.target.checked)}
-            />
-            Flatten Nested Objects
-          </label>
-        </div>
-
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={consistentColumns}
-              onChange={(e) => setConsistentColumns(e.target.checked)}
-            />
-            Consistent Columns
-          </label>
-        </div>
-      </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download CSV
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">CSV Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-accent text-accent-foreground">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="csv-output"
+          label="CSV Output"
+          value={output}
+          filename="converted.csv"
+          mimeType="text/csv"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

@@ -1,5 +1,16 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+} from "@/components/tool-forms";
 import { xml2js } from "xml-js";
 
 export function XmlToJsonTool({}: ToolComponentProps) {
@@ -33,79 +44,54 @@ export function XmlToJsonTool({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.json";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">XML Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your XML data here, e.g. <root><item>value</item></root>"
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="xml-input"
+        label="XML Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste your XML data here, e.g. <root><item>value</item></root>"
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolCheckbox
+          label="Compact Format"
+          checked={compact}
+          onCheckedChange={setCompact}
         />
-      </div>
+        <ToolCheckbox
+          label="Keep Attributes"
+          checked={keepAttributes}
+          onCheckedChange={setKeepAttributes}
+        />
+      </ToolRow>
 
-      <div className="flex flex-wrap gap-4">
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={compact}
-              onChange={(e) => setCompact(e.target.checked)}
-            />
-            Compact Format
-          </label>
-        </div>
+      {error && <ToolError message={error} />}
 
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={keepAttributes}
-              onChange={(e) => setKeepAttributes(e.target.checked)}
-            />
-            Keep Attributes
-          </label>
-        </div>
-      </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download JSON
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">JSON Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="json-output"
+          label="JSON Output"
+          value={output}
+          filename="converted.json"
+          mimeType="application/json"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

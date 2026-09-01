@@ -1,6 +1,24 @@
+"use client";
+
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+  ToolSelect,
+} from "@/components/tool-forms";
 import { dump as yamlDump } from "js-yaml";
+
+const INDENT_OPTIONS = [
+  { label: "2 spaces", value: "2" },
+  { label: "4 spaces", value: "4" },
+  { label: "Tab", value: "tab" },
+];
 
 export function JsonToYamlTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -25,81 +43,55 @@ export function JsonToYamlTool({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/yaml" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.yaml";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">JSON Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder='Paste your JSON data here, e.g. {"name":"John","age":30}'
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="json-input"
+        label="JSON Input"
+        value={input}
+        onChange={setInput}
+        placeholder='Paste your JSON data here, e.g. {"name":"John","age":30}'
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolSelect
+          label="Indent Size"
+          value={indentSize}
+          onValueChange={(v) => setIndentSize(v as "2" | "4" | "tab")}
+          options={INDENT_OPTIONS}
         />
-      </div>
+        <ToolCheckbox
+          label="Pretty Print"
+          checked={pretty}
+          onCheckedChange={setPretty}
+        />
+      </ToolRow>
 
-      <div className="flex flex-wrap gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Indent Size</label>
-          <select
-            value={indentSize}
-            onChange={(e) => setIndentSize(e.target.value as "2" | "4" | "tab")}
-            className="p-2 border rounded"
-          >
-            <option value="2">2 spaces</option>
-            <option value="4">4 spaces</option>
-            <option value="tab">Tab</option>
-          </select>
-        </div>
+      {error && <ToolError message={error} />}
 
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={pretty}
-              onChange={(e) => setPretty(e.target.checked)}
-            />
-            Pretty Print
-          </label>
-        </div>
-      </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download YAML
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">YAML Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="yaml-output"
+          label="YAML Output"
+          value={output}
+          filename="converted.yaml"
+          mimeType="text/yaml"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }
