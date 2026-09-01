@@ -4,6 +4,12 @@ import { CommandPalette } from "@/components/command-palette";
 import { ModeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -13,7 +19,7 @@ import { useIsApple } from "@/hooks/use-isApple";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { appName } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Menu, SearchIcon, X } from "lucide-react";
+import { Menu, SearchIcon, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -32,6 +38,15 @@ const NAV_LINKS = [
   { href: "/category/web", label: "Web" },
   { href: "/category/converters", label: "Converters" },
 ];
+
+const MORE_NAV_LINKS = [
+  { href: "/category/data", label: "Data" },
+  { href: "/category/colors", label: "Colors" },
+  { href: "/category/datetime", label: "Date & Time" },
+  { href: "/tools", label: "All tools" },
+];
+
+const ALL_NAV_LINKS = [...NAV_LINKS.slice(1), ...MORE_NAV_LINKS];
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -57,7 +72,7 @@ const MobileNav = () => {
       </SheetTrigger>
       <SheetContent className="pt-14 px-3">
         <nav className="flex flex-col gap-1">
-          {NAV_LINKS.map((link) => (
+          {ALL_NAV_LINKS.map((link) => (
             <SheetClose key={link.href} asChild>
               <Link
                 href={link.href}
@@ -103,6 +118,36 @@ export function SiteHeader() {
                   {link.label}
                 </Link>
               ))}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="More categories"
+                    className={cn(
+                      "flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                      MORE_NAV_LINKS.some((l) => l.href === pathname) &&
+                        "text-foreground",
+                    )}
+                  >
+                    More
+                    <ChevronDown className="size-3.5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {MORE_NAV_LINKS.map((link) => (
+                    <DropdownMenuItem key={link.href} asChild>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          pathname === link.href && "bg-accent text-foreground"
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </nav>
           </div>
 

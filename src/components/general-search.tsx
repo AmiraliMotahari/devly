@@ -11,51 +11,33 @@ import {
   ComboboxLabel,
   ComboboxList,
 } from "@/components/ui/combobox";
-import { appName } from "@/lib/constants";
 import { CATEGORY_META, toolDefinitions } from "@/tools";
 import { SearchResult, searchTools } from "@/tools/search";
+import { useToolHistory } from "@/hooks/use-tool-history";
 import { ToolDefinition } from "@/types/tool";
-import { Shield, Star } from "lucide-react";
+import { Clock, Folder, Shield, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const RECENT_KEY = `${appName}-recent-tools`;
-const FAVORITE_KEY = `${appName}-favorites`;
-
-function getRecentSlugs(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-function getFavoriteSlugs(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(FAVORITE_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
 type ComboboxValue = {
-  source: "tools" | "category";
+  source: "tools" | "category" | "tools-directory";
   target: string;
 };
 
 export function GeneralSearch({}: { className?: string }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const { recentSlugs, favoriteSlugs } = useToolHistory();
 
   const results = query ? searchTools(query, 8) : [];
-  const recent = getRecentSlugs()
-    .map((slug) => toolDefinitions.find((t) => t.slug === slug))
-    .filter((t): t is NonNullable<typeof t> => t !== undefined)
-    .slice(0, 5);
-  const favorites = getFavoriteSlugs()
-    .map((slug) => toolDefinitions.find((t) => t.slug === slug))
-    .filter((t): t is NonNullable<typeof t> => t !== undefined)
-    .slice(0, 5);
+
+  const toTools = (slugs: string[]) =>
+    slugs
+      .map((slug) => toolDefinitions.find((t) => t.slug === slug))
+      .filter((t): t is NonNullable<typeof t> => t !== undefined);
+
+  const recent = toTools(recentSlugs).slice(0, 5);
+  const favorites = toTools(favoriteSlugs).slice(0, 5);
 
   const navigate = (path: string) => {
     setQuery("");
@@ -66,6 +48,10 @@ export function GeneralSearch({}: { className?: string }) {
     <Combobox
       onValueChange={(v: ComboboxValue | null) => {
         if (!v) return;
+        if (v.source === "tools-directory") {
+          navigate("/tools");
+          return;
+        }
         navigate(`/${v.source}/${v.target}`);
       }}
     >
@@ -98,7 +84,7 @@ export function GeneralSearch({}: { className?: string }) {
                         } satisfies ComboboxValue
                       }
                     >
-                      <Star className="mr-2 h-4 w-4 text-amber-500" />
+                      <Star className="mr-2 size-4 fill-amber-400 text-amber-500" />
                       {t.name}
                     </ComboboxItem>
                   );
@@ -122,7 +108,7 @@ export function GeneralSearch({}: { className?: string }) {
                         } satisfies ComboboxValue
                       }
                     >
-                      <Star className="mr-2 h-4 w-4 text-amber-500" />
+                      <Clock className="mr-2 size-4 text-muted-foreground" />
                       {t.name}
                     </ComboboxItem>
                   );
@@ -146,11 +132,32 @@ export function GeneralSearch({}: { className?: string }) {
                         } satisfies ComboboxValue
                       }
                     >
-                      <Star className="mr-2 h-4 w-4 text-amber-500" />
+                      <Folder className="mr-2 size-4 text-muted-foreground" />
                       {CATEGORY_META[c].label}
                     </ComboboxItem>
                   );
                 }}
+              </ComboboxCollection>
+            </ComboboxGroup>
+          ) : null}
+          {!query ? (
+            <ComboboxGroup items={["all-tools"]}>
+              <ComboboxLabel>Browse</ComboboxLabel>
+              <ComboboxCollection>
+                {() => (
+                  <ComboboxItem
+                    key="all-tools"
+                    value={
+                      {
+                        source: "tools-directory",
+                        target: "tools",
+                      } satisfies ComboboxValue
+                    }
+                  >
+                    <Folder className="mr-2 size-4 text-muted-foreground" />
+                    All tools directory
+                  </ComboboxItem>
+                )}
               </ComboboxCollection>
             </ComboboxGroup>
           ) : null}
@@ -170,7 +177,7 @@ export function GeneralSearch({}: { className?: string }) {
                         } satisfies ComboboxValue
                       }
                     >
-                      <Shield className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <Shield className="mr-2 size-4 text-muted-foreground" />
                       {t.tool.name}
                       <span className="ml-2 text-xs text-muted-foreground">
                         {CATEGORY_META[t.tool.category]?.label}

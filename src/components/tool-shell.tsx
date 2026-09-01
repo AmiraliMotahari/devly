@@ -14,6 +14,8 @@ import type { ToolDefinition } from "@/types/tool";
 import { CATEGORY_META } from "@/tools";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToolRunnerSkeleton } from "./tool-runner";
+import { ToolVisitRecorder } from "@/hooks/use-tool-history";
+import { FavoriteButton } from "./favorite-button";
 
 type ToolShellProps = {
   tool: ToolDefinition;
@@ -25,6 +27,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
+      <ToolVisitRecorder slug={tool.slug} />
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -50,7 +53,10 @@ export function ToolShell({ tool, children }: ToolShellProps) {
       </Breadcrumb>
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">{tool.name}</h1>
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-bold tracking-tight">{tool.name}</h1>
+          <FavoriteButton slug={tool.slug} />
+        </div>
         <p className="mt-2 text-lg text-muted-foreground">{tool.description}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="gap-1.5">
