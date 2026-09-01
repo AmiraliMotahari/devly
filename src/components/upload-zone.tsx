@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Upload, X, FileIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatFileSize } from '@/lib/file-security';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 
 export interface UploadedFile {
   id: string;
@@ -46,6 +45,26 @@ export function UploadZone({
   const validateFile = (file: File): { valid: boolean; error?: string } => {
     if (maxFileSizeMB > 0 && file.size > maxFileSizeMB * 1024 * 1024) {
       return { valid: false, error: `Exceeds ${maxFileSizeMB} MB limit` };
+    }
+    if (accept && accept.length > 0) {
+      const acceptedPatterns = accept.split(",").map((p) => p.trim().toLowerCase()).filter(Boolean);
+      const fileExt = `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`;
+      const mimeType = file.type.toLowerCase();
+      const matches = acceptedPatterns.some((pattern) => {
+        if (pattern.startsWith(".")) {
+          return fileExt === pattern;
+        }
+        if (pattern.endsWith("/*")) {
+          return mimeType.startsWith(pattern.slice(0, -1));
+        }
+        return mimeType === pattern;
+      });
+      if (!matches) {
+        return {
+          valid: false,
+          error: `Unsupported type${mimeType ? ` (${mimeType})` : ""} — expected: ${acceptedPatterns.join(", ")}`,
+        };
+      }
     }
     return { valid: true };
   };
@@ -118,6 +137,20 @@ export function UploadZone({
     });
     onFilesChange(updated);
   };
+
+  useEffect(() => {
+    return () => {
+      for (const uploaded of files) {
+        if (uploaded.previewUrl) {
+          URL.revokeObjectURL(uploaded.previewUrl);
+        }
+      }
+    };
+    // Only revoke on unmount; stale closure over `files` is acceptable here
+    // because the parent owns the list and revokes removed files itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <div className="space-y-3">
@@ -214,5 +247,3 @@ export function UploadZone({
     </div>
   );
 }
-
-export { Progress };

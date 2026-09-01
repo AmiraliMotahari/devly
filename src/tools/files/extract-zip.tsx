@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Download,
   FileIcon,
+  Info,
   Loader2,
   Upload,
   X
@@ -26,6 +27,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<ToolResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const handleFile = (files: FileList) => {
     const file = Array.from(files).find((f) =>
@@ -38,6 +40,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
     if (!zipFile) return;
     setIsProcessing(true);
     setError(null);
+    setNotice(null);
     setProgress(0);
 
     try {
@@ -48,17 +51,37 @@ export function ExtractZip({ tool }: ToolComponentProps) {
         throw new Error("The ZIP archive is empty.");
       }
       const allResults: ToolResult[] = [];
+      const usedNames = new Set<string>();
+      let renamedCount = 0;
       for (let i = 0; i < entries.length; i++) {
         setProgress(Math.round((i / entries.length) * 90));
         const entry = entries[i];
-        const safeName = sanitizeFilename(
+        const baseName = sanitizeFilename(
           entry.name.split("/").pop() || "file",
         );
+        let safeName = baseName;
+        let suffix = 2;
+        let didRename = false;
+        while (usedNames.has(safeName)) {
+          const dot = baseName.lastIndexOf(".");
+          const stem = dot > 0 ? baseName.slice(0, dot) : baseName;
+          const ext = dot > 0 ? baseName.slice(dot) : "";
+          safeName = `${stem}-${suffix}${ext}`;
+          suffix++;
+          didRename = true;
+        }
+        if (didRename) renamedCount++;
+        usedNames.add(safeName);
         const blob = await entry.async("blob");
         allResults.push({ filename: safeName, blob, outputSize: blob.size });
       }
       setProgress(100);
       setResults(allResults);
+      if (renamedCount > 0) {
+        setNotice(
+          `${renamedCount} file(s) renamed to avoid duplicate names from different folders.`,
+        );
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to extract ZIP.");
     } finally {
@@ -70,6 +93,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
     setResults([]);
     setZipFile(null);
     setError(null);
+    setNotice(null);
     setProgress(0);
   };
 
@@ -171,6 +195,13 @@ export function ExtractZip({ tool }: ToolComponentProps) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {notice && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>{notice}</AlertDescription>
         </Alert>
       )}
 

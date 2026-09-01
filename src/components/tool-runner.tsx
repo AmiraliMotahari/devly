@@ -69,7 +69,13 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
 
     try {
       const allResults: ToolResult[] = [];
+      let wasCancelled = false;
       for (let i = 0; i < validFiles.length; i++) {
+        if (controller.signal.aborted) {
+          wasCancelled = true;
+          break;
+        }
+
         const uploaded = validFiles[i];
         ctx.onProgress(
           Math.round((i / validFiles.length) * 100),
@@ -86,9 +92,24 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
         );
 
         const result = await processor(file, options, ctx);
+        if (controller.signal.aborted) {
+          wasCancelled = true;
+          break;
+        }
         const resultArray = Array.isArray(result) ? result : [result];
         allResults.push(...resultArray);
       }
+
+      if (wasCancelled) {
+        setError(
+          allResults.length > 0
+            ? `Processing was cancelled after ${allResults.length} file(s). Completed results are shown below.`
+            : "Processing was cancelled.",
+        );
+        setResults(allResults);
+        return;
+      }
+
       ctx.onProgress(100, "Done");
       setResults(allResults);
     } catch (err) {
@@ -273,7 +294,7 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
             </Card>
           )}
 
-          {error && (
+          {error && results.length === 0 && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Processing failed</AlertTitle>
@@ -311,6 +332,13 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
             </Button>
           )}
         </>
+      )}
+
+      {results.length > 0 && error && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       {results.length > 0 && (

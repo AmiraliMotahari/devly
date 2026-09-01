@@ -19,6 +19,8 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
   const totalOriginal = results.reduce((sum, r) => sum + (r.originalSize ?? 0), 0);
   const totalOutput = results.reduce((sum, r) => sum + (r.outputSize ?? r.blob.size), 0);
   const hasCompression = totalOriginal > 0;
+  const savedRatio = calculateCompressionRatio(totalOriginal, totalOutput);
+  const isSmaller = totalOutput < totalOriginal;
 
   const downloadFile = (result: ToolResult) => {
     const url = URL.createObjectURL(result.blob);
@@ -51,9 +53,13 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
               <p className="text-sm font-semibold">{formatFileSize(totalOutput)}</p>
             </div>
             <div className="rounded-lg border border-border bg-background px-3 py-2">
-              <p className="text-xs text-muted-foreground">Saved</p>
-              <p className="text-sm font-semibold text-success">
-                {calculateCompressionRatio(totalOriginal, totalOutput).toFixed(1)}%
+              <p className="text-xs text-muted-foreground">
+                {isSmaller ? "Saved" : "Size change"}
+              </p>
+              <p className={`text-sm font-semibold ${isSmaller ? "text-success" : ""}`}>
+                {isSmaller
+                  ? `${savedRatio.toFixed(1)}%`
+                  : `+${Math.abs(savedRatio).toFixed(1)}%`}
               </p>
             </div>
           </div>
@@ -75,8 +81,13 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
                   {result.originalSize && result.outputSize && (
                     <>
                       <ArrowRight className="h-3 w-3" />
-                      <Badge variant="secondary" className="text-xs">
-                        {calculateCompressionRatio(result.originalSize, result.outputSize).toFixed(0)}% smaller
+                      <Badge
+                        variant={result.outputSize < result.originalSize ? "secondary" : "outline"}
+                        className="text-xs"
+                      >
+                        {result.outputSize < result.originalSize
+                          ? `${calculateCompressionRatio(result.originalSize, result.outputSize).toFixed(0)}% smaller`
+                          : `+${Math.abs(calculateCompressionRatio(result.originalSize, result.outputSize)).toFixed(0)}% larger`}
                       </Badge>
                     </>
                   )}

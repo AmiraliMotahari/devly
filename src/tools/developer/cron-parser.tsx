@@ -8,13 +8,14 @@ type CronResult = {
   error?: string;
 };
 
-const FIELD_NAMES = ["minute", "hour", "day of month", "month", "day of week"];
-const FIELD_RANGES: Array<[number, number]> = [
-  [0, 59],
-  [0, 23],
-  [1, 31],
-  [1, 12],
-  [0, 6],
+const FIELD_NAMES = ["second", "minute", "hour", "day of month", "month", "day of week"];
+const FIELD_RANGES_6: Array<[number, number]> = [
+  [0, 59], // seconds
+  [0, 59], // minutes
+  [0, 23], // hours
+  [1, 31], // day of month
+  [1, 12], // month
+  [0, 6],  // day of week
 ];
 
 function parseField(field: string, range: [number, number]): number[] {
@@ -75,28 +76,43 @@ function buildDescription(fields: string[]): string {
   return parts.join(", ");
 }
 
-function matches(date: Date, fields: number[][]): boolean {
+function matches(date: Date, fields: number[][], hasSeconds: boolean): boolean {
+  const offset = hasSeconds ? 0 : -1;
+  const secondField = hasSeconds ? fields[0] : null;
   return (
-    fields[0].includes(date.getMinutes()) &&
-    fields[1].includes(date.getHours()) &&
-    fields[2].includes(date.getDate()) &&
-    fields[3].includes(date.getMonth() + 1) &&
-    fields[4].includes(date.getDay())
+    (secondField === null || secondField.includes(date.getSeconds())) &&
+    fields[offset + 1].includes(date.getMinutes()) &&
+    fields[offset + 2].includes(date.getHours()) &&
+    fields[offset + 3].includes(date.getDate()) &&
+    fields[offset + 4].includes(date.getMonth() + 1) &&
+    fields[offset + 5].includes(date.getDay())
   );
 }
 
-function getNextRuns(parsedFields: number[][], count: number = 5): Date[] {
+function getNextRuns(
+  parsedFields: number[][],
+  hasSeconds: boolean,
+  count: number = 5,
+): Date[] {
   const runs: Date[] = [];
   const now = new Date();
-  const current = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
+  const current = hasSeconds
+    ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds() + 1, 0)
+    : new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
 
   let iterations = 0;
-  const maxIterations = 366 * 24 * 60;
+  // A year of seconds is too many; a year of minutes for 5-field.
+  // Cap iterations so a non-matching expression can't hang the tab.
+  const maxIterations = hasSeconds ? 366 * 24 * 60 * 6 : 366 * 24 * 60;
   while (runs.length < count && iterations < maxIterations) {
-    if (matches(current, parsedFields)) {
+    if (matches(current, parsedFields, hasSeconds)) {
       runs.push(new Date(current));
     }
-    current.setMinutes(current.getMinutes() + 1);
+    if (hasSeconds) {
+      current.setSeconds(current.getSeconds() + 1);
+    } else {
+      current.setMinutes(current.getMinutes() + 1);
+    }
     iterations++;
   }
   return runs;
@@ -115,13 +131,14 @@ function parseCron(expr: string): CronResult {
     };
   }
 
-  const fields = parts.slice(0, 5);
+  const hasSeconds = parts.length === 6;
+  const fields = hasSeconds ? parts : [`0`, ...parts];
   try {
-    const parsedFields = fields.map((f, i) => parseField(f, FIELD_RANGES[i]));
+    const parsedFields = fields.map((f, i) => parseField(f, FIELD_RANGES_6[i]));
     return {
       valid: true,
       description: buildDescription(fields),
-      nextRuns: getNextRuns(parsedFields),
+      nextRuns: getNextRuns(parsedFields, hasSeconds),
     };
   } catch (err) {
     return {
@@ -160,7 +177,7 @@ export function CronParser({}: ToolComponentProps) {
           className="w-full p-3 border rounded font-mono text-sm"
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Format: minute hour day-of-month month day-of-week
+          Format: <code>[second] minute hour day-of-month month day-of-week</code> — 5 fields (minutes) or 6 fields (with seconds)
         </p>
       </div>
 
@@ -211,6 +228,7 @@ export function CronParser({}: ToolComponentProps) {
           <li><code>*/15 * * * *</code> — every 15 minutes</li>
           <li><code>0 0 1 * *</code> — first day of each month at midnight</li>
           <li><code>0 12 * * 0</code> — noon every Sunday</li>
+          <li><code>30 */10 * * * *</code> — at second 30 of every 10th minute (6-field)</li>
         </ul>
       </div>
     </div>
