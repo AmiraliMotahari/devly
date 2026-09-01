@@ -1,38 +1,11 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-
-function csvToArray(text: string, separator: string = ",", hasHeaders: boolean = true) {
-  const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
-  if (lines.length === 0) return [];
-
-  const sep = separator === "\\t" ? "\t" : separator;
-  const rows = lines.map((line) => {
-    if (line.includes('"')) {
-      return line.split(new RegExp(`(?<!")${sep}(?![^"]*")`, "g")).map((f) =>
-        f.replace(/^"|"$/g, "")
-      );
-    }
-    return line.split(sep);
-  });
-
-  if (!hasHeaders || rows.length === 0) {
-    return rows.map((row) =>
-      row.reduce((acc, val, j) => ({ ...acc, [`col${j + 1}`]: val }), {})
-    );
-  }
-
-  const headers = rows[0].map((h) =>
-    h.trim().replace(/\s+/g, "_").replace(/[^\w]/g, "_").toLowerCase()
-  );
-  return rows.slice(1).map((row) =>
-    headers.reduce((acc, header, j) => ({ ...acc, [header]: row[j] ?? "" }), {})
-  );
-}
+import { type CsvSeparator, csvToArray, normalizeSeparator } from "./lib";
 
 export function CsvToJsonTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [separator, setSeparator] = useState<"," | ";" | "tab" | "|">(",");
+  const [separator, setSeparator] = useState<CsvSeparator>(",");
   const [hasHeaders, setHasHeaders] = useState(true);
   const [error, setError] = useState("");
 
@@ -44,8 +17,7 @@ export function CsvToJsonTool({}: ToolComponentProps) {
         return;
       }
 
-      const sep = separator === "tab" ? "\t" : separator;
-      const data = csvToArray(input, sep, hasHeaders);
+      const data = csvToArray(input, normalizeSeparator(separator), hasHeaders);
       if (data.length === 0) {
         setError("No data found");
         return;
@@ -84,7 +56,7 @@ export function CsvToJsonTool({}: ToolComponentProps) {
           <label className="block text-sm font-medium mb-1">Separator</label>
           <select
             value={separator}
-            onChange={(e) => setSeparator(e.target.value as "," | ";" | "tab" | "|")}
+            onChange={(e) => setSeparator(e.target.value as CsvSeparator)}
             className="p-2 border rounded"
           >
             <option value=",">Comma</option>

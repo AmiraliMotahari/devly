@@ -50,7 +50,7 @@ export function CompressPdf({ tool }: ToolComponentProps) {
       const compressedBytes = await doc.save({ useObjectStreams });
 
       setProgress(90);
-      const blob = new Blob([compressedBytes], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(compressedBytes)], { type: "application/pdf" });
 
       const savings = ((pdf.size - blob.size) / pdf.size) * 100;
       const savedBytes = pdf.size - blob.size;

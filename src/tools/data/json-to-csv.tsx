@@ -1,61 +1,11 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-
-type Separator = "," | ";" | "tab" | "|";
-
-function escapeCsvValue(value: string, sep: string): string {
-  const needsQuoting =
-    value.includes(sep) || value.includes('"') || value.includes("\n") || value.includes("\r");
-  if (needsQuoting) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
-
-function flattenObject(obj: Record<string, unknown>, prefix: string = ""): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    const newKey = prefix ? `${prefix}.${key}` : key;
-    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(result, flattenObject(value as Record<string, unknown>, newKey));
-    } else if (Array.isArray(value)) {
-      result[newKey] = JSON.stringify(value);
-    } else if (value === null || value === undefined) {
-      result[newKey] = "";
-    } else {
-      result[newKey] = String(value);
-    }
-  }
-  return result;
-}
-
-function jsonArrayToCsv(
-  data: Record<string, unknown>[],
-  separator: Separator,
-  flattenNested: boolean,
-  consistentColumns: boolean
-): string {
-  if (data.length === 0) return "";
-
-  const sep = separator === "tab" ? "\t" : separator;
-  const rows = flattenNested ? data.map((row) => flattenObject(row)) : (data as Record<string, string>[]);
-
-  const allKeys = consistentColumns
-    ? Array.from(new Set(rows.flatMap((row) => Object.keys(row))))
-    : Object.keys(rows[0] ?? {});
-
-  const header = allKeys.map((k) => escapeCsvValue(k, sep)).join(sep);
-  const dataRows = rows.map((row) =>
-    allKeys.map((k) => escapeCsvValue(row[k] ?? "", sep)).join(sep)
-  );
-
-  return [header, ...dataRows].join("\n");
-}
+import { type CsvSeparator, jsonArrayToCsv } from "./lib";
 
 export function JsonToCsvTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [separator, setSeparator] = useState<Separator>(",");
+  const [separator, setSeparator] = useState<CsvSeparator>(",");
   const [flattenNested, setFlattenNested] = useState(false);
   const [consistentColumns, setConsistentColumns] = useState(true);
   const [error, setError] = useState("");
@@ -78,7 +28,12 @@ export function JsonToCsvTool({}: ToolComponentProps) {
         return;
       }
 
-      const csv = jsonArrayToCsv(parsed, separator, flattenNested, consistentColumns);
+      const csv = jsonArrayToCsv(
+        parsed,
+        separator,
+        flattenNested,
+        consistentColumns,
+      );
       setOutput(csv);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to parse JSON");
@@ -112,7 +67,7 @@ export function JsonToCsvTool({}: ToolComponentProps) {
           <label className="block text-sm font-medium mb-1">Separator</label>
           <select
             value={separator}
-            onChange={(e) => setSeparator(e.target.value as Separator)}
+            onChange={(e) => setSeparator(e.target.value as CsvSeparator)}
             className="p-2 border rounded"
           >
             <option value=",">Comma</option>
@@ -167,7 +122,7 @@ export function JsonToCsvTool({}: ToolComponentProps) {
       {output && (
         <div>
           <label className="block text-sm font-medium mb-2">CSV Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
+          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-accent text-accent-foreground">
             {output}
           </pre>
         </div>

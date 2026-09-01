@@ -1728,22 +1728,305 @@ export const toolDefinitions: ToolDefinition[] = [
     requiresAuthentication: false,
     options: [
       {
+        key: "compact",
+        label: "Compact Format",
+        type: "switch",
+        default: true,
+        help: "Use xml-js compact format",
+      },
+      {
         key: "keepAttributes",
         label: "Keep Attributes",
         type: "switch",
         default: true,
         help: "Preserve XML attributes in the JSON output",
       },
-      {
-        key: "rootElement",
-        label: "Root Element",
-        type: "switch",
-        default: false,
-        help: "Extract data from a specific root element instead of the root",
-      },
     ],
     keywords: ["xml", "json", "convert", "data"],
-    relatedToolSlugs: ["csv-to-xml", "json-to-yaml"],
+    relatedToolSlugs: ["json-to-xml", "csv-to-xml", "json-to-yaml"],
+    available: true,
+  },
+  {
+    id: "data-json-to-xml",
+    slug: "json-to-xml",
+    name: "JSON to XML",
+    description:
+      "Convert JSON data to XML format. Supports nested objects, arrays, and custom root element.",
+    category: "data",
+    aliases: ["json xml", "convert json", "json to xml"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "compact",
+        label: "Compact Format",
+        type: "switch",
+        default: false,
+        help: "Output single-line compact XML instead of indented",
+      },
+      {
+        key: "indentSize",
+        label: "Indent Size",
+        type: "select",
+        default: "2",
+        options: [
+          { label: "2 spaces", value: "2" },
+          { label: "4 spaces", value: "4" },
+        ],
+      },
+      {
+        key: "includeDeclaration",
+        label: "XML Declaration",
+        type: "switch",
+        default: true,
+        help: "Prepend <?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+      },
+      {
+        key: "rootElement",
+        label: "Root Element Name",
+        type: "text",
+        default: "root",
+      },
+    ],
+    keywords: ["json", "xml", "convert", "data"],
+    relatedToolSlugs: ["xml-to-json", "json-to-csv", "json-to-yaml"],
+    available: true,
+  },
+  {
+    id: "data-json-to-toml",
+    slug: "json-to-toml",
+    name: "JSON to TOML",
+    description:
+      "Convert JSON objects to TOML format. Handles nested structures, arrays, and primitive values.",
+    category: "data",
+    aliases: ["json toml", "convert json", "json to toml"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [],
+    keywords: ["json", "toml", "convert", "data"],
+    relatedToolSlugs: ["toml-to-json", "json-to-yaml", "json-to-csv"],
+    available: true,
+  },
+  {
+    id: "data-toml-to-json",
+    slug: "toml-to-json",
+    name: "TOML to JSON",
+    description:
+      "Convert TOML data to JSON format. Supports nested tables, arrays, and all TOML data types.",
+    category: "data",
+    aliases: ["toml json", "convert toml", "toml to json"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [],
+    keywords: ["toml", "json", "convert", "data"],
+    relatedToolSlugs: ["json-to-toml", "yaml-to-json", "csv-to-json"],
+    available: true,
+  },
+  {
+    id: "data-json-to-url-query",
+    slug: "json-to-url-query",
+    name: "JSON to URL Query",
+    description:
+      "Convert a JSON object into a URL query string. Supports nested objects and multiple array formats.",
+    category: "data",
+    aliases: ["json query", "querystring", "url params", "json to query string"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "arrayFormat",
+        label: "Array Format",
+        type: "select",
+        default: "brackets",
+        options: [
+          { label: "Brackets (a[]=x&a[]=y)", value: "brackets" },
+          { label: "Indices (a[0]=x&a[1]=y)", value: "indices" },
+          { label: "Repeat (a=x&a=y)", value: "repeat" },
+          { label: "Comma (a=x,y)", value: "comma" },
+        ],
+      },
+      {
+        key: "addPrefix",
+        label: "Add ? Prefix",
+        type: "switch",
+        default: true,
+      },
+    ],
+    keywords: ["json", "url", "query", "querystring", "convert"],
+    relatedToolSlugs: ["url-query-to-json", "json-to-xml"],
+    available: true,
+  },
+  {
+    id: "data-url-query-to-json",
+    slug: "url-query-to-json",
+    name: "URL Query to JSON",
+    description:
+      "Convert a URL query string into a JSON object. Supports nested keys, arrays, and configurable depth.",
+    category: "data",
+    aliases: ["query json", "querystring", "url params", "query string to json"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "arrayFormat",
+        label: "Array Format",
+        type: "select",
+        default: "brackets",
+        options: [
+          { label: "Brackets (a[]=x&a[]=y)", value: "brackets" },
+          { label: "Indices (a[0]=x&a[1]=y)", value: "indices" },
+          { label: "Repeat (a=x&a=y)", value: "repeat" },
+          { label: "Comma (a=x,y)", value: "comma" },
+        ],
+      },
+      {
+        key: "depth",
+        label: "Max Depth",
+        type: "number",
+        min: 1,
+        max: 10,
+        default: 5,
+      },
+    ],
+    keywords: ["url", "query", "querystring", "json", "convert"],
+    relatedToolSlugs: ["json-to-url-query", "json-to-xml"],
+    available: true,
+  },
+  {
+    id: "data-json-to-json-schema",
+    slug: "json-to-json-schema",
+    name: "JSON to JSON Schema",
+    description:
+      "Generate a draft-07 JSON Schema from a JSON sample. Infers types, properties, required fields, and string formats.",
+    category: "data",
+    aliases: ["json schema", "generate schema", "json to schema"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "inferRequired",
+        label: "Mark All Properties Required",
+        type: "switch",
+        default: true,
+      },
+      {
+        key: "detectFormat",
+        label: "Detect String Formats",
+        type: "switch",
+        default: false,
+        help: "Tag strings as email, date, date-time, uri, uuid, or ipv4 when they match",
+      },
+    ],
+    keywords: ["json", "schema", "json schema", "validate", "convert"],
+    relatedToolSlugs: ["json-to-sql", "json-to-csv", "json-formatter"],
+    faq: [
+      {
+        question: "What dialect of JSON Schema is produced?",
+        answer:
+          "Draft-07. The output sets $schema to http://json-schema.org/draft-07/schema# and works with any draft-07 validator (e.g. ajv).",
+      },
+      {
+        question: "How are mixed-type arrays handled?",
+        answer:
+          "If every item in an array has the same shape, the schema uses that shape as items. If items differ, the schema uses oneOf to enumerate the observed shapes.",
+      },
+    ],
+    howItWorks: [
+      "Paste your JSON sample",
+      "Toggle required fields and string format detection",
+      "The tool walks the value and emits a draft-07 schema",
+      "Download the schema or feed it into any validator",
+    ],
+    available: true,
+  },
+  {
+    id: "data-json-to-sql",
+    slug: "json-to-sql",
+    name: "JSON to SQL",
+    description:
+      "Generate CREATE TABLE and INSERT statements from a JSON array. Supports PostgreSQL, MySQL, and SQLite dialects.",
+    category: "data",
+    aliases: ["json sql", "sql insert", "json to sql", "create table"],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "dialect",
+        label: "SQL Dialect",
+        type: "select",
+        default: "postgres",
+        options: [
+          { label: "PostgreSQL", value: "postgres" },
+          { label: "MySQL", value: "mysql" },
+          { label: "SQLite", value: "sqlite" },
+        ],
+      },
+      {
+        key: "tableName",
+        label: "Table Name",
+        type: "text",
+        default: "my_table",
+      },
+      {
+        key: "includeDrop",
+        label: "Include DROP TABLE",
+        type: "switch",
+        default: false,
+      },
+      {
+        key: "includeCreate",
+        label: "Include CREATE TABLE",
+        type: "switch",
+        default: true,
+      },
+      {
+        key: "batchInserts",
+        label: "Batch INSERT (single statement)",
+        type: "switch",
+        default: false,
+      },
+    ],
+    keywords: ["json", "sql", "insert", "create table", "convert", "database"],
+    relatedToolSlugs: ["json-to-json-schema", "json-to-csv", "csv-to-json"],
+    faq: [
+      {
+        question: "How are types inferred?",
+        answer:
+          "Types are inferred from the first row: integer → INTEGER/BIGINT, decimal number → NUMERIC/DOUBLE, boolean → BOOLEAN/TINYINT(1), string → TEXT. Nested objects and arrays become TEXT or JSON depending on dialect.",
+      },
+      {
+        question: "What if my objects have different keys?",
+        answer:
+          "All keys across all objects are unioned into the column list. Missing values in a row become NULL in the INSERT.",
+      },
+    ],
+    howItWorks: [
+      "Paste an array of JSON objects",
+      "Pick a dialect, table name, and statement options",
+      "Click Generate SQL",
+      "Download or copy the resulting script",
+    ],
     available: true,
   },
   {
@@ -1877,43 +2160,22 @@ export const toolDefinitions: ToolDefinition[] = [
     ],
     available: true,
   },
-
-  // ── Unit Converter ────────────────────────────────────
-  {
-    id: "converter-unit",
-    slug: "unit-converter",
-    name: "Unit Converter",
-    description:
-      "Convert between units of length, weight, temperature, speed, data size and more.",
-    category: "converters",
-    aliases: ["measurement", "metric", "imperial"],
-    inputKind: "none",
-    outputKind: "text",
-    processingMode: "client",
-    supportsBatch: false,
-    requiresAuthentication: false,
-    options: [
-      {
-        key: "category",
-        label: "Category",
-        type: "select",
-        default: "length",
-        options: [
-          { label: "Length", value: "length" },
-          { label: "Weight", value: "weight" },
-          { label: "Temperature", value: "temperature" },
-          { label: "Speed", value: "speed" },
-          { label: "Data Size", value: "data" },
-          { label: "Area", value: "area" },
-          { label: "Volume", value: "volume" },
-        ],
-      },
-    ],
-    keywords: ["unit", "convert", "measurement", "metric", "imperial"],
-    relatedToolSlugs: [],
-    available: true,
-  },
 ];
+
+if (process.env.NODE_ENV !== "production") {
+  const seenSlugs = new Set<string>();
+  const seenIds = new Set<string>();
+  for (const tool of toolDefinitions) {
+    if (seenSlugs.has(tool.slug)) {
+      console.error(`Duplicate tool slug: "${tool.slug}"`);
+    }
+    if (seenIds.has(tool.id)) {
+      console.error(`Duplicate tool id: "${tool.id}"`);
+    }
+    seenSlugs.add(tool.slug);
+    seenIds.add(tool.id);
+  }
+}
 
 export function getToolBySlug(slug: string): ToolDefinition | undefined {
   return toolDefinitions.find((t) => t.slug === slug);

@@ -67,8 +67,7 @@ export function MergePdf({ tool }: ToolComponentProps) {
 
       setProgress(90);
       const mergedBytes = await merged.save();
-      const buffer = new Uint8Array(mergedBytes);
-      const blob = new Blob([buffer], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(mergedBytes)], { type: "application/pdf" });
 
       setResults([
         {

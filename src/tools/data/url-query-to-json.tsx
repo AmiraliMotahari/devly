@@ -1,35 +1,33 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { xml2js } from "xml-js";
+import qs from "qs";
 
-export function XmlToJsonTool({}: ToolComponentProps) {
+type ArrayFormat = "indices" | "brackets" | "repeat" | "comma";
+
+export function UrlQueryToJsonTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [compact, setCompact] = useState(true);
-  const [keepAttributes, setKeepAttributes] = useState(true);
+  const [arrayFormat, setArrayFormat] = useState<ArrayFormat>("brackets");
+  const [depth, setDepth] = useState(5);
   const [error, setError] = useState("");
 
   const handleConvert = () => {
     try {
       setError("");
       if (!input.trim()) {
-        setError("Please enter some XML data");
+        setError("Please enter a URL query string");
         return;
       }
 
-      const options = {
-        compact,
-        ignoreDeclaration: true,
-        ignoreAttributes: !keepAttributes,
-        textKey: "_text",
-        trim: true,
-        nativeType: true,
-      };
-
-      const result = xml2js(input, options);
-      setOutput(JSON.stringify(result, null, 2));
+      const cleaned = input.replace(/^\?/, "");
+      const parsed = qs.parse(cleaned, {
+        arrayFormat,
+        depth,
+        ignoreQueryPrefix: false,
+      } as Parameters<typeof qs.parse>[1]);
+      setOutput(JSON.stringify(parsed, null, 2));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse XML");
+      setError(err instanceof Error ? err.message : "Failed to parse query string");
     }
   };
 
@@ -46,36 +44,40 @@ export function XmlToJsonTool({}: ToolComponentProps) {
   return (
     <div className="tool-container space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-2">XML Input</label>
+        <label className="block text-sm font-medium mb-2">Query String Input</label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your XML data here, e.g. <root><item>value</item></root>"
+          placeholder="Paste a query string, e.g. ?name=John&tags[]=a&tags[]=b"
           className="w-full h-48 p-3 border rounded font-mono text-sm"
         />
       </div>
 
       <div className="flex flex-wrap gap-4">
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={compact}
-              onChange={(e) => setCompact(e.target.checked)}
-            />
-            Compact Format
-          </label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Array Format</label>
+          <select
+            value={arrayFormat}
+            onChange={(e) => setArrayFormat(e.target.value as ArrayFormat)}
+            className="p-2 border rounded"
+          >
+            <option value="brackets">a[]=x&a[]=y</option>
+            <option value="indices">a[0]=x&a[1]=y</option>
+            <option value="repeat">a=x&a=y</option>
+            <option value="comma">a=x,y</option>
+          </select>
         </div>
 
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={keepAttributes}
-              onChange={(e) => setKeepAttributes(e.target.checked)}
-            />
-            Keep Attributes
-          </label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Max Depth</label>
+          <input
+            type="number"
+            min={1}
+            max={10}
+            value={depth}
+            onChange={(e) => setDepth(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
+            className="w-20 p-2 border rounded"
+          />
         </div>
       </div>
 

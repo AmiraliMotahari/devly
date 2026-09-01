@@ -60,7 +60,6 @@ export function RotatePdf({ tool }: ToolComponentProps) {
       }
 
       setProgress(60);
-      const deg = (parseInt(angle, 10) * Math.PI) / 180;
       const rotation = parseInt(angle, 10);
       for (let i = 0; i < pagesToRotate.length; i++) {
         const pageIdx = pagesToRotate[i];
@@ -73,7 +72,7 @@ export function RotatePdf({ tool }: ToolComponentProps) {
 
       setProgress(90);
       const rotatedBytes = await doc.save();
-      const blob = new Blob([rotatedBytes], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(rotatedBytes)], { type: "application/pdf" });
 
       setResults([{
         filename: pdf.name,

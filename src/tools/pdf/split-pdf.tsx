@@ -88,8 +88,7 @@ export function SplitPdf({ tool }: ToolComponentProps) {
         const copiedPages = await newDoc.copyPages(doc, pages);
         copiedPages.forEach((page) => newDoc.addPage(page));
         const newBytes = await newDoc.save();
-        const buffer = new Uint8Array(newBytes);
-        const blob = new Blob([buffer], { type: "application/pdf" });
+        const blob = new Blob([new Uint8Array(newBytes)], { type: "application/pdf" });
         const pageLabel =
           pages.length === 1
             ? `page-${pages[0] + 1}`

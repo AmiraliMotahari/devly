@@ -1,35 +1,24 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { xml2js } from "xml-js";
+import { parse } from "smol-toml";
 
-export function XmlToJsonTool({}: ToolComponentProps) {
+export function TomlToJsonTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [compact, setCompact] = useState(true);
-  const [keepAttributes, setKeepAttributes] = useState(true);
   const [error, setError] = useState("");
 
   const handleConvert = () => {
     try {
       setError("");
       if (!input.trim()) {
-        setError("Please enter some XML data");
+        setError("Please enter some TOML data");
         return;
       }
 
-      const options = {
-        compact,
-        ignoreDeclaration: true,
-        ignoreAttributes: !keepAttributes,
-        textKey: "_text",
-        trim: true,
-        nativeType: true,
-      };
-
-      const result = xml2js(input, options);
-      setOutput(JSON.stringify(result, null, 2));
+      const parsed = parse(input);
+      setOutput(JSON.stringify(parsed, null, 2));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse XML");
+      setError(err instanceof Error ? err.message : "Failed to parse TOML");
     }
   };
 
@@ -46,37 +35,13 @@ export function XmlToJsonTool({}: ToolComponentProps) {
   return (
     <div className="tool-container space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-2">XML Input</label>
+        <label className="block text-sm font-medium mb-2">TOML Input</label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your XML data here, e.g. <root><item>value</item></root>"
+          placeholder={`Paste your TOML data here, e.g.\nname = "John"\nage = 30\n[address]\ncity = "NYC"`}
           className="w-full h-48 p-3 border rounded font-mono text-sm"
         />
-      </div>
-
-      <div className="flex flex-wrap gap-4">
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={compact}
-              onChange={(e) => setCompact(e.target.checked)}
-            />
-            Compact Format
-          </label>
-        </div>
-
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={keepAttributes}
-              onChange={(e) => setKeepAttributes(e.target.checked)}
-            />
-            Keep Attributes
-          </label>
-        </div>
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

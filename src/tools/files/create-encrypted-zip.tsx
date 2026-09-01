@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback, useRef, useState } from "react";
+import { AlertCircle, FileIcon, Loader2, Play, Upload, X } from "lucide-react";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,41 +12,225 @@ import { Progress } from "@/components/ui/progress";
 import { ResultPanel } from "@/components/result-panel";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Loader2, Play, Upload, X, FileIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+
+const MAX_FILES = 200;
+const PBKDF2_ITERATIONS = 100_000;
+const AES_KEY_LENGTH = 256;
+const SALT_LENGTH = 16;
+const IV_LENGTH = 12;
+
+const ARCHIVE_FILENAME = "encrypted-archive.zip";
+const MANIFEST_FILENAME = "MANIFEST.json";
+const README_FILENAME = "README.txt";
+const ENCRYPTED_EXTENSION = ".enc";
 
 interface UploadedFile {
   id: string;
   file: File;
 }
 
+interface ManifestEntry {
+  name: string;
+  salt: string;
+  iv: string;
+  size: number;
+  encryptedSize: number;
+}
+
+interface Manifest {
+  version: "1.0";
+  algorithm: "AES-256-GCM";
+  keyDerivation: {
+    algorithm: "PBKDF2-SHA256";
+    iterations: number;
+  };
+  files: ManifestEntry[];
+}
+
+interface Result {
+  filename: string;
+  blob: Blob;
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary);
+}
+
+async function deriveKey(
+  password: string,
+  salt: Uint8Array<ArrayBuffer>,
+): Promise<CryptoKey> {
+  const encoder = new TextEncoder();
+
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveKey"],
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: PBKDF2_ITERATIONS,
+      hash: "SHA-256",
+    },
+    keyMaterial,
+    {
+      name: "AES-GCM",
+      length: AES_KEY_LENGTH,
+    },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+async function encryptFile(
+  file: File,
+  password: string,
+): Promise<{
+  encrypted: Uint8Array<ArrayBuffer>;
+  salt: Uint8Array<ArrayBuffer>;
+  iv: Uint8Array<ArrayBuffer>;
+}> {
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+
+  const key = await deriveKey(password, salt);
+  const data = await file.arrayBuffer();
+
+  const encrypted = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    key,
+    data,
+  );
+
+  return {
+    encrypted: new Uint8Array(encrypted),
+    salt,
+    iv,
+  };
+}
+
+function createManifest(entries: ManifestEntry[]): Manifest {
+  return {
+    version: "1.0",
+    algorithm: "AES-256-GCM",
+    keyDerivation: {
+      algorithm: "PBKDF2-SHA256",
+      iterations: PBKDF2_ITERATIONS,
+    },
+    files: entries,
+  };
+}
+
+function createReadme(entries: ManifestEntry[]): string {
+  return [
+    "Encrypted Archive",
+    "",
+    `This archive contains ${entries.length} encrypted file(s).`,
+    `Encryption: AES-256-GCM`,
+    `Key derivation: PBKDF2-SHA256 (${PBKDF2_ITERATIONS.toLocaleString()} iterations)`,
+    "",
+    "To decrypt the files, use the same password with a compatible decrypt tool.",
+    "",
+    "Files in this archive:",
+    ...entries.map(
+      (entry) => `  - ${entry.name} (${formatFileSize(entry.size)})`,
+    ),
+  ].join("\n");
+}
+
+function validateFiles(files: UploadedFile[]): string | null {
+  if (files.length === 0) {
+    return "Please select files to add to the archive";
+  }
+
+  if (files.length > MAX_FILES) {
+    return `You can add up to ${MAX_FILES} files`;
+  }
+
+  const filenames = new Set<string>();
+
+  for (const uploaded of files) {
+    if (filenames.has(uploaded.file.name)) {
+      return `Duplicate filename detected: "${uploaded.file.name}"`;
+    }
+
+    filenames.add(uploaded.file.name);
+  }
+
+  return null;
+}
+
 export function CreateEncryptedZip({}: ToolComponentProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [password, setPassword] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [results, setResults] = useState<{ filename: string; blob: Blob }[]>([]);
+  const [results, setResults] = useState<Result[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFiles = (fileList: FileList) => {
-    const newFiles = Array.from(fileList).map((f) => ({
-      id: Math.random().toString(36).slice(2),
-      file: f,
-    }));
-    setFiles((prev) => [...prev, ...newFiles]);
-  };
+  const handleFiles = useCallback((fileList: FileList | null) => {
+    if (!fileList?.length) return;
 
-  const removeFile = (id: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id));
-  };
+    setError(null);
+
+    setFiles((currentFiles) => {
+      const remainingSlots = MAX_FILES - currentFiles.length;
+
+      if (remainingSlots <= 0) {
+        setError(`You can add up to ${MAX_FILES} files`);
+        return currentFiles;
+      }
+
+      const incomingFiles = Array.from(fileList).slice(0, remainingSlots);
+
+      const existingNames = new Set(currentFiles.map(({ file }) => file.name));
+
+      const newFiles = incomingFiles
+        .filter((file) => !existingNames.has(file.name))
+        .map((file) => ({
+          id: crypto.randomUUID(),
+          file,
+        }));
+
+      if (newFiles.length < incomingFiles.length) {
+        setError("Some files were skipped because their names already exist");
+      }
+
+      return [...currentFiles, ...newFiles];
+    });
+  }, []);
+
+  const removeFile = useCallback((id: string) => {
+    setFiles((currentFiles) =>
+      currentFiles.filter((uploaded) => uploaded.id !== id),
+    );
+  }, []);
 
   const handleCreate = useCallback(async () => {
-    if (files.length === 0) {
-      setError("Please select files to add to the archive");
+    const validationError = validateFiles(files);
+
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    if (!password.trim()) {
+    if (!password.length) {
       setError("Please enter a password to encrypt the ZIP");
       return;
     }
@@ -56,51 +242,90 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
     try {
       const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
+      const manifestEntries: ManifestEntry[] = [];
 
-      for (let i = 0; i < files.length; i++) {
-        setProgress(Math.round((i / files.length) * 90));
-        const buffer = await files[i].file.arrayBuffer();
-        zip.file(files[i].file.name, buffer);
+      for (let index = 0; index < files.length; index++) {
+        const uploaded = files[index];
+
+        const { encrypted, salt, iv } = await encryptFile(
+          uploaded.file,
+          password,
+        );
+
+        zip.file(`${uploaded.file.name}${ENCRYPTED_EXTENSION}`, encrypted);
+
+        manifestEntries.push({
+          name: uploaded.file.name,
+          salt: bytesToBase64(salt),
+          iv: bytesToBase64(iv),
+          size: uploaded.file.size,
+          encryptedSize: encrypted.byteLength,
+        });
+
+        setProgress(Math.round(((index + 1) / files.length) * 85));
       }
 
+      const manifest = createManifest(manifestEntries);
+
+      zip.file(MANIFEST_FILENAME, JSON.stringify(manifest, null, 2));
+
+      zip.file(README_FILENAME, createReadme(manifestEntries));
+
       setProgress(95);
+
       const blob = await zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
         compressionOptions: {
           level: 9,
         },
-        password: password,
       });
 
-      setResults([{ filename: "secure.zip", blob }]);
+      setResults([
+        {
+          filename: ARCHIVE_FILENAME,
+          blob,
+        },
+      ]);
+
       setProgress(100);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? `Failed to create encrypted ZIP: ${err.message}`
-          : "Failed to create encrypted ZIP",
-      );
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "An unknown error occurred";
+
+      setError(`Failed to create encrypted archive: ${message}`);
     } finally {
       setIsProcessing(false);
     }
   }, [files, password]);
 
-  const handleProcessAnother = () => {
+  const handleProcessAnother = useCallback(() => {
     setResults([]);
     setFiles([]);
+    setPassword("");
     setError(null);
     setProgress(0);
-    setPassword("");
-  };
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, []);
+
+  const handleDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      handleFiles(event.dataTransfer.files);
+    },
+    [handleFiles],
+  );
 
   if (results.length > 0) {
     return (
       <ResultPanel
-        results={results.map((r) => ({
-          filename: r.filename,
-          blob: r.blob,
-          outputSize: r.blob.size,
+        results={results.map(({ filename, blob }) => ({
+          filename,
+          blob,
+          outputSize: blob.size,
         }))}
         onProcessAnother={handleProcessAnother}
       />
@@ -113,38 +338,35 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
         role="button"
         tabIndex={0}
         aria-label="Upload files"
-        onClick={() =>
-          document.getElementById("create-encrypted-zip-input")?.click()
-        }
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            document.getElementById("create-encrypted-zip-input")?.click();
+        className="relative flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50 hover:bg-accent/50"
+        onClick={() => fileInputRef.current?.click()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            fileInputRef.current?.click();
           }
         }}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.dataTransfer.files.length > 0)
-            handleFiles(e.dataTransfer.files);
-        }}
-        className="relative flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50 hover:bg-accent/50"
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={handleDrop}
       >
         <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
+
         <p className="text-sm font-medium">
           Drop files here or click to browse
         </p>
+
         <p className="mt-1 text-xs text-muted-foreground">
-          Any file type, up to 200 files
+          Any file type, up to {MAX_FILES} files
         </p>
+
         <input
-          id="create-encrypted-zip-input"
+          ref={fileInputRef}
           type="file"
           multiple
           className="sr-only"
-          onChange={(e) => {
-            if (e.target.files) handleFiles(e.target.files);
-            e.target.value = "";
+          onChange={(event) => {
+            handleFiles(event.target.files);
+            event.target.value = "";
           }}
         />
       </div>
@@ -152,28 +374,35 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
       {files.length > 0 && (
         <Card>
           <CardContent className="pt-6">
-            <h3 className="mb-4 text-sm font-semibold">{files.length} files</h3>
+            <h3 className="mb-4 text-sm font-semibold">
+              {files.length} {files.length === 1 ? "file" : "files"}
+            </h3>
+
             <div className="max-h-64 space-y-2 overflow-y-auto">
-              {files.map((f) => (
+              {files.map(({ id, file }) => (
                 <div
-                  key={f.id}
+                  key={id}
                   className="flex items-center gap-3 rounded-lg border border-border bg-background p-3"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted">
                     <FileIcon className="h-5 w-5 text-muted-foreground" />
                   </div>
+
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{f.file.name}</p>
+                    <p className="truncate text-sm font-medium">{file.name}</p>
+
                     <p className="text-xs text-muted-foreground">
-                      {formatFileSize(f.file.size)}
+                      {formatFileSize(file.size)}
                     </p>
                   </div>
+
                   <Button
+                    type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
-                    onClick={() => removeFile(f.id)}
-                    aria-label="Remove file"
+                    className="h-8 w-8 shrink-0"
+                    onClick={() => removeFile(id)}
+                    aria-label={`Remove ${file.name}`}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -184,19 +413,24 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
         </Card>
       )}
 
-      <div className="space-y-3">
-        <Label className="flex items-center gap-2">
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password for encryption"
-            className="w-full"
-          />
-          <span className="ml-2 text-xs text-muted-foreground">
-            Case-sensitive, required for extraction
-          </span>
-        </Label>
+      <div className="space-y-2">
+        <Label htmlFor="encryption-password">Password</Label>
+
+        <Input
+          id="encryption-password"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="Enter password for encryption"
+          autoComplete="new-password"
+          disabled={isProcessing}
+        />
+
+        <p className="text-xs text-muted-foreground">
+          Each file is encrypted with AES-256-GCM using a key derived from your
+          password with PBKDF2-SHA256. The encrypted files are stored in a
+          standard ZIP archive together with a MANIFEST.json.
+        </p>
       </div>
 
       {error && (
@@ -210,23 +444,27 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
-              <Loader2 className="h-4 w-4 animate-spin" /> Creating encrypted
-              ZIP...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Encrypting files...
             </span>
+
             <span className="tabular-nums text-muted-foreground">
               {progress}%
             </span>
           </div>
+
           <Progress value={progress} />
         </div>
       ) : (
         <Button
+          type="button"
           size="lg"
           className="w-full"
-          disabled={files.length === 0 || !password.trim()}
+          disabled={files.length === 0 || password.length === 0}
           onClick={handleCreate}
         >
-          <Play className="mr-2 h-4 w-4" /> Create Password ZIP
+          <Play className="mr-2 h-4 w-4" />
+          Create Encrypted Archive
         </Button>
       )}
     </div>

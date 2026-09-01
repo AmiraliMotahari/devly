@@ -128,14 +128,15 @@ export function TextDiff({}: ToolComponentProps) {
   const [oldText, setOldText] = useState("");
   const [newText, setNewText] = useState("");
   const [mode, setMode] = useState<"line" | "word">("line");
-  const [error, setError] = useState("");
 
   const renderLineDiff = () => {
     if (!oldText && !newText) {
-      setError("Please enter both old and new text");
-      return null;
+      return (
+        <p className="text-sm text-muted-foreground">
+          Enter text in both fields to see the difference.
+        </p>
+      );
     }
-    setError("");
     const diff = diffLines(oldText, newText);
     return (
       <div className="border rounded font-mono text-xs overflow-auto max-h-96">
@@ -178,10 +179,12 @@ export function TextDiff({}: ToolComponentProps) {
 
   const renderWordDiff = () => {
     if (!oldText && !newText) {
-      setError("Please enter both old and new text");
-      return null;
+      return (
+        <p className="text-sm text-muted-foreground">
+          Enter text in both fields to see the difference.
+        </p>
+      );
     }
-    setError("");
     const diff = diffWords(oldText, newText);
     return (
       <div className="border rounded p-4 font-mono text-sm whitespace-pre-wrap break-words max-h-96 overflow-auto">
@@ -239,8 +242,6 @@ export function TextDiff({}: ToolComponentProps) {
           </select>
         </div>
       </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="mt-4">
         {mode === "line" ? renderLineDiff() : renderWordDiff()}

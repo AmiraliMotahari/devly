@@ -42,7 +42,11 @@ function mergeSchemas(a: Schema, b: Schema): Schema {
   if (a.type !== b.type) {
     const aTypes = Array.isArray(a.type) ? a.type : [a.type];
     const bTypes = Array.isArray(b.type) ? b.type : [b.type];
-    return { type: [...new Set([...aTypes, ...bTypes])] };
+    const allTypes: string[] = [];
+    for (const t of [...aTypes, ...bTypes]) {
+      if (t !== undefined) allTypes.push(t);
+    }
+    return { type: Array.from(new Set(allTypes)) };
   }
   if (a.type === "object" && b.type === "object") {
     const merged: Schema = { type: "object", properties: { ...(a.properties || {}) } };

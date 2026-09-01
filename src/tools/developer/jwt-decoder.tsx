@@ -12,11 +12,6 @@ function base64UrlDecode(input: string): string {
   );
 }
 
-function base64UrlEncode(input: string): string {
-  const utf8 = unescape(encodeURIComponent(input));
-  return btoa(utf8).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
 function formatJson(text: string): string {
   try {
     return JSON.stringify(JSON.parse(text), null, 2);

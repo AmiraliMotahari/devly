@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
 
-type CronField = { value: number | null; range: [number, number] };
 type CronResult = {
   valid: boolean;
   description: string;
@@ -19,7 +18,8 @@ const FIELD_RANGES: Array<[number, number]> = [
 ];
 
 function parseField(field: string, range: [number, number]): number[] {
-  const [min, max] = range;
+  const min = range[0];
+  const max = range[1];
   const values = new Set<number>();
 
   const parts = field.split(",");
@@ -55,7 +55,6 @@ function parseField(field: string, range: [number, number]): number[] {
 }
 
 function describeField(value: string, fieldIndex: number): string {
-  const [min, max] = FIELD_RANGES[fieldIndex];
   const name = FIELD_NAMES[fieldIndex];
   if (value === "*") return `every ${name}`;
   if (value.includes("/")) {

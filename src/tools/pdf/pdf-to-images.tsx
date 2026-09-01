@@ -58,6 +58,7 @@ export function PdfToImages({ tool }: ToolComponentProps) {
         if (!ctx) throw new Error("Could not get canvas context");
 
         await page.render({
+          canvas,
           canvasContext: ctx,
           viewport,
         }).promise;

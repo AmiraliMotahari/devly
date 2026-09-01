@@ -1,73 +1,12 @@
 import { useState } from "react";
+import Builder from "fast-xml-builder";
 import type { ToolComponentProps } from "@/tools/tool-props";
-
-function csvToArray(text: string, separator: string = ",", hasHeaders: boolean = true) {
-  const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
-  if (lines.length === 0) return [];
-
-  const sep = separator === "\\t" ? "\t" : separator;
-  const rows = lines.map((line) => {
-    if (line.includes('"')) {
-      return line.split(new RegExp(`(?<!")${sep}(?![^"]*")`, "g")).map((f) =>
-        f.replace(/^"|"$/g, "")
-      );
-    }
-    return line.split(sep);
-  });
-
-  if (!hasHeaders || rows.length === 0) {
-    return rows.map((row) =>
-      row.reduce((acc, val, j) => ({ ...acc, [`col${j + 1}`]: val }), {})
-    );
-  }
-
-  const headers = rows[0].map((h) =>
-    h.trim().replace(/\s+/g, "_").replace(/[^\w]/g, "_").toLowerCase()
-  );
-  return rows.slice(1).map((row) =>
-    headers.reduce((acc, header, j) => ({ ...acc, [header]: row[j] ?? "" }), {})
-  );
-}
-
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
-function arrayToXml(
-  data: Record<string, string>[],
-  rootElement: string = "data",
-  indent: number = 0
-): string {
-  const spaces = "  ".repeat(indent);
-  const itemSpaces = "  ".repeat(indent + 1);
-  
-  if (data.length === 0) {
-    return `${spaces}<${rootElement}/>`;
-  }
-
-  const items = data.map((row) => {
-    const elements = Object.entries(row)
-      .map(([key, value]) => {
-        const escapedKey = key.replace(/[^a-zA-Z0-9_-]/g, "_");
-        const escapedValue = escapeXml(String(value));
-        return `${itemSpaces}<${escapedKey}>${escapedValue}</${escapedKey}>`;
-      })
-      .join("\n");
-    return `${itemSpaces}<item>\n${elements}\n${itemSpaces}</item>`;
-  });
-
-  return `${spaces}<${rootElement}>\n${items.join("\n")}\n${spaces}</${rootElement}>`;
-}
+import { type CsvSeparator, csvToArray, normalizeSeparator } from "./lib";
 
 export function CsvToXmlTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [separator, setSeparator] = useState<"," | ";" | "tab" | "|">(",");
+  const [separator, setSeparator] = useState<CsvSeparator>(",");
   const [hasHeaders, setHasHeaders] = useState(true);
   const [rootElement, setRootElement] = useState("data");
   const [error, setError] = useState("");
@@ -80,16 +19,20 @@ export function CsvToXmlTool({}: ToolComponentProps) {
         return;
       }
 
-      const sep = separator === "tab" ? "\t" : separator;
-      const data = csvToArray(input, sep, hasHeaders);
+      const data = csvToArray(input, normalizeSeparator(separator), hasHeaders);
       if (data.length === 0) {
         setError("No data found");
         return;
       }
 
-      const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>';
-      const xmlBody = arrayToXml(data, rootElement);
-      setOutput(`${xmlHeader}\n${xmlBody}`);
+      const xmlOptions = {
+        format: true,
+        indentBy: "  ",
+        suppressEmptyNode: true,
+      };
+
+      const xml = new Builder(xmlOptions).build({ [rootElement]: data });
+      setOutput(`<?xml version="1.0" encoding="UTF-8"?>\n${xml}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to parse CSV");
     }
@@ -122,7 +65,7 @@ export function CsvToXmlTool({}: ToolComponentProps) {
           <label className="block text-sm font-medium mb-1">Separator</label>
           <select
             value={separator}
-            onChange={(e) => setSeparator(e.target.value as "," | ";" | "tab" | "|")}
+            onChange={(e) => setSeparator(e.target.value as CsvSeparator)}
             className="p-2 border rounded"
           >
             <option value=",">Comma</option>
@@ -144,7 +87,9 @@ export function CsvToXmlTool({}: ToolComponentProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Root Element Name</label>
+          <label className="block text-sm font-medium mb-1">
+            Root Element Name
+          </label>
           <input
             type="text"
             value={rootElement}

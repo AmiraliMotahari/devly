@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_META, toolDefinitions } from "@/tools";
+import { appName } from "@/lib/constants";
 import type { ToolCategory } from "@/types/tool";
 import {
   ArrowRight,
@@ -235,7 +236,7 @@ export default function HomePage() {
             Privacy by design
           </h2>
           <p className="mt-2 text-muted-foreground">
-            UtilityHub processes your files locally in your browser whenever
+            {appName} processes your files locally in your browser whenever
             possible. No uploads, no tracking, no storing your data on servers.
             What you process stays yours.
           </p>

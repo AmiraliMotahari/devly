@@ -35,8 +35,12 @@ function getFavoriteSlugs(): string[] {
   }
 }
 
-export function CommandPalette() {
-  const [open, setOpen] = useState(false);
+interface CommandPaletteProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -44,12 +48,12 @@ export function CommandPalette() {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setOpen((o) => !o);
+        onOpenChange(!open);
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, []);
+  }, [open, onOpenChange]);
 
   const results = query ? searchTools(query, 8) : [];
   const recent = getRecentSlugs()
@@ -62,13 +66,13 @@ export function CommandPalette() {
     .slice(0, 5);
 
   const navigate = (path: string) => {
-    setOpen(false);
+    onOpenChange(false);
     setQuery("");
     router.push(path);
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
       <Command>
         <CommandInput
         placeholder="Search for a tool..."

@@ -19,7 +19,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import GitHubIcon from "./github.icon";
 import Logo from "./logo";
-import { InputGroup, InputGroupAddon, InputGroupText } from "./ui/input-group";
+import { githubProfileUrl } from "@/lib/constants";
 import { Kbd, KbdGroup } from "./ui/kbd";
 
 const NAV_LINKS = [
@@ -77,9 +77,9 @@ const MobileNav = () => {
 };
 
 export function SiteHeader() {
-  const isMobile = useIsMobile();
   const isApple = useIsApple();
   const pathname = usePathname();
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   return (
     <>
@@ -107,48 +107,41 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-1">
-            <InputGroup
-              className="hidden sm:flex"
-              onClick={() => {
-                const event = new KeyboardEvent("keydown", {
-                  key: "k",
-                  metaKey: true,
-                  bubbles: true,
-                });
-                document.dispatchEvent(event);
-              }}
-            >
-              <InputGroupText className="min-w-25">Search...</InputGroupText>
-              <InputGroupAddon>
-                <SearchIcon />
-              </InputGroupAddon>
-              {!isMobile ? (
-                <InputGroupAddon align="inline-end">
-                  <KbdGroup>
-                    {isApple ? <Kbd>⌘</Kbd> : <Kbd>Ctr</Kbd>}
-                    <Kbd>K</Kbd>
-                  </KbdGroup>
-                </InputGroupAddon>
-              ) : (
-                <></>
-              )}
-            </InputGroup>
-            <ModeToggle />
             <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="hidden sm:flex"
+              variant="outline"
+              className="hidden h-9 w-64 justify-start gap-2 text-muted-foreground sm:flex"
+              onClick={() => setCommandPaletteOpen(true)}
             >
-              <Link href="https://github.com" aria-label="GitHub">
-                <GitHubIcon />
-              </Link>
+              <SearchIcon className="size-4" />
+              <span className="flex-1 text-left text-sm font-normal">
+                Search...
+              </span>
+              <KbdGroup>
+                {isApple ? <Kbd>⌘</Kbd> : <Kbd>Ctrl</Kbd>}
+                <Kbd>K</Kbd>
+              </KbdGroup>
             </Button>
+            <ModeToggle />
+            {githubProfileUrl && (
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="hidden sm:flex"
+              >
+                <Link href={githubProfileUrl} aria-label="GitHub">
+                  <GitHubIcon />
+                </Link>
+              </Button>
+            )}
             <MobileNav />
           </div>
         </div>
       </header>
-      <CommandPalette />
+      <CommandPalette
+        open={commandPaletteOpen}
+        onOpenChange={setCommandPaletteOpen}
+      />
     </>
   );
 }

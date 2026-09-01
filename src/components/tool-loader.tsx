@@ -384,6 +384,55 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "json-to-xml": dynamic(
+    () =>
+      import("@/tools/data/json-to-xml").then((m) => ({
+        default: m.JsonToXmlTool,
+      })),
+    { loading },
+  ),
+  "json-to-toml": dynamic(
+    () =>
+      import("@/tools/data/json-to-toml").then((m) => ({
+        default: m.JsonToTomlTool,
+      })),
+    { loading },
+  ),
+  "toml-to-json": dynamic(
+    () =>
+      import("@/tools/data/toml-to-json").then((m) => ({
+        default: m.TomlToJsonTool,
+      })),
+    { loading },
+  ),
+  "json-to-url-query": dynamic(
+    () =>
+      import("@/tools/data/json-to-url-query").then((m) => ({
+        default: m.JsonToUrlQueryTool,
+      })),
+    { loading },
+  ),
+  "url-query-to-json": dynamic(
+    () =>
+      import("@/tools/data/url-query-to-json").then((m) => ({
+        default: m.UrlQueryToJsonTool,
+      })),
+    { loading },
+  ),
+  "json-to-json-schema": dynamic(
+    () =>
+      import("@/tools/data/json-to-json-schema").then((m) => ({
+        default: m.JsonToJsonSchemaTool,
+      })),
+    { loading },
+  ),
+  "json-to-sql": dynamic(
+    () =>
+      import("@/tools/data/json-to-sql").then((m) => ({
+        default: m.JsonToSqlTool,
+      })),
+    { loading },
+  ),
   "json-to-yaml": dynamic(
     () =>
       import("@/tools/data/json-to-yaml").then((m) => ({

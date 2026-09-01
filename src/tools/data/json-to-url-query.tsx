@@ -1,44 +1,47 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { xml2js } from "xml-js";
+import qs from "qs";
 
-export function XmlToJsonTool({}: ToolComponentProps) {
+type ArrayFormat = "indices" | "brackets" | "repeat" | "comma";
+
+export function JsonToUrlQueryTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [compact, setCompact] = useState(true);
-  const [keepAttributes, setKeepAttributes] = useState(true);
+  const [arrayFormat, setArrayFormat] = useState<ArrayFormat>("brackets");
+  const [addPrefix, setAddPrefix] = useState(true);
   const [error, setError] = useState("");
 
   const handleConvert = () => {
     try {
       setError("");
       if (!input.trim()) {
-        setError("Please enter some XML data");
+        setError("Please enter some JSON data");
         return;
       }
 
-      const options = {
-        compact,
-        ignoreDeclaration: true,
-        ignoreAttributes: !keepAttributes,
-        textKey: "_text",
-        trim: true,
-        nativeType: true,
-      };
+      const parsed = JSON.parse(input);
+      if (parsed === null || typeof parsed !== "object") {
+        setError("Input must be a JSON object or array");
+        return;
+      }
 
-      const result = xml2js(input, options);
-      setOutput(JSON.stringify(result, null, 2));
+      const result = qs.stringify(parsed, {
+        arrayFormat,
+        addQueryPrefix: addPrefix,
+        encodeValuesOnly: true,
+      });
+      setOutput(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse XML");
+      setError(err instanceof Error ? err.message : "Failed to convert JSON");
     }
   };
 
   const handleDownload = () => {
-    const blob = new Blob([output], { type: "application/json" });
+    const blob = new Blob([output], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "converted.json";
+    a.download = "converted.txt";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -46,35 +49,38 @@ export function XmlToJsonTool({}: ToolComponentProps) {
   return (
     <div className="tool-container space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-2">XML Input</label>
+        <label className="block text-sm font-medium mb-2">JSON Input</label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your XML data here, e.g. <root><item>value</item></root>"
+          placeholder='Paste a JSON object, e.g. {"name":"John","tags":["a","b"]}'
           className="w-full h-48 p-3 border rounded font-mono text-sm"
         />
       </div>
 
       <div className="flex flex-wrap gap-4">
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={compact}
-              onChange={(e) => setCompact(e.target.checked)}
-            />
-            Compact Format
-          </label>
+        <div>
+          <label className="block text-sm font-medium mb-1">Array Format</label>
+          <select
+            value={arrayFormat}
+            onChange={(e) => setArrayFormat(e.target.value as ArrayFormat)}
+            className="p-2 border rounded"
+          >
+            <option value="brackets">a[0]=x&a[1]=y</option>
+            <option value="indices">a[0]=x&a[1]=y (indices)</option>
+            <option value="repeat">a=x&a=y</option>
+            <option value="comma">a=x,y</option>
+          </select>
         </div>
 
         <div className="flex items-end">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              checked={keepAttributes}
-              onChange={(e) => setKeepAttributes(e.target.checked)}
+              checked={addPrefix}
+              onChange={(e) => setAddPrefix(e.target.checked)}
             />
-            Keep Attributes
+            Add &quot;?&quot; Prefix
           </label>
         </div>
       </div>
@@ -93,14 +99,14 @@ export function XmlToJsonTool({}: ToolComponentProps) {
             onClick={handleDownload}
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
-            Download JSON
+            Download
           </button>
         )}
       </div>
 
       {output && (
         <div>
-          <label className="block text-sm font-medium mb-2">JSON Output</label>
+          <label className="block text-sm font-medium mb-2">Query String Output</label>
           <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
             {output}
           </pre>

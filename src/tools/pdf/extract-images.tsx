@@ -9,8 +9,8 @@ import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
 import JSZip from "jszip";
+import { PDFDocument, PDFDict, PDFName, PDFRawStream, PDFStream } from "pdf-lib";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
-import { PDFDocument } from "pdf-lib";
 import { useCallback, useState } from "react";
 
 export function ExtractImages({ tool }: ToolComponentProps) {
@@ -35,79 +35,58 @@ export function ExtractImages({ tool }: ToolComponentProps) {
     try {
       const bytes = await pdf.arrayBuffer();
       const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-      const pages = doc.getPages();
+      const pageCount = doc.getPageCount();
       const zip = new JSZip();
       const baseName = pdf.name.replace(/\.pdf$/i, "");
       const allResults: ToolResult[] = [];
       let imageCount = 0;
 
-      for (let i = 0; i < pages.length; i++) {
-        setProgress(Math.round((i / pages.length) * 90));
-        const page = pages[i];
-        const { height } = page.getSize();
-        const xobjects = page.node.get(PDFDocument.name || "Resources")?.get("XObject");
-        if (!xobjects) continue;
+      for (let i = 0; i < pageCount; i++) {
+        setProgress(Math.round((i / pageCount) * 95));
+      }
 
-        const xobjectMap = xobjects.dict?.asMap();
-        if (!xobjectMap) continue;
+      const allObjects = doc.context.enumerateIndirectObjects();
 
-        for (const [name, ref] of Object.entries(xobjectMap)) {
-          const xobj = doc.getObjectByRef(ref);
-          if (!xobj || xobj.get("Subtype")?.toString() !== "/Image") continue;
+      for (const [, obj] of allObjects) {
+        try {
+          if (!(obj instanceof PDFStream)) continue;
+
+          const dict = obj instanceof PDFRawStream
+            ? (obj as PDFRawStream).dict
+            : (obj as unknown as { dict: PDFDict }).dict;
+          if (!dict) continue;
+
+          const subtype = dict.get(PDFName.of("Subtype"));
+          const subtypeName = subtype ? subtype.toString() : "";
+
+          if (subtypeName !== "/Image") continue;
 
           imageCount++;
-          const subtype = xobj.get("Subtype");
-          const width = xobj.get("Width")?.toString() || "0";
-          const height2 = xobj.get("Height")?.toString() || "0";
-          const filter = xobj.get("Filter")?.toString() || "";
+          const width = dict.get(PDFName.of("Width"))?.toString() || "0";
+          const height = dict.get(PDFName.of("Height"))?.toString() || "0";
+          const filter = dict.get(PDFName.of("Filter"))?.toString() || "";
 
           let blob: Blob;
           let ext = "png";
+          const rawStream = obj as PDFRawStream;
+          const imageData = rawStream.contents;
 
-          try {
-            if (filter.includes("DCTDecode")) {
-              ext = "jpg";
-              const imageBytes = xobj.getBytes();
-              blob = new Blob([imageBytes], { type: "image/jpeg" });
-            } else if (filter.includes("FlateDecode")) {
-              ext = "png";
-              const imageBytes = xobj.getBytes();
-              const colorSpace = xobj.get("ColorSpace")?.toString() || "";
-              const bpc = parseInt(xobj.get("BitsPerComponent")?.toString() || "8", 10);
-
-              if (colorSpace.includes("DeviceRGB") || colorSpace.includes("CalRGB")) {
-                const canvas = document.createElement("canvas");
-                canvas.width = parseInt(width, 10);
-                canvas.height = parseInt(height2, 10);
-                const ctx = canvas.getContext("2d");
-                if (!ctx) throw new Error("Could not get canvas context");
-
-                const imgData = ctx.createImageData(parseInt(width, 10), parseInt(height2, 10));
-                imgData.data.set(new Uint8ClampedArray(imageBytes));
-                ctx.putImageData(imgData, 0, 0);
-                blob = await new Promise<Blob>((resolve, reject) => {
-                  canvas.toBlob(
-                    (b) => (b ? resolve(b) : reject(new Error("Conversion failed"))),
-                    "image/png",
-                  );
-                });
-              } else {
-                const imageBytes = xobj.getBytes();
-                blob = new Blob([imageBytes], { type: "image/png" });
-              }
-            } else {
-              const imageBytes = xobj.getBytes();
-              blob = new Blob([imageBytes], { type: "image/png" });
-            }
-          } catch {
-            const imageBytes = xobj.getBytes();
-            blob = new Blob([imageBytes], { type: "application/octet-stream" });
-            ext = "bin";
+          if (filter.includes("DCTDecode")) {
+            ext = "jpg";
+            blob = new Blob([imageData.buffer as ArrayBuffer], { type: "image/jpeg" });
+          } else if (filter.includes("FlateDecode")) {
+            ext = "png";
+            blob = new Blob([imageData.buffer as ArrayBuffer], { type: "image/png" });
+          } else {
+            ext = "png";
+            blob = new Blob([imageData.buffer as ArrayBuffer], { type: "image/png" });
           }
 
-          const filename = `${baseName}_img_${imageCount}_p${i + 1}.${ext}`;
+          const filename = `${baseName}_img_${imageCount}_${width}x${height}.${ext}`;
           zip.file(filename, blob);
           allResults.push({ filename, blob, outputSize: blob.size });
+        } catch {
+          // Skip entries that can't be processed
         }
       }
 
@@ -117,7 +96,7 @@ export function ExtractImages({ tool }: ToolComponentProps) {
         return;
       }
 
-      setProgress(95);
+      setProgress(98);
       if (allResults.length === 1) {
         setResults(allResults);
       } else {
@@ -132,8 +111,7 @@ export function ExtractImages({ tool }: ToolComponentProps) {
       }
       setProgress(100);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to extract images.";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Failed to extract images.");
     } finally {
       setIsProcessing(false);
     }

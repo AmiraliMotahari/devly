@@ -1,99 +1,6 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
-
-function jsonToYaml(value: JsonValue, indent: number = 0, indentSize: number | string = 2): string {
-  const indentStr = typeof indentSize === "number" ? " ".repeat(indentSize) : "\t";
-  const currentIndent = indentStr.repeat(indent);
-
-  if (value === null || value === undefined) return "null";
-  if (typeof value === "string") {
-    if (value.includes("\n") || value.includes(":") || value.includes("#") ||
-        value.startsWith("-") || value.startsWith("[") || value.startsWith("{")) {
-      return `"${value.replace(/"/g, '\\"')}"`;
-    }
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) {
-    if (value.length === 0) return "[]";
-    return value
-      .map((item) => `${currentIndent}- ${jsonToYaml(item, indent + 1, indentSize)}`)
-      .join("\n");
-  }
-  if (typeof value === "object") {
-    const entries = Object.entries(value);
-    if (entries.length === 0) return "{}";
-    return entries
-      .map(([key, val]) => {
-        const yamlValue = jsonToYaml(val, indent + 1, indentSize);
-        return `${currentIndent}${key}: ${yamlValue}`;
-      })
-      .join("\n");
-  }
-  return String(value);
-}
-
-function parseSimpleYaml(yaml: string): JsonValue {
-  const lines = yaml.split(/\r?\n/).filter((l) => !l.trim().startsWith("#"));
-  const result: Record<string, JsonValue> = {};
-  let currentKey: string | null = null;
-  let currentArray: JsonValue[] = [];
-  let currentIndent = 0;
-  let arrayKey: string | null = null;
-
-  function parseValue(val: string): JsonValue {
-    val = val.trim();
-    if (!val || val === "~") return null;
-    if (val === "true") return true;
-    if (val === "false") return false;
-    if (/^-?\d+$/.test(val)) return parseInt(val, 10);
-    if (/^-?\d*\.\d+$/.test(val)) return parseFloat(val);
-    if (val.startsWith('"') && val.endsWith('"')) return val.slice(1, -1).replace(/\\"/g, '"');
-    if (val.startsWith("'") && val.endsWith("'")) return val.slice(1, -1);
-    if (val === "[]") return [];
-    if (val === "{}") return {};
-    return val;
-  }
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    if (trimmed.startsWith("- ")) {
-      if (arrayKey) {
-        currentArray.push(parseValue(trimmed.slice(2)));
-      }
-      continue;
-    }
-
-    if (currentKey && arrayKey) {
-      result[arrayKey] = currentArray;
-      currentArray = [];
-      arrayKey = null;
-    }
-
-    const colonIdx = trimmed.indexOf(":");
-    if (colonIdx === -1) continue;
-    const key = trimmed.slice(0, colonIdx).trim();
-    const value = trimmed.slice(colonIdx + 1).trim();
-
-    if (value) {
-      result[key] = parseValue(value);
-    } else {
-      currentKey = key;
-      currentIndent = line.search(/\S/);
-      arrayKey = key;
-    }
-  }
-
-  if (arrayKey && currentKey) {
-    result[arrayKey] = currentArray;
-  }
-
-  return result;
-}
+import { load as yamlLoad, dump as yamlDump } from "js-yaml";
 
 export function YamlFormatter({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -109,8 +16,9 @@ export function YamlFormatter({}: ToolComponentProps) {
         return;
       }
 
-      const parsed = parseSimpleYaml(input);
-      setOutput(jsonToYaml(parsed, 0, indent));
+      const parsed = yamlLoad(input);
+      const indentSize = parseInt(indent, 10);
+      setOutput(yamlDump(parsed, { indent: indentSize }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to format YAML");
     }

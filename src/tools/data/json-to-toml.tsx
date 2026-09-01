@@ -1,12 +1,10 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { dump as yamlDump } from "js-yaml";
+import { stringify } from "smol-toml";
 
-export function JsonToYamlTool({}: ToolComponentProps) {
+export function JsonToTomlTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [indentSize, setIndentSize] = useState<"2" | "4" | "tab">("2");
-  const [pretty, setPretty] = useState(true);
   const [error, setError] = useState("");
 
   const handleConvert = () => {
@@ -18,19 +16,22 @@ export function JsonToYamlTool({}: ToolComponentProps) {
       }
 
       const parsed = JSON.parse(input);
-      const indent = parseInt(indentSize, 10);
-      setOutput(yamlDump(parsed, { indent, sortKeys: !pretty }));
+      if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        setError("TOML requires a JSON object (not array or scalar) at the root");
+        return;
+      }
+      setOutput(stringify(parsed));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse JSON");
+      setError(err instanceof Error ? err.message : "Failed to convert JSON");
     }
   };
 
   const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/yaml" });
+    const blob = new Blob([output], { type: "application/toml" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "converted.yaml";
+    a.download = "converted.toml";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -42,35 +43,9 @@ export function JsonToYamlTool({}: ToolComponentProps) {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder='Paste your JSON data here, e.g. {"name":"John","age":30}'
+          placeholder='Paste your JSON object here, e.g. {"name":"John","age":30}'
           className="w-full h-48 p-3 border rounded font-mono text-sm"
         />
-      </div>
-
-      <div className="flex flex-wrap gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Indent Size</label>
-          <select
-            value={indentSize}
-            onChange={(e) => setIndentSize(e.target.value as "2" | "4" | "tab")}
-            className="p-2 border rounded"
-          >
-            <option value="2">2 spaces</option>
-            <option value="4">4 spaces</option>
-            <option value="tab">Tab</option>
-          </select>
-        </div>
-
-        <div className="flex items-end">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={pretty}
-              onChange={(e) => setPretty(e.target.checked)}
-            />
-            Pretty Print
-          </label>
-        </div>
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -87,14 +62,14 @@ export function JsonToYamlTool({}: ToolComponentProps) {
             onClick={handleDownload}
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
-            Download YAML
+            Download TOML
           </button>
         )}
       </div>
 
       {output && (
         <div>
-          <label className="block text-sm font-medium mb-2">YAML Output</label>
+          <label className="block text-sm font-medium mb-2">TOML Output</label>
           <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
             {output}
           </pre>
