@@ -70,8 +70,8 @@ const CategoryDetails = async ({ params }: { params: PageParams }) => {
   return (
     <div className="container mx-auto px-4 py-12 animate-fade-in">
       <div className="mb-8">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="h-6 w-6" />
+        <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="size-6" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight">
           {meta.label} tools
@@ -105,7 +105,7 @@ const CategoryDetails = async ({ params }: { params: PageParams }) => {
                       </Badge>
                     )}
                     <span className="ml-auto text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                      Open <ArrowRight className="inline h-3 w-3" />
+                      Open <ArrowRight className="inline size-3" />
                     </span>
                   </div>
                 </CardContent>
@@ -124,8 +124,8 @@ export default async function CategoryPage({ params }: PageProps) {
       fallback={
         <div className="container mx-auto px-4 py-12 animate-fade-in">
           <div className="mb-8">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Skeleton className="h-6 w-6" />
+            <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Skeleton className="size-6" />
             </div>
             <Skeleton className="w-2/5 h-9" />
             <Skeleton className="w-3/5 h-7 mt-2" />
@@ -144,7 +144,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     <Skeleton className="w-12 h-5 rounded-full" />
                     <Skeleton className="w-12 h-5 rounded-full" />
                     <span className="ml-auto text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                      Open <ArrowRight className="inline h-3 w-3" />
+                      Open <ArrowRight className="inline size-3" />
                     </span>
                   </div>
                 </CardContent>

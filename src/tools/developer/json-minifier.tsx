@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { Copy, Check, AlertCircle, Play } from 'lucide-react';
+import { Copy, AlertCircle, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +14,6 @@ export function JsonMinifier({ tool }: ToolComponentProps) {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const minify = () => {
     setError(null);
@@ -26,10 +26,13 @@ export function JsonMinifier({ tool }: ToolComponentProps) {
     }
   };
 
-  const copy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   return (
@@ -59,8 +62,8 @@ export function JsonMinifier({ tool }: ToolComponentProps) {
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">Minified output</label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-                {copied ? 'Copied' : 'Copy'}
+                <Copy data-icon="inline-start" />
+                Copy
               </Button>
             </div>
             <Textarea readOnly value={output} className="min-h-25 font-mono text-sm" />

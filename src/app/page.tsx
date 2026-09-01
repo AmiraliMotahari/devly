@@ -56,7 +56,12 @@ export default function HomePage() {
   ).filter((t): t is NonNullable<typeof t> => t !== undefined);
 
   const featuredTools = toolDefinitions
-    .filter((t) => t.available && t.category !== "developer")
+    .filter(
+      (t) =>
+        t.available &&
+        t.category !== "developer" &&
+        !POPULAR_SLUGS.includes(t.slug),
+    )
     .slice(0, 8);
 
   return (
@@ -66,7 +71,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-linear-to-b from-primary/5 via-transparent to-transparent z-10" />
         <div className="relative container mx-auto px-4 py-20 text-center z-20">
           <Badge variant="outline" className="mb-4 gap-1.5">
-            <Sparkles className="h-3 w-3 text-primary" />
+            <Sparkles className="size-3 text-primary" />
             {toolDefinitions.filter((t) => t.available).length} tools and
             counting
           </Badge>
@@ -82,15 +87,15 @@ export default function HomePage() {
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-success" />
+              <ShieldCheck className="size-4 text-success" />
               Files never leave your device
             </span>
             <span className="flex items-center gap-1.5">
-              <Zap className="h-4 w-4 text-amber-500" />
+              <Zap className="size-4 text-warning" />
               Instant processing
             </span>
             <span className="flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Sparkles className="size-4 text-primary" />
               No sign-up required
             </span>
           </div>
@@ -107,11 +112,11 @@ export default function HomePage() {
             <Link key={tool.id} href={`/tools/${tool.slug}`}>
               <Card className="group h-full transition-all hover:border-primary/50 hover:shadow-md">
                 <CardContent className="p-5">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     {(() => {
                       const Icon =
                         ICON_MAP[CATEGORY_META[tool.category].icon] ?? Sparkles;
-                      return <Icon className="h-5 w-5" />;
+                      return <Icon className="size-5" />;
                     })()}
                   </div>
                   <h3 className="font-semibold">{tool.name}</h3>
@@ -119,7 +124,7 @@ export default function HomePage() {
                     {tool.description}
                   </p>
                   <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    Open tool <ArrowRight className="h-3 w-3" />
+                    Open tool <ArrowRight className="size-3" />
                   </div>
                 </CardContent>
               </Card>
@@ -143,8 +148,8 @@ export default function HomePage() {
               <Link key={cat} href={`/category/${cat}`}>
                 <Card className="group h-full transition-all hover:border-primary/50 hover:shadow-md">
                   <CardContent className="p-5">
-                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
+                    <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="size-5" />
                     </div>
                     <h3 className="font-semibold">
                       {CATEGORY_META[cat].label}
@@ -215,8 +220,8 @@ export default function HomePage() {
               },
             ].map((step, i) => (
               <div key={i} className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <step.icon className="h-6 w-6" />
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <step.icon className="size-6" />
                 </div>
                 <h3 className="font-semibold">{step.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -231,7 +236,7 @@ export default function HomePage() {
       {/* Privacy banner */}
       <section className="container mx-auto px-4 py-16 text-center">
         <div className="mx-auto max-w-2xl">
-          <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-success" />
+          <ShieldCheck className="mx-auto mb-4 size-12 text-success" />
           <h2 className="text-2xl font-bold tracking-tight">
             Privacy by design
           </h2>

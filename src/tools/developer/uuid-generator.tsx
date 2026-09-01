@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -45,8 +46,13 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
     setUuids(list);
   };
 
-  const copyAll = () => {
-    navigator.clipboard.writeText(uuids.join("\n"));
+  const copyAll = async () => {
+    try {
+      await navigator.clipboard.writeText(uuids.join("\n"));
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   return (

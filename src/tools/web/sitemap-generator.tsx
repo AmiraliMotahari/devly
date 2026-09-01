@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,6 @@ export function SitemapGenerator({}: ToolComponentProps) {
     { url: "", lastmod: "", priority: "0.5", changefreq: "weekly" },
   ]);
   const [output, setOutput] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const generate = () => {
     const today = new Date().toISOString().split("T")[0];
@@ -73,10 +73,13 @@ ${urls}
     );
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   const download = () => {
@@ -204,7 +207,7 @@ ${urls}
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={copyToClipboard}>
                 <Copy data-icon="inline-start" />
-                {copied ? "Copied!" : "Copy"}
+                Copy
               </Button>
               <Button variant="outline" size="sm" onClick={download}>
                 <Download data-icon="inline-start" />

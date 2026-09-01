@@ -13,7 +13,7 @@ export function OfflineIndicator() {
     if (offline) {
       toastId.current = toast.error("You're offline — reconnecting…", {
         duration: Infinity,
-        icon: <WifiOff className="h-4 w-4" />,
+        icon: <WifiOff className="size-4" />,
       });
     } else if (toastId.current !== undefined) {
       toast.dismiss(toastId.current);

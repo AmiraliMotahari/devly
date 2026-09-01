@@ -11,7 +11,7 @@ function ErrorFallback(
   if (props.compact) {
     return (
       <div className="flex flex-col items-center gap-2 px-4 py-4 text-center">
-        <AlertTriangle className="text-danger h-4 w-4" />
+        <AlertTriangle className="text-danger size-4" />
         <p className="text-gray text-xs">
           {props.title ?? "Something went wrong"}
         </p>
@@ -24,7 +24,7 @@ function ErrorFallback(
 
   return (
     <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-      <AlertTriangle className="text-danger h-6 w-6" />
+      <AlertTriangle className="text-danger size-6" />
       <p className="text-sm font-medium text-black dark:text-white">
         {props.title ?? "Something went wrong"}
       </p>

@@ -63,7 +63,7 @@ export default function ToolsDirectoryPage() {
           return (
             <section key={cat} aria-labelledby={`category-${cat}`}>
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="size-5" />
                 </div>
                 <div>

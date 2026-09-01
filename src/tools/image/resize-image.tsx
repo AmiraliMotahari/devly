@@ -2,7 +2,7 @@
 
 import { ToolRunner } from '@/components/tool-runner';
 import type { ToolComponentProps } from '@/tools/tool-props';
-import type { ToolResult, ProcessingContext } from '@/types/tool';
+import type { ToolResult } from '@/types/tool';
 import { getExtension } from '@/lib/file-security';
 
 export function ResizeImage({ tool }: ToolComponentProps) {

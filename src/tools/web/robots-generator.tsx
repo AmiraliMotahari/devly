@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Copy, Download, Plus, Trash2 } from "lucide-react";
@@ -18,7 +19,6 @@ export function RobotsGenerator({}: ToolComponentProps) {
     { userAgent: "*", disallow: ["/"], allow: [] },
   ]);
   const [output, setOutput] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const generate = () => {
     const lines: string[] = [];
@@ -77,10 +77,13 @@ export function RobotsGenerator({}: ToolComponentProps) {
     setRules((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   const download = () => {
@@ -197,7 +200,7 @@ export function RobotsGenerator({}: ToolComponentProps) {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={copyToClipboard}>
                 <Copy data-icon="inline-start" />
-                {copied ? "Copied!" : "Copy"}
+                Copy
               </Button>
               <Button variant="outline" size="sm" onClick={download}>
                 <Download data-icon="inline-start" />

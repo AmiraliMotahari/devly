@@ -36,7 +36,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="size-4" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
@@ -44,7 +44,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="size-4" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>{tool.name}</BreadcrumbPage>
@@ -62,17 +62,17 @@ export function ToolShell({ tool, children }: ToolShellProps) {
           <Badge variant="secondary" className="gap-1.5">
             {tool.processingMode === "client" ? (
               <>
-                <ShieldCheck className="h-3 w-3 text-success" />
+                <ShieldCheck className="size-3 text-success" />
                 Local processing
               </>
             ) : tool.processingMode === "server" ? (
               <>
-                <Server className="h-3 w-3 text-warning" />
+                <Server className="size-3 text-warning" />
                 Server processing
               </>
             ) : (
               <>
-                <RefreshCw className="h-3 w-3 text-primary" />
+                <RefreshCw className="size-3 text-primary" />
                 Hybrid processing
               </>
             )}
@@ -88,7 +88,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
 
       {tool.processingMode === "client" && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-          <ShieldCheck className="h-4 w-4 shrink-0" />
+          <ShieldCheck className="size-4 shrink-0" />
           <span>
             Your files are processed locally in your browser and never uploaded
             to a server.
@@ -100,7 +100,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
         children
       ) : (
         <div className="rounded-lg border border-warning/30 bg-warning/5 p-8 text-center">
-          <RefreshCw className="mx-auto mb-3 h-8 w-8 text-warning" />
+          <RefreshCw className="mx-auto mb-3 size-8 text-warning" />
           <h3 className="text-lg font-semibold">Coming soon</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {tool.unavailableReason ??
@@ -112,10 +112,10 @@ export function ToolShell({ tool, children }: ToolShellProps) {
       {tool.howItWorks && tool.howItWorks.length > 0 && (
         <div className="mt-12">
           <h2 className="mb-3 text-xl font-semibold">How it works</h2>
-          <ol className="space-y-2">
+          <ol className="flex flex-col gap-2">
             {tool.howItWorks.map((step, i) => (
               <li key={i} className="flex gap-3 text-sm text-muted-foreground">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                   {i + 1}
                 </span>
                 {step}
@@ -128,7 +128,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
       {tool.faq && tool.faq.length > 0 && (
         <div className="mt-12">
           <h2 className="mb-4 text-xl font-semibold">FAQ</h2>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {tool.faq.map((item, i) => (
               <div key={i}>
                 <h3 className="font-medium">{item.question}</h3>
@@ -150,9 +150,9 @@ export function ToolShellSkeleton() {
       {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2">
         <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="size-4 rounded-full" />
         <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="size-4 rounded-full" />
         <Skeleton className="h-4 w-28" />
       </div>
 
@@ -173,7 +173,7 @@ export function ToolShellSkeleton() {
 
       {/* Local processing notice */}
       <div className="mb-6 flex min-h-12 items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-4 py-3">
-        <Skeleton className="h-4 w-4 shrink-0 rounded-sm" />
+        <Skeleton className="size-4 shrink-0 rounded-sm" />
         <Skeleton className="h-4 w-96 max-w-full" />
       </div>
 
@@ -184,12 +184,12 @@ export function ToolShellSkeleton() {
       <div className="mt-12">
         <Skeleton className="mb-4 h-6 w-32" />
 
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="flex gap-3">
-              <Skeleton className="h-6 w-6 shrink-0 rounded-full" />
+              <Skeleton className="size-6 shrink-0 rounded-full" />
 
-              <div className="flex-1 space-y-2 pt-1">
+              <div className="flex flex-1 flex-col gap-2 pt-1">
                 <Skeleton className="h-4 w-full max-w-2xl" />
               </div>
             </div>
@@ -201,12 +201,12 @@ export function ToolShellSkeleton() {
       <div className="mt-12">
         <Skeleton className="mb-4 h-6 w-16" />
 
-        <div className="space-y-5">
+        <div className="flex flex-col gap-5">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="space-y-2">
+            <div key={index} className="flex flex-col gap-2">
               <Skeleton className="h-5 w-3/5 max-w-lg" />
               <Skeleton className="h-4 w-full max-w-2xl" />
-              <Skeleton className="h-4 w-4/5 max-w-xl" />
+              <Skeleton className="size-4/5 max-w-xl" />
             </div>
           ))}
         </div>

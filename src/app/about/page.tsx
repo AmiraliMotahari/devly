@@ -35,8 +35,8 @@ export default function AboutPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-16">
       <div className="text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <Sparkles className="h-8 w-8" />
+        <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Sparkles className="size-8" />
         </div>
         <h1 className="text-4xl font-bold tracking-tight">About {appName}</h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
@@ -49,8 +49,8 @@ export default function AboutPage() {
         {values.map((v) => (
           <Card key={v.title}>
             <CardContent className="p-6 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <v.icon className="h-6 w-6" />
+              <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <v.icon className="size-6" />
               </div>
               <h3 className="font-semibold">{v.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ export default function AboutPage() {
         </p>
         <Button asChild>
           <Link href="/">
-            Explore all tools <ArrowRight className="ml-2 h-4 w-4" />
+            Explore all tools <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>
       </div>

@@ -37,7 +37,7 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
     <Card className="border-success/30 bg-success/5">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <CheckCircle2 className="h-5 w-5 text-success" />
+          <CheckCircle2 className="size-5 text-success" />
           {results.length === 1 ? 'Result' : `${results.length} files ready`}
         </CardTitle>
       </CardHeader>
@@ -71,8 +71,8 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
               key={idx}
               className="flex items-center gap-3 rounded-lg border border-border bg-background p-3"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
-                <FileIcon className="h-5 w-5 text-muted-foreground" />
+              <div className="flex size-10 items-center justify-center rounded-md bg-muted">
+                <FileIcon className="size-5 text-muted-foreground" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{result.filename}</p>

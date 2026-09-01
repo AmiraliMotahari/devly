@@ -294,7 +294,7 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2 font-medium">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   {progressLabel || "Processing..."}
                 </span>
                 <span className="tabular-nums text-muted-foreground">

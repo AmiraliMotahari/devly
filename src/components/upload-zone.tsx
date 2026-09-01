@@ -182,7 +182,7 @@ export function UploadZone({
             : 'border-border hover:border-primary/50 hover:bg-accent/50'
         )}
       >
-        <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
+        <Upload className="mb-3 size-10 text-muted-foreground" />
         <p className="text-sm font-medium">{label}</p>
         {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
         <input
@@ -212,11 +212,11 @@ export function UploadZone({
                 <img
                   src={uploaded.previewUrl}
                   alt={uploaded.file.name}
-                  className="h-12 w-12 rounded-md object-cover"
+                  className="size-12 rounded-md object-cover"
                 />
               ) : (
-                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
-                  <FileIcon className="h-5 w-5 text-muted-foreground" />
+                <div className="flex size-12 items-center justify-center rounded-md bg-muted">
+                  <FileIcon className="size-5 text-muted-foreground" />
                 </div>
               )}
               <div className="min-w-0 flex-1">
@@ -234,7 +234,7 @@ export function UploadZone({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 shrink-0"
+                className="size-8 shrink-0"
                 onClick={() => removeFile(uploaded.id)}
                 aria-label="Remove file"
               >

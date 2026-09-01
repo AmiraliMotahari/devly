@@ -1,9 +1,10 @@
+import { appName } from "@/lib/constants";
 import type { MetadataRoute } from "next";
 
 const manifest = (): MetadataRoute.Manifest => {
   return {
-    name: "Devly",
-    short_name: "Devly",
+    name: appName,
+    short_name: appName,
     theme_color: "#09111e",
     background_color: "#09111e",
     display: "standalone",

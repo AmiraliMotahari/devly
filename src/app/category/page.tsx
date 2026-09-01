@@ -31,7 +31,9 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export const metadata: Metadata = {
-  title: "Category",
+  title: "All categories",
+  description:
+    "Browse every tool category — images, PDF, files, developer, text, data, web, colors, date & time, and converters. All free and processed locally in your browser.",
 };
 
 export default async function CategoryPage() {
@@ -60,8 +62,8 @@ export default async function CategoryPage() {
               <Link key={cat} href={`/category/${cat}`}>
                 <Card className="group h-full transition-all hover:border-primary/50 hover:shadow-md">
                   <CardContent className="p-5">
-                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
+                    <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="size-5" />
                     </div>
                     <h3 className="font-semibold">
                       {CATEGORY_META[cat].label}

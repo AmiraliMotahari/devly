@@ -12,15 +12,15 @@ export default function PrivacyPage() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-16">
       <div className="mb-8">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <ShieldCheck className="h-8 w-8" />
+        <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <ShieldCheck className="size-8" />
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-center">
           Privacy Policy
         </h1>
       </div>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <Card>
           <CardContent className="p-6">
             <h2 className="text-lg font-semibold">The short version</h2>

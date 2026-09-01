@@ -38,7 +38,7 @@ export default function NotFound() {
             variant="outline"
             className="flex items-center justify-center gap-2"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Go back
           </Button>
           <div className="flex gap-3">
@@ -47,7 +47,7 @@ export default function NotFound() {
               className="flex-1 flex items-center justify-center gap-2"
             >
               <Link href="/">
-                <Home className="h-4 w-4" />
+                <Home className="size-4" />
                 Return Home
               </Link>
             </Button>
@@ -57,7 +57,7 @@ export default function NotFound() {
               className="flex-1 flex items-center justify-center gap-2 bg-transparent"
             >
               <Link href="/help">
-                <Search className="h-4 w-4" />
+                <Search className="size-4" />
                 Help
               </Link>
             </Button>

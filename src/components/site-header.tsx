@@ -67,7 +67,7 @@ const MobileNav = () => {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size={"icon"}>
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </Button>
       </SheetTrigger>
       <SheetContent className="pt-14 px-3">

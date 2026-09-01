@@ -1,7 +1,5 @@
 'use client';
 
-import { ToolRunner } from '@/components/tool-runner';
-import type { ToolComponentProps } from '@/tools/tool-props';
 import type { ToolResult, ProcessingContext } from '@/types/tool';
 import { replaceExtension } from '@/lib/file-security';
 

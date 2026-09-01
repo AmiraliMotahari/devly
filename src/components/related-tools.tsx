@@ -24,7 +24,7 @@ export function RelatedTools({ tool }: { tool: ToolDefinition }) {
                     {CATEGORY_META[rel.category].label}
                   </Badge>
                 </div>
-                <ArrowRight className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                <ArrowRight className="ml-2 size-4 shrink-0 text-muted-foreground" />
               </CardContent>
             </Card>
           </Link>
@@ -48,7 +48,7 @@ export function RelatedToolsSkeleton() {
                 <Skeleton className="mt-2 h-5 w-20" />
               </div>
 
-              <Skeleton className="ml-2 h-4 w-4 shrink-0 rounded-full" />
+              <Skeleton className="ml-2 size-4 shrink-0 rounded-full" />
             </div>
           </div>
         ))}

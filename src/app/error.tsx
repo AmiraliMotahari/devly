@@ -32,12 +32,14 @@ export default function Error({
             </h1>
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            We apologize for the inconvenience. Our team has been notified and
-            is working to fix the issue.
+            Something went wrong while rendering this page. Your data was
+            never at risk — all tools run locally in your browser. Try
+            again, and if the problem persists, check the browser console
+            for details.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {process.env.NODE_ENV === "development" ? (
               <div className="mx-auto max-w-200 overflow-auto rounded-lg bg-muted p-4 text-left">
                 <pre className="text-sm">{error.message}</pre>

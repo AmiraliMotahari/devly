@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -186,20 +187,30 @@ export function ChecksumGenerator({}: ToolComponentProps) {
     }
   }, [files, processFile]);
 
-  const copyHash = (id: string, hash: string) => {
-    navigator.clipboard.writeText(hash);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const copyHash = async (id: string, hash: string) => {
+    try {
+      await navigator.clipboard.writeText(hash);
+      setCopiedId(id);
+      toast.success("Copied to clipboard");
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
-  const copyAllHashes = (file: UploadedFile) => {
+  const copyAllHashes = async (file: UploadedFile) => {
     if (!file.hashes) return;
     const text = Object.entries(file.hashes)
       .map(([algo, hash]) => `${algo.toUpperCase()}: ${hash}`)
       .join("\n");
-    navigator.clipboard.writeText(`${file.file.name}:\n${text}`);
-    setCopiedId(file.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    try {
+      await navigator.clipboard.writeText(`${file.file.name}:\n${text}`);
+      setCopiedId(file.id);
+      toast.success("Copied to clipboard");
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   const allProcessed = files.every((f) => f.hashes || f.isProcessing);

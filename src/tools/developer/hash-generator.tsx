@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Copy, Check, Play } from 'lucide-react';
+import { Copy, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
 export function HashGenerator({ tool }: ToolComponentProps) {
@@ -21,7 +22,6 @@ export function HashGenerator({ tool }: ToolComponentProps) {
   const [algorithm, setAlgorithm] = useState(defaultAlgo);
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
-  const [copied, setCopied] = useState(false);
 
   const run = async () => {
     if (!input) return;
@@ -33,10 +33,13 @@ export function HashGenerator({ tool }: ToolComponentProps) {
     setOutput(hex);
   };
 
-  const copy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   return (
@@ -73,8 +76,8 @@ export function HashGenerator({ tool }: ToolComponentProps) {
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">{algorithm} hash</label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-                {copied ? 'Copied' : 'Copy'}
+                <Copy data-icon="inline-start" />
+                Copy
               </Button>
             </div>
             <Textarea readOnly value={output} className="min-h-20 font-mono text-sm" />

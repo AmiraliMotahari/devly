@@ -36,7 +36,7 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
    - `keywords`, `relatedToolSlugs`, `faq`, `howItWorks`
    - `available: true`
 
-2. **Create the UI component** at `src/tools/<category>/<slug>.tsx` that exports a default function named `<ToolName>Tool` (e.g., `CsvToJsonTool`). It must accept `ToolComponentProps` (`{ tool: ToolDefinition }`).
+2. **Create the UI component** at `src/tools/<category>/<slug>.tsx` with `"use client"` at the top, exporting a **named** function `<ToolName>Tool` (e.g., `CsvToJsonTool`). It must accept `ToolComponentProps` (`{ tool: ToolDefinition }`).
 
 3. **Register the component** in `src/components/tool-loader.tsx` — add an entry to `TOOL_COMPONENTS` Record mapping `slug` → `dynamic(import("@/tools/<category>/<slug>").then(m => ({ default: m.<Tool> })))`.
 
@@ -44,16 +44,16 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 
 5. **Search** uses `src/tools/search.ts` — it indexes `toolDefinitions`. No separate index needed.
 
-6. **Data converter specifics**: The `data` category converters (`csv-to-json`, `json-to-csv`, `csv-to-xml`, `xml-to-json`, `json-to-yaml`, `yaml-to-json`) share parsing helpers in `csvToArray()` (defined in each file). Check existing converters for the exact parsing pattern; the `csv-to-xml.tsx` file has a latent bug — it imports `{ XmlBuilder }` from `fast-xml-parser` but calls `xmlBuild(...)` (should be `new XMLBuilder().build(...)`). When adding a new data converter, verify the fast-xml-parser API matches usage.
+6. **Data converter specifics**: The `data` category converters share parsing/serialization helpers in `src/tools/data/lib.ts` (`csvToArray`, `escapeCsvValue`, `flattenObject`, `jsonArrayToCsv`). XML conversion uses `fast-xml-builder` (csv-to-xml) and `xml-js` (json↔xml); TOML uses `smol-toml`; URL query uses `qs`; YAML uses `js-yaml`. When adding a new data converter, follow the existing tool-forms pattern (see Conventions below).
 
 ## Directory Ownership / Entry Points
 
 | Directory | Contents |
 |---|---|
-| `src/app/` | Next.js app router, page.tsx, layout.tsx, error.tsx, `[slug]/page.tsx`, route manifests |
-| `src/components/` | UI primitives (shadcn), providers, result-panel, tool-shell, related-tools, search, upload-zone |
-| `src/hooks/` | `use-mobile.ts`, `use-isApple.ts` |
-| `src/lib/` | `constants.ts`, `utils.ts` (cn helper using twMerge/clsx) |
+| `src/app/` | Next.js app router, page.tsx, layout.tsx, error.tsx, `[slug]/page.tsx`, `tools/page.tsx` (directory), route manifests |
+| `src/components/` | UI primitives (shadcn), providers, result-panel, tool-shell, tool-forms, tool-runner, related-tools, search, upload-zone, command-palette |
+| `src/hooks/` | `use-mobile.ts`, `use-isApple.ts`, `use-tool-history.ts` (recent/favorites localStorage) |
+| `src/lib/` | `constants.ts`, `utils.ts` (cn helper using twMerge/clsx), `file-security.ts` (mime detection, sanitize, size utils) |
 | `src/tools/` | Tool definitions, categories, search, and per‑category sub‑dirs: `data/`, `developer/`, `images/`, `pdf/`, `files/`, `text/`, `colors/`, `datetime/`, `converters/` |
 | `src/types/tool.ts` | Shared types: `ToolDefinition`, `ToolOption`, `ProcessingMode`, `InputKind`, `OutputKind`, `ToolResult`, `ProgressFn`, `ProcessingContext`, `ToolProcessor` |
 
@@ -72,12 +72,18 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 
 ## Important Conventions
 
-- **All tools are client‑side** (`processingMode: "client"`). No server‑side processing is set up; data never leaves the browser.
-- **Component naming**: Export the default as `<Name>Tool` (e.g., `CsvToJsonTool`). This is what `tool-loader.tsx` references.
+- **All tools are client‑side** (`processingMode: "client"`). No server‑side processing is set up; data never leaves the browser. Do NOT add Node-only libraries (e.g., `quicktype-core` imports `fs`/`readable-stream` — it breaks the client bundle; a previous `json-to-typescript` tool was removed for this reason).
+- **Component naming**: Export a **named** function `<Name>Tool` (e.g., `CsvToJsonTool`). This is what `tool-loader.tsx` references. Always add `"use client"` at the top of tool components.
+- **Form UI**: Text-based tools use the shared primitives in `src/components/tool-forms.tsx` (`ToolContainer`, `ToolField`, `ToolInput`, `ToolOutput`, `ToolCheckbox`, `ToolSelect`, `ToolError`, `ToolActions`, `ToolRow`). File-based tools use `ToolRunner` + `UploadZone`. Never hand-roll switches/selects/sliders — use the shadcn primitives.
+- **Styling rules**: no `space-y-*` (use `flex flex-col gap-*`), no raw color classes (`bg-blue-500`, `text-red-500` — use shadcn variants / semantic tokens like `text-success`, `text-destructive`), no manual `dark:` color overrides (use tokens), `size-4` not `h-4 w-4`, icons in buttons use `data-icon="inline-start"`.
+- **Copy/download feedback**: use `toast.success(...)` from sonner (see `ToolOutput` and existing tools). Never write to clipboard without await + try/catch.
+- **Duplicates guard**: `definitions.ts` contains a dev-time check that console.errors on duplicate `slug`/`id`. Never add a slug that already exists.
+- **Duplicate-slug guard**: `src/tools/definitions.ts` logs duplicate `slug`/`id` errors in dev — never register two tools with the same slug.
 - **Dynamic imports**: Tool components are loaded via `next/dynamic` with a `loading` spinner. Keep the `loading` prop pattern when adding entries to `TOOL_COMPONENTS`.
 - **Route generation**: `generateStaticParams()` in `src/app/tools/[slug]/page.tsx` maps over `toolDefinitions`. Adding/removing definitions changes the set of static params — rebuild (`pnpm build`) to regenerate.
-- **Sitemap**: Auto‑generated from `toolDefinitions` in `src/app/sitemap.ts`. Each available tool gets `/tools/<slug>` entry with `priority: 0.7`.
+- **Sitemap**: Auto‑generated from `toolDefinitions` in `src/app/sitemap.ts`. Each available tool gets `/tools/<slug>` entry with `priority: 0.7`. The `/tools` directory page must exist (it's in the sitemap).
 - **Privacy banner** on the home page emphasizes: "Files never leave your device."
+- **Branding**: use `appName` from `src/lib/constants.ts` — never hardcode "Devly"/"UtilityHub" in copy. GitHub link comes from `githubProfileUrl`.
 
 ## What to Check Before Submitting a New Tool
 
