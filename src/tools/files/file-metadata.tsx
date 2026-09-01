@@ -67,7 +67,7 @@ export function FileMetadata({}: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div
         role="button"
         tabIndex={0}
@@ -107,7 +107,7 @@ export function FileMetadata({}: ToolComponentProps) {
       </div>
 
       {files.length > 0 && (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {files.map((file) => (
             <Card key={file.id}>
               <CardContent className="pt-6">
@@ -130,7 +130,7 @@ export function FileMetadata({}: ToolComponentProps) {
                     onClick={() => removeFile(file.id)}
                     aria-label="Remove file"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="size-4" />
                   </Button>
                 </div>
 

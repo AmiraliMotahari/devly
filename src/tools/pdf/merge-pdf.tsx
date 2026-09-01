@@ -100,7 +100,7 @@ export function MergePdf({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div
         role="button"
         tabIndex={0}
@@ -146,7 +146,7 @@ export function MergePdf({ tool }: ToolComponentProps) {
             <h3 className="mb-4 text-sm font-semibold">
               {pdfs.length} PDF{pdfs.length !== 1 ? "s" : ""} — drag to reorder
             </h3>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {pdfs.map((pdf, index) => (
                 <div
                   key={pdf.id}
@@ -186,7 +186,7 @@ export function MergePdf({ tool }: ToolComponentProps) {
                     onClick={() => removePdf(pdf.id)}
                     aria-label="Remove file"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                   </Button>
                 </div>
               ))}
@@ -197,14 +197,14 @@ export function MergePdf({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -223,7 +223,7 @@ export function MergePdf({ tool }: ToolComponentProps) {
           disabled={pdfs.length < 2}
           onClick={handleMerge}
         >
-          <Play className="mr-2 h-4 w-4" />
+          <Play data-icon="inline-start" />
           Merge {pdfs.length} PDF{pdfs.length !== 1 ? "s" : ""}
         </Button>
       )}

@@ -4,7 +4,16 @@ import { ResultPanel } from "@/components/result-panel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
@@ -107,7 +116,7 @@ export function RotatePdf({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {!pdf ? (
         <div
           role="button"
@@ -165,44 +174,38 @@ export function RotatePdf({ tool }: ToolComponentProps) {
                 onClick={() => setPdf(null)}
                 aria-label="Remove file"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 
-            <div className="mt-4 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Rotation</label>
-                <select
-                  value={angle}
-                  onChange={(e) => setAngle(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="90">90° clockwise</option>
-                  <option value="180">180°</option>
-                  <option value="270">270° clockwise</option>
-                </select>
+            <div className="mt-4 flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="rotate-angle">Rotation</Label>
+                <Select value={angle} onValueChange={setAngle}>
+                  <SelectTrigger id="rotate-angle" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="90">90° clockwise</SelectItem>
+                    <SelectItem value="180">180°</SelectItem>
+                    <SelectItem value="270">270° clockwise</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center gap-2">
-                <button
-                  role="switch"
-                  aria-checked={allPages}
-                  onClick={() => setAllPages(!allPages)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    allPages ? "bg-primary" : "bg-muted"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${
-                      allPages ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-                <label className="text-sm font-medium">Apply to all pages</label>
+                <Switch
+                  id="rotate-all-pages"
+                  checked={allPages}
+                  onCheckedChange={setAllPages}
+                />
+                <Label htmlFor="rotate-all-pages" className="font-normal">
+                  Apply to all pages
+                </Label>
               </div>
 
               {!allPages && (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
                     Page ranges (e.g. 1-3, 5, 8-10)
                   </label>
@@ -222,14 +225,14 @@ export function RotatePdf({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" /> Rotating pages...
@@ -241,7 +244,7 @@ export function RotatePdf({ tool }: ToolComponentProps) {
       ) : (
         pdf && (
           <Button size="lg" className="w-full" onClick={handleRotate}>
-            <Play className="mr-2 h-4 w-4" /> Rotate PDF
+            <Play data-icon="inline-start" /> Rotate PDF
           </Button>
         )
       )}

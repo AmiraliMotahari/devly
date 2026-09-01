@@ -124,7 +124,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {!zipFile ? (
         <div
           role="button"
@@ -183,7 +183,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
                 onClick={() => setZipFile(null)}
                 aria-label="Remove file"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
           </CardContent>
@@ -192,7 +192,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -200,13 +200,13 @@ export function ExtractZip({ tool }: ToolComponentProps) {
 
       {notice && (
         <Alert>
-          <Info className="h-4 w-4" />
+          <Info className="size-4" />
           <AlertDescription>{notice}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" /> Extracting...
@@ -220,7 +220,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
       ) : (
         zipFile && (
           <Button size="lg" className="w-full" onClick={handleExtract}>
-            <Download className="mr-2 h-4 w-4" /> Extract ZIP
+            <Download data-icon="inline-start" /> Extract ZIP
           </Button>
         )
       )}

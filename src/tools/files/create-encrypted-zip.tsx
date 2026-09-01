@@ -333,7 +333,7 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div
         role="button"
         tabIndex={0}
@@ -378,7 +378,7 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
               {files.length} {files.length === 1 ? "file" : "files"}
             </h3>
 
-            <div className="max-h-64 space-y-2 overflow-y-auto">
+            <div className="flex max-h-64 flex-col gap-2 overflow-y-auto">
               {files.map(({ id, file }) => (
                 <div
                   key={id}
@@ -404,7 +404,7 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
                     onClick={() => removeFile(id)}
                     aria-label={`Remove ${file.name}`}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                   </Button>
                 </div>
               ))}
@@ -413,7 +413,7 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
         </Card>
       )}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="encryption-password">Password</Label>
 
         <Input
@@ -435,13 +435,13 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -463,7 +463,7 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
           disabled={files.length === 0 || password.length === 0}
           onClick={handleCreate}
         >
-          <Play className="mr-2 h-4 w-4" />
+          <Play data-icon="inline-start" />
           Create Encrypted Archive
         </Button>
       )}

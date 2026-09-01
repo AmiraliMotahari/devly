@@ -1,6 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Copy, Download, Plus, Trash2 } from "lucide-react";
@@ -85,8 +92,8 @@ ${urls}
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Base URL</label>
         <input
           type="url"
@@ -97,28 +104,28 @@ ${urls}
         />
       </div>
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">URLs</label>
           <Button variant="outline" size="sm" onClick={addEntry}>
-            <Plus className="h-4 w-4 mr-1" />
+            <Plus data-icon="inline-start" />
             Add URL
           </Button>
         </div>
 
-        <div className="space-y-3 max-h-80 overflow-y-auto">
+        <div className=" max-h-80 overflow-y-auto">
           {entries.map((entry, idx) => (
-            <div key={idx} className="border rounded-lg p-3 space-y-2">
+            <div key={idx} className="border rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">#{idx + 1}</span>
                 {entries.length > 1 && (
                   <Button variant="ghost" size="sm" onClick={() => removeEntry(idx)}>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="size-4"/>
                   </Button>
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <label className="text-xs text-muted-foreground">Path (e.g. /about, /blog/post-1)</label>
                 <input
                   type="text"
@@ -130,7 +137,7 @@ ${urls}
               </div>
 
               <div className="grid gap-2 grid-cols-3">
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <label className="text-xs text-muted-foreground">Last Modified</label>
                   <input
                     type="date"
@@ -139,40 +146,48 @@ ${urls}
                     className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground">Priority</label>
-                  <select
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`sm-priority-${idx}`} className="text-xs text-muted-foreground">Priority</label>
+                  <Select
                     value={entry.priority}
-                    onChange={(e) => updateEntry(idx, "priority", e.target.value)}
-                    className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs"
+                    onValueChange={(v) => updateEntry(idx, "priority", v)}
                   >
-                    <option value="1.0">1.0 (Highest)</option>
-                    <option value="0.9">0.9</option>
-                    <option value="0.8">0.8</option>
-                    <option value="0.7">0.7</option>
-                    <option value="0.6">0.6</option>
-                    <option value="0.5">0.5 (Normal)</option>
-                    <option value="0.4">0.4</option>
-                    <option value="0.3">0.3</option>
-                    <option value="0.2">0.2</option>
-                    <option value="0.1">0.1 (Lowest)</option>
-                  </select>
+                    <SelectTrigger id={`sm-priority-${idx}`} className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1.0">1.0 (Highest)</SelectItem>
+                      <SelectItem value="0.9">0.9</SelectItem>
+                      <SelectItem value="0.8">0.8</SelectItem>
+                      <SelectItem value="0.7">0.7</SelectItem>
+                      <SelectItem value="0.6">0.6</SelectItem>
+                      <SelectItem value="0.5">0.5 (Normal)</SelectItem>
+                      <SelectItem value="0.4">0.4</SelectItem>
+                      <SelectItem value="0.3">0.3</SelectItem>
+                      <SelectItem value="0.2">0.2</SelectItem>
+                      <SelectItem value="0.1">0.1 (Lowest)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground">Change Freq</label>
-                  <select
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`sm-freq-${idx}`} className="text-xs text-muted-foreground">Change Freq</label>
+                  <Select
                     value={entry.changefreq}
-                    onChange={(e) => updateEntry(idx, "changefreq", e.target.value)}
-                    className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs"
+                    onValueChange={(v) => updateEntry(idx, "changefreq", v)}
                   >
-                    <option value="always">always</option>
-                    <option value="hourly">hourly</option>
-                    <option value="daily">daily</option>
-                    <option value="weekly">weekly</option>
-                    <option value="monthly">monthly</option>
-                    <option value="yearly">yearly</option>
-                    <option value="never">never</option>
-                  </select>
+                    <SelectTrigger id={`sm-freq-${idx}`} className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="always">always</SelectItem>
+                      <SelectItem value="hourly">hourly</SelectItem>
+                      <SelectItem value="daily">daily</SelectItem>
+                      <SelectItem value="weekly">weekly</SelectItem>
+                      <SelectItem value="monthly">monthly</SelectItem>
+                      <SelectItem value="yearly">yearly</SelectItem>
+                      <SelectItem value="never">never</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -183,21 +198,21 @@ ${urls}
       <Button onClick={generate} className="w-full">Generate Sitemap</Button>
 
       {output && (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Generated sitemap.xml</label>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                <Copy className="h-4 w-4 mr-1" />
+                <Copy data-icon="inline-start" />
                 {copied ? "Copied!" : "Copy"}
               </Button>
               <Button variant="outline" size="sm" onClick={download}>
-                <Download className="h-4 w-4 mr-1" />
+                <Download data-icon="inline-start" />
                 Download
               </Button>
             </div>
           </div>
-          <pre className="w-full p-4 border rounded-lg bg-gray-50 dark:bg-gray-900 overflow-auto text-xs font-mono max-h-80">
+          <pre className="w-full p-4 border rounded-lg bg-muted overflow-auto text-xs font-mono max-h-80">
             {output}
           </pre>
         </div>

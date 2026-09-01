@@ -75,7 +75,7 @@ export function CreateZip({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div
         role="button"
         tabIndex={0}
@@ -118,7 +118,7 @@ export function CreateZip({ tool }: ToolComponentProps) {
         <Card>
           <CardContent className="pt-6">
             <h3 className="mb-4 text-sm font-semibold">{files.length} files</h3>
-            <div className="max-h-64 space-y-2 overflow-y-auto">
+            <div className="flex max-h-64 flex-col gap-2 overflow-y-auto">
               {files.map((f) => (
                 <div
                   key={f.id}
@@ -142,7 +142,7 @@ export function CreateZip({ tool }: ToolComponentProps) {
                     onClick={() => removeFile(f.id)}
                     aria-label="Remove file"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                   </Button>
                 </div>
               ))}
@@ -153,14 +153,14 @@ export function CreateZip({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" /> Creating ZIP...
@@ -178,7 +178,7 @@ export function CreateZip({ tool }: ToolComponentProps) {
           disabled={files.length === 0}
           onClick={handleCreate}
         >
-          <Play className="mr-2 h-4 w-4" /> Create ZIP
+          <Play data-icon="inline-start" /> Create ZIP
         </Button>
       )}
     </div>

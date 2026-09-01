@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+} from "@/components/tool-forms";
 
 export function HtmlMinifier({}: ToolComponentProps) {
   const [input, setInput] = useState("");
@@ -27,10 +36,7 @@ export function HtmlMinifier({}: ToolComponentProps) {
       }
 
       if (collapseWhitespace) {
-        result = result
-          .replace(/\s+/g, " ")
-          .replace(/>\s+</g, "><")
-          .trim();
+        result = result.replace(/\s+/g, " ").replace(/>\s+</g, "><").trim();
       }
 
       result = result.replace(/\s+\/>/g, "/>");
@@ -42,83 +48,67 @@ export function HtmlMinifier({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "minified.html";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
+    setSavings({ original: 0, minified: 0 });
   };
 
   const percent = savings.original
-    ? Math.round(((savings.original - savings.minified) / savings.original) * 100)
+    ? Math.round(
+        ((savings.original - savings.minified) / savings.original) * 100,
+      )
     : 0;
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">HTML Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your HTML here..."
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="html-input"
+        label="HTML Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste your HTML here..."
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolCheckbox
+          label="Remove comments"
+          checked={removeComments}
+          onCheckedChange={setRemoveComments}
         />
-      </div>
+        <ToolCheckbox
+          label="Collapse whitespace"
+          checked={collapseWhitespace}
+          onCheckedChange={setCollapseWhitespace}
+        />
+      </ToolRow>
 
-      <div className="flex flex-wrap gap-4">
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={removeComments}
-            onChange={(e) => setRemoveComments(e.target.checked)}
-          />
-          Remove comments
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={collapseWhitespace}
-            onChange={(e) => setCollapseWhitespace(e.target.checked)}
-          />
-          Collapse whitespace
-        </label>
-      </div>
+      {error && <ToolError message={error} />}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleMinify}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Minify
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleMinify}
+        onClear={handleClear}
+        runLabel="Minify"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <div className="flex justify-between mb-2 text-sm">
-            <span className="font-medium">HTML Output</span>
-            <span className="text-muted-foreground">
-              {savings.original} → {savings.minified} bytes ({percent}% smaller)
-            </span>
-          </div>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="minified-output"
+          label="HTML Output"
+          value={output}
+          filename="minified.html"
+          mimeType="text/html"
+        />
       )}
-    </div>
+
+      {output && savings.original > 0 && (
+        <p className="text-sm text-muted-foreground">
+          {savings.original} → {savings.minified} bytes ({percent}% smaller)
+        </p>
+      )}
+    </ToolContainer>
   );
 }

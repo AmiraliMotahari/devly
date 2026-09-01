@@ -74,7 +74,7 @@ export default function AboutPage() {
 
       <div className="mt-12 text-center">
         <p className="mb-4 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-          Built with <Heart className="h-4 w-4 text-red-500" /> for a faster,
+          Built with <Heart className="size-4 text-red-500" /> for a faster,
           more private web.
         </p>
         <Button asChild>

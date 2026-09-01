@@ -5,6 +5,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
@@ -90,7 +97,7 @@ export function CompressPdf({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {!pdf ? (
         <div
           role="button"
@@ -148,21 +155,22 @@ export function CompressPdf({ tool }: ToolComponentProps) {
                 onClick={() => setPdf(null)}
                 aria-label="Remove file"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 
-            <div className="mt-4 space-y-2">
-              <label className="text-sm font-medium">Compression Level</label>
-              <select
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <option value="low">Low (best quality)</option>
-                <option value="medium">Medium (balanced)</option>
-                <option value="high">High (smallest size)</option>
-              </select>
+            <div className="mt-4 flex flex-col gap-2">
+              <label htmlFor="compress-level" className="text-sm font-medium">Compression Level</label>
+<Select value={level} onValueChange={setLevel}>
+                  <SelectTrigger id="compress-level" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low (best quality)</SelectItem>
+                    <SelectItem value="medium">Medium (balanced)</SelectItem>
+                    <SelectItem value="high">High (smallest size)</SelectItem>
+                  </SelectContent>
+                </Select>
             </div>
           </CardContent>
         </Card>
@@ -170,14 +178,14 @@ export function CompressPdf({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" /> Compressing PDF...
@@ -189,7 +197,7 @@ export function CompressPdf({ tool }: ToolComponentProps) {
       ) : (
         pdf && (
           <Button size="lg" className="w-full" onClick={handleCompress}>
-            <Play className="mr-2 h-4 w-4" /> Compress PDF
+            <Play data-icon="inline-start" /> Compress PDF
           </Button>
         )
       )}

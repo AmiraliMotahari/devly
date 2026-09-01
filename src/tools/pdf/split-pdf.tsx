@@ -5,6 +5,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
@@ -145,7 +152,7 @@ export function SplitPdf({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {!pdf ? (
         <div
           role="button"
@@ -202,26 +209,27 @@ export function SplitPdf({ tool }: ToolComponentProps) {
                 onClick={() => setPdf(null)}
                 aria-label="Remove file"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 
-            <div className="mt-4 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Split mode</label>
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="ranges">Page ranges</option>
-                  <option value="each">Each page separately</option>
-                  <option value="interval">Every N pages</option>
-                </select>
+            <div className="mt-4 flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="split-mode" className="text-sm font-medium">Split mode</label>
+                <Select value={mode} onValueChange={setMode}>
+                  <SelectTrigger id="split-mode" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ranges">Page ranges</SelectItem>
+                    <SelectItem value="each">Each page separately</SelectItem>
+                    <SelectItem value="interval">Every N pages</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {mode === "ranges" && (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
                     Page ranges (e.g. 1-3, 5, 8-10)
                   </label>
@@ -236,7 +244,7 @@ export function SplitPdf({ tool }: ToolComponentProps) {
               )}
 
               {mode === "interval" && (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">Pages per file</label>
                   <input
                     type="number"
@@ -254,14 +262,14 @@ export function SplitPdf({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -276,7 +284,7 @@ export function SplitPdf({ tool }: ToolComponentProps) {
       ) : (
         pdf && (
           <Button size="lg" className="w-full" onClick={handleSplit}>
-            <Play className="mr-2 h-4 w-4" />
+            <Play data-icon="inline-start" />
             Split PDF
           </Button>
         )

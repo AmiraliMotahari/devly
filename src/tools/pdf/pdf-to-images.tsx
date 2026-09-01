@@ -4,6 +4,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ResultPanel } from "@/components/result-panel";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
@@ -119,7 +126,7 @@ export function PdfToImages({ tool }: ToolComponentProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {!pdf ? (
         <div
           role="button"
@@ -177,33 +184,35 @@ export function PdfToImages({ tool }: ToolComponentProps) {
                 onClick={() => setPdf(null)}
                 aria-label="Remove file"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
 
             <div className="mt-4 flex gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Format</label>
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="flex h-9 rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="png">PNG</option>
-                  <option value="jpeg">JPEG</option>
-                </select>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="pdf-img-format" className="text-sm font-medium">Format</label>
+<Select value={format} onValueChange={setFormat}>
+                  <SelectTrigger id="pdf-img-format" className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="png">PNG</SelectItem>
+                    <SelectItem value="jpeg">JPEG</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Quality</label>
-                <select
-                  value={dpi}
-                  onChange={(e) => setDpi(e.target.value)}
-                  className="flex h-9 rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="72">72 DPI (screen)</option>
-                  <option value="150">150 DPI (standard)</option>
-                  <option value="300">300 DPI (print)</option>
-                </select>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="pdf-img-dpi" className="text-sm font-medium">Quality</label>
+<Select value={dpi} onValueChange={setDpi}>
+                  <SelectTrigger id="pdf-img-dpi" className="w-44">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="72">72 DPI (screen)</SelectItem>
+                    <SelectItem value="150">150 DPI (standard)</SelectItem>
+                    <SelectItem value="300">300 DPI (print)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
@@ -212,14 +221,14 @@ export function PdfToImages({ tool }: ToolComponentProps) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertTitle>Processing failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {isProcessing ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="h-4 w-4 animate-spin" /> Converting pages...
@@ -231,7 +240,7 @@ export function PdfToImages({ tool }: ToolComponentProps) {
       ) : (
         pdf && (
           <Button size="lg" className="w-full" onClick={handleConvert}>
-            <Play className="mr-2 h-4 w-4" /> Convert to Images
+            <Play data-icon="inline-start" /> Convert to Images
           </Button>
         )
       )}

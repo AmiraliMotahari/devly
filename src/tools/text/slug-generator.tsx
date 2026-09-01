@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
 export function SlugGenerator({ tool }: ToolComponentProps) {
   void tool;
   const [text, setText] = useState('');
-  const [copied, setCopied] = useState(false);
 
   const slug = text
     .toLowerCase()
@@ -22,29 +23,32 @@ export function SlugGenerator({ tool }: ToolComponentProps) {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 
-  const copy = () => {
-    navigator.clipboard.writeText(slug);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(slug);
+      toast.success('Copied to clipboard');
+    } catch {
+      toast.error('Could not copy — clipboard unavailable');
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Text</label>
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter text to slugify..." />
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="slug-input">Text</Label>
+        <Input id="slug-input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter text to slugify..." />
       </div>
       {slug && (
         <Card>
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium">Slug</label>
+              <Label htmlFor="slug-output">Slug</Label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? 'Copied' : 'Copy'}
+                <Copy data-icon="inline-start" />
+                Copy
               </Button>
             </div>
-            <code className="block rounded-md bg-muted px-3 py-2 font-mono text-sm">{slug}</code>
+            <code id="slug-output" className="block rounded-md bg-muted px-3 py-2 font-mono text-sm">{slug}</code>
           </CardContent>
         </Card>
       )}

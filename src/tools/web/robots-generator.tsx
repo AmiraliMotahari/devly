@@ -94,9 +94,9 @@ export function RobotsGenerator({}: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Site URL (optional)</label>
           <input
             type="url"
@@ -106,7 +106,7 @@ export function RobotsGenerator({}: ToolComponentProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Sitemap URL</label>
           <input
             type="url"
@@ -118,17 +118,17 @@ export function RobotsGenerator({}: ToolComponentProps) {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">Crawl Rules</label>
           <Button variant="outline" size="sm" onClick={addRule}>
-            <Plus className="h-4 w-4 mr-1" />
+            <Plus data-icon="inline-start" />
             Add Rule
           </Button>
         </div>
 
         {rules.map((rule, idx) => (
-          <div key={idx} className="border rounded-lg p-4 space-y-3">
+          <div key={idx} className="border rounded-lg p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Rule {idx + 1}</span>
               {rules.length > 1 && (
@@ -137,12 +137,12 @@ export function RobotsGenerator({}: ToolComponentProps) {
                   size="sm"
                   onClick={() => removeRule(idx)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="size-4"/>
                 </Button>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <label className="text-xs text-muted-foreground">User-agent</label>
               <input
                 type="text"
@@ -153,11 +153,11 @@ export function RobotsGenerator({}: ToolComponentProps) {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs text-muted-foreground">Disallow</label>
                 <Button variant="ghost" size="sm" onClick={() => addDisallow(idx)}>
-                  <Plus className="h-3 w-3 mr-1" />
+                  <Plus className="h-3 w-3 mr-1"/>
                   Add path
                 </Button>
               </div>
@@ -179,7 +179,7 @@ export function RobotsGenerator({}: ToolComponentProps) {
                     size="icon"
                     onClick={() => removeDisallow(idx, pathIdx)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="size-4"/>
                   </Button>
                 </div>
               ))}
@@ -191,21 +191,21 @@ export function RobotsGenerator({}: ToolComponentProps) {
       <Button onClick={generate} className="w-full">Generate robots.txt</Button>
 
       {output && (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Generated robots.txt</label>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                <Copy className="h-4 w-4 mr-1" />
+                <Copy data-icon="inline-start" />
                 {copied ? "Copied!" : "Copy"}
               </Button>
               <Button variant="outline" size="sm" onClick={download}>
-                <Download className="h-4 w-4 mr-1" />
+                <Download data-icon="inline-start" />
                 Download
               </Button>
             </div>
           </div>
-          <pre className="w-full p-4 border rounded-lg bg-gray-50 dark:bg-gray-900 overflow-auto text-xs font-mono max-h-80">
+          <pre className="w-full p-4 border rounded-lg bg-muted overflow-auto text-xs font-mono max-h-80">
             {output}
           </pre>
         </div>

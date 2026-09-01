@@ -41,7 +41,7 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
           {results.length === 1 ? 'Result' : `${results.length} files ready`}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {hasCompression && totalOutput > 0 && (
           <div className="flex flex-wrap gap-3">
             <div className="rounded-lg border border-border bg-background px-3 py-2">
@@ -65,7 +65,7 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {results.map((result, idx) => (
             <div
               key={idx}
@@ -80,7 +80,7 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
                   <span>{formatFileSize(result.blob.size)}</span>
                   {result.originalSize && result.outputSize && (
                     <>
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRight className="size-3" />
                       <Badge
                         variant={result.outputSize < result.originalSize ? "secondary" : "outline"}
                         className="text-xs"
@@ -94,7 +94,7 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
                 </div>
               </div>
               <Button size="sm" onClick={() => downloadFile(result)}>
-                <Download className="mr-1.5 h-4 w-4" />
+                <Download data-icon="inline-start" />
                 Download
               </Button>
             </div>
@@ -104,12 +104,12 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
         <div className="flex flex-wrap gap-2">
           {results.length > 1 && onDownloadAll && (
             <Button variant="outline" onClick={onDownloadAll}>
-              <Download className="mr-1.5 h-4 w-4" />
+              <Download data-icon="inline-start" />
               Download all (ZIP)
             </Button>
           )}
           <Button variant="ghost" onClick={onProcessAnother}>
-            <RefreshCw className="mr-1.5 h-4 w-4" />
+            <RefreshCw data-icon="inline-start" />
             Process another
           </Button>
         </div>

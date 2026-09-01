@@ -2,9 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Check, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useState } from "react";
 
 export function WhitespaceCleaner({ tool }: ToolComponentProps) {
@@ -21,7 +24,6 @@ export function WhitespaceCleaner({ tool }: ToolComponentProps) {
   const [removeBlankLines, setRemoveBlankLines] = useState(
     getBool("removeBlankLines", false),
   );
-  const [copied, setCopied] = useState(false);
 
   let output = text;
   if (trimLines)
@@ -37,58 +39,53 @@ export function WhitespaceCleaner({ tool }: ToolComponentProps) {
       .join("\n");
   output = output.replace(/\n{3,}/g, "\n\n");
 
-  const copy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-4">
-        <label className="flex items-center gap-2 text-sm">
-          <button
-            role="switch"
-            aria-checked={trimLines}
-            onClick={() => setTrimLines(!trimLines)}
-            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${trimLines ? "bg-primary" : "bg-muted"}`}
-          >
-            <span
-              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-background transition-transform ${trimLines ? "translate-x-5" : "translate-x-1"}`}
-            />
-          </button>
-          Trim each line
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <button
-            role="switch"
-            aria-checked={collapseSpaces}
-            onClick={() => setCollapseSpaces(!collapseSpaces)}
-            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${collapseSpaces ? "bg-primary" : "bg-muted"}`}
-          >
-            <span
-              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-background transition-transform ${collapseSpaces ? "translate-x-5" : "translate-x-1"}`}
-            />
-          </button>
-          Collapse spaces
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <button
-            role="switch"
-            aria-checked={removeBlankLines}
-            onClick={() => setRemoveBlankLines(!removeBlankLines)}
-            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${removeBlankLines ? "bg-primary" : "bg-muted"}`}
-          >
-            <span
-              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-background transition-transform ${removeBlankLines ? "translate-x-5" : "translate-x-1"}`}
-            />
-          </button>
-          Remove blank lines
-        </label>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-6">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="ws-trim-lines"
+            checked={trimLines}
+            onCheckedChange={setTrimLines}
+          />
+          <Label htmlFor="ws-trim-lines" className="font-normal">
+            Trim each line
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            id="ws-collapse-spaces"
+            checked={collapseSpaces}
+            onCheckedChange={setCollapseSpaces}
+          />
+          <Label htmlFor="ws-collapse-spaces" className="font-normal">
+            Collapse spaces
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            id="ws-remove-blank"
+            checked={removeBlankLines}
+            onCheckedChange={setRemoveBlankLines}
+          />
+          <Label htmlFor="ws-remove-blank" className="font-normal">
+            Remove blank lines
+          </Label>
+        </div>
       </div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Input</label>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="ws-input">Input</Label>
         <Textarea
+          id="ws-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter text..."
@@ -99,17 +96,18 @@ export function WhitespaceCleaner({ tool }: ToolComponentProps) {
         <Card>
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium">Cleaned output</label>
+              <Label htmlFor="ws-output">Cleaned output</Label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-                {copied ? "Copied" : "Copy"}
+                <Copy data-icon="inline-start" />
+                Copy
               </Button>
             </div>
-            <Textarea readOnly value={output} className="min-h-30" />
+            <Textarea
+              id="ws-output"
+              readOnly
+              value={output}
+              className="min-h-30"
+            />
           </CardContent>
         </Card>
       )}

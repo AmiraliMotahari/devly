@@ -6,6 +6,14 @@ import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { siteUrl } from "@/lib/constants";
 
@@ -60,19 +68,21 @@ export function QrCodeGenerator({ tool }: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Text or URL</label>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="qr-text">Text or URL</Label>
         <Input
+          id="qr-text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter text or URL"
         />
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Size (px)</label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="qr-size">Size (px)</Label>
           <Input
+            id="qr-size"
             type="number"
             min={64}
             max={1024}
@@ -80,9 +90,10 @@ export function QrCodeGenerator({ tool }: ToolComponentProps) {
             onChange={(e) => setSize(Number(e.target.value))}
           />
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Margin</label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="qr-margin">Margin</Label>
           <Input
+            id="qr-margin"
             type="number"
             min={0}
             max={10}
@@ -90,16 +101,20 @@ export function QrCodeGenerator({ tool }: ToolComponentProps) {
             onChange={(e) => setMargin(Number(e.target.value))}
           />
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Format</label>
-          <select
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="qr-format">Format</Label>
+          <Select
             value={format}
-            onChange={(e) => setFormat(e.target.value as "png" | "svg")}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            onValueChange={(v) => setFormat(v as "png" | "svg")}
           >
-            <option value="png">PNG</option>
-            <option value="svg">SVG</option>
-          </select>
+            <SelectTrigger id="qr-format" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="png">PNG</SelectItem>
+              <SelectItem value="svg">SVG</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       {dataUrl && (
@@ -112,7 +127,7 @@ export function QrCodeGenerator({ tool }: ToolComponentProps) {
               className="rounded-lg border border-border"
             />
             <Button onClick={download}>
-              <Download className="mr-2 h-4 w-4" /> Download{" "}
+              <Download data-icon="inline-start" /> Download{" "}
               {format.toUpperCase()}
             </Button>
           </CardContent>

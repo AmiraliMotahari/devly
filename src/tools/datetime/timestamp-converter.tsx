@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { Copy, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import type { ToolComponentProps } from "@/tools/tool-props";
 
 const now = Date.now();
@@ -14,7 +16,6 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
   const [mode, setMode] = useState<"ts-to-date" | "date-to-ts">("ts-to-date");
   const [timestamp, setTimestamp] = useState(String(Math.floor(now / 1000)));
   const [dateInput, setDateInput] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const ts = Number(timestamp);
   const tsValid = !isNaN(ts) && timestamp.trim() !== "";
@@ -30,38 +31,40 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
     }
   }
 
-  const copy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="flex gap-2">
         <Button
           variant={mode === "ts-to-date" ? "default" : "outline"}
           size="sm"
           onClick={() => setMode("ts-to-date")}
         >
-          <ArrowRight className="mr-2 h-4 w-4" /> Timestamp to Date
+          <ArrowRight data-icon="inline-start" /> Timestamp to Date
         </Button>
         <Button
           variant={mode === "date-to-ts" ? "default" : "outline"}
           size="sm"
           onClick={() => setMode("date-to-ts")}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Date to Timestamp
+          <ArrowLeft data-icon="inline-start" /> Date to Timestamp
         </Button>
       </div>
 
       {mode === "ts-to-date" ? (
         <>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Unix timestamp (seconds)
-            </label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="ts-input">Unix timestamp (seconds)</Label>
             <Input
+              id="ts-input"
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
               placeholder="1692489600"
@@ -69,7 +72,7 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
           </div>
 
           {date && tsValid && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Card>
                 <CardContent className="p-4">
                   <p className="text-xs text-muted-foreground">UTC</p>
@@ -92,11 +95,7 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
                       size="sm"
                       onClick={() => copy(date.toISOString())}
                     >
-                      {copied ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
+<Copy className="size-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -106,9 +105,10 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
         </>
       ) : (
         <>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Date and time</label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="ts-date">Date and time</Label>
             <Input
+              id="ts-date"
               type="datetime-local"
               value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
@@ -117,7 +117,7 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
           </div>
 
           {parsedDate && parsedTs !== null && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Card>
                 <CardContent className="p-4">
                   <p className="text-xs text-muted-foreground">
@@ -130,11 +130,7 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
                       size="sm"
                       onClick={() => copy(String(parsedTs))}
                     >
-                      {copied ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
+<Copy className="size-4" />
                     </Button>
                   </div>
                 </CardContent>

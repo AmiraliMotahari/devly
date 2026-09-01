@@ -2,9 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Check, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useState } from "react";
 
 function convertCase(text: string, caseType: string): string {
@@ -55,38 +64,42 @@ export function CaseConverter({ tool }: ToolComponentProps) {
 
   const [text, setText] = useState("");
   const [caseType, setCaseType] = useState(defaultCase);
-  const [copied, setCopied] = useState(false);
 
   const output = text ? convertCase(text, caseType) : "";
 
-  const copy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy — clipboard unavailable");
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Case</label>
-        <select
-          value={caseType}
-          onChange={(e) => setCaseType(e.target.value)}
-          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-        >
-          <option value="upper">UPPERCASE</option>
-          <option value="lower">lowercase</option>
-          <option value="title">Title Case</option>
-          <option value="camel">camelCase</option>
-          <option value="pascal">PascalCase</option>
-          <option value="snake">snake_case</option>
-          <option value="kebab">kebab-case</option>
-          <option value="sentence">Sentence case</option>
-        </select>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="case-select">Case</Label>
+        <Select value={caseType} onValueChange={setCaseType}>
+          <SelectTrigger id="case-select" className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="upper">UPPERCASE</SelectItem>
+            <SelectItem value="lower">lowercase</SelectItem>
+            <SelectItem value="title">Title Case</SelectItem>
+            <SelectItem value="camel">camelCase</SelectItem>
+            <SelectItem value="pascal">PascalCase</SelectItem>
+            <SelectItem value="snake">snake_case</SelectItem>
+            <SelectItem value="kebab">kebab-case</SelectItem>
+            <SelectItem value="sentence">Sentence case</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Input</label>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="case-input">Input</Label>
         <Textarea
+          id="case-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter text..."
@@ -97,17 +110,18 @@ export function CaseConverter({ tool }: ToolComponentProps) {
         <Card>
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium">Output</label>
+              <Label htmlFor="case-output">Output</Label>
               <Button variant="ghost" size="sm" onClick={copy}>
-                {copied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-                {copied ? "Copied" : "Copy"}
+                <Copy data-icon="inline-start" />
+                Copy
               </Button>
             </div>
-            <Textarea readOnly value={output} className="min-h-30" />
+            <Textarea
+              id="case-output"
+              readOnly
+              value={output}
+              className="min-h-30"
+            />
           </CardContent>
         </Card>
       )}

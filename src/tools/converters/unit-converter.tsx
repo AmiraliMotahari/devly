@@ -1,10 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
 const UNITS: Record<string, Record<string, number>> = {
@@ -51,7 +60,6 @@ export function UnitConverter({ tool }: ToolComponentProps) {
   const [from, setFrom] = useState('m');
   const [to, setTo] = useState('ft');
   const [value, setValue] = useState('1');
-  const [copied, setCopied] = useState(false);
 
   const unitKeys = Object.keys(UNITS[category] || {});
 
@@ -74,54 +82,60 @@ export function UnitConverter({ tool }: ToolComponentProps) {
     }
   }
 
-  const copy = () => {
-    navigator.clipboard.writeText(result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(result);
+      toast.success('Copied to clipboard');
+    } catch {
+      toast.error('Could not copy — clipboard unavailable');
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Category</label>
-        <select
-          value={category}
-          onChange={(e) => handleCategoryChange(e.target.value)}
-          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-        >
-          {Object.keys(UNITS).map((cat) => (
-            <option key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </option>
-          ))}
-        </select>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="unit-category">Category</Label>
+        <Select value={category} onValueChange={handleCategoryChange}>
+          <SelectTrigger id="unit-category" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.keys(UNITS).map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">From</label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="unit-value">From</Label>
           <div className="flex gap-2">
-            <Input type="number" value={value} onChange={(e) => setValue(e.target.value)} />
-            <select
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="flex h-9 w-28 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {unitKeys.map((u) => <option key={u} value={u}>{u}</option>)}
-            </select>
+            <Input id="unit-value" type="number" value={value} onChange={(e) => setValue(e.target.value)} />
+            <Select value={from} onValueChange={setFrom}>
+              <SelectTrigger className="w-28" aria-label="From unit">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {unitKeys.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">To</label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="unit-result">To</Label>
           <div className="flex gap-2">
-            <Input readOnly value={result} className="font-mono" />
-            <select
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="flex h-9 w-28 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {unitKeys.map((u) => <option key={u} value={u}>{u}</option>)}
-            </select>
+            <Input id="unit-result" readOnly value={result} className="font-mono" />
+            <Select value={to} onValueChange={setTo}>
+              <SelectTrigger className="w-28" aria-label="To unit">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {unitKeys.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
@@ -133,8 +147,8 @@ export function UnitConverter({ tool }: ToolComponentProps) {
             <p className="text-2xl font-bold tabular-nums">{value} {from} = {result} {to}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={copy}>
-            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? 'Copied' : 'Copy'}
+            <Copy data-icon="inline-start" />
+            Copy
           </Button>
         </CardContent>
       </Card>

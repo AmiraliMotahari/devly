@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
 function hexToRgb(hex: string): [number, number, number] | null {
@@ -14,10 +16,6 @@ function hexToRgb(hex: string): [number, number, number] | null {
   if (h.length === 3) h = h.split('').map((c) => c + c).join('');
   const num = parseInt(h, 16);
   return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
 }
 
 function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
@@ -59,7 +57,6 @@ function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
 export function ColorConverter({ tool }: ToolComponentProps) {
   void tool;
   const [hex, setHex] = useState('#3b82f6');
-  const [copied, setCopied] = useState<string>('');
 
   const rgb = hexToRgb(hex);
   const r = rgb?.[0] ?? 0;
@@ -75,27 +72,31 @@ export function ColorConverter({ tool }: ToolComponentProps) {
     { label: 'HSV', value: `hsv(${hv}, ${sv}%, ${vv}%)` },
   ];
 
-  const copy = (value: string) => {
-    navigator.clipboard.writeText(value);
-    setCopied(value);
-    setTimeout(() => setCopied(''), 2000);
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`Copied ${value}`);
+    } catch {
+      toast.error('Could not copy — clipboard unavailable');
+    }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Color picker</label>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="color-picker">Color picker</Label>
           <input
+            id="color-picker"
             type="color"
             value={hex}
             onChange={(e) => setHex(e.target.value)}
             className="h-10 w-20 cursor-pointer rounded-md border border-border"
           />
         </div>
-        <div className="space-y-2 flex-1 min-w-40">
-          <label className="text-sm font-medium">HEX</label>
-          <Input value={hex} onChange={(e) => setHex(e.target.value)} placeholder="#3b82f6" />
+        <div className="flex flex-1 min-w-40 flex-col gap-2">
+          <Label htmlFor="hex-input">HEX</Label>
+          <Input id="hex-input" value={hex} onChange={(e) => setHex(e.target.value)} placeholder="#3b82f6" />
         </div>
       </div>
 
@@ -106,7 +107,7 @@ export function ColorConverter({ tool }: ToolComponentProps) {
         />
       )}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {formats.map((f) => (
           <Card key={f.label}>
             <CardContent className="flex items-center justify-between p-4">
@@ -115,7 +116,7 @@ export function ColorConverter({ tool }: ToolComponentProps) {
                 <p className="font-mono text-sm">{f.value}</p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => copy(f.value)}>
-                {copied === f.value ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                <Copy className="size-4" />
               </Button>
             </CardContent>
           </Card>

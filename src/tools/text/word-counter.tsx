@@ -41,7 +41,7 @@ export function WordCounter({ tool }: ToolComponentProps) {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}

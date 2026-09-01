@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolCheckbox,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+  ToolRow,
+} from "@/components/tool-forms";
 
 function escapeHtml(text: string): string {
   return text
@@ -215,66 +224,49 @@ ${result}
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.html";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">Markdown Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your Markdown here..."
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
+    <ToolContainer>
+      <ToolInput
+        id="md-input"
+        label="Markdown Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste your Markdown here..."
+        rows={10}
+      />
+
+      <ToolRow>
+        <ToolCheckbox
+          label="Include HTML doctype"
+          checked={includeDocType}
+          onCheckedChange={setIncludeDocType}
         />
-      </div>
+      </ToolRow>
 
-      <div className="flex items-end">
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={includeDocType}
-            onChange={(e) => setIncludeDocType(e.target.checked)}
-          />
-          Include HTML doctype
-        </label>
-      </div>
+      {error && <ToolError message={error} />}
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download HTML
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">HTML Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="html-output"
+          label="HTML Output"
+          value={output}
+          filename="converted.html"
+          mimeType="text/html"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import { ToolContainer, ToolField } from "@/components/tool-forms";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DiffLine {
   type: "added" | "removed" | "unchanged" | "modified";
@@ -151,7 +160,7 @@ export function TextDiff({}: ToolComponentProps) {
                 : line.type === "removed"
                 ? "bg-red-50 dark:bg-red-950/30"
                 : line.type === "modified"
-                ? "bg-yellow-50 dark:bg-yellow-950/30"
+                ? "bg-warning/15"
                 : ""
             }`}
           >
@@ -209,45 +218,48 @@ export function TextDiff({}: ToolComponentProps) {
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Original Text</label>
-          <textarea
+    <ToolContainer>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <ToolField label="Original Text" htmlFor="diff-old">
+          <Textarea
+            id="diff-old"
             value={oldText}
             onChange={(e) => setOldText(e.target.value)}
             placeholder="Paste the original text..."
-            className="w-full h-32 p-3 border rounded font-mono text-sm"
+            className="min-h-32 font-mono text-sm"
+            spellCheck={false}
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">New Text</label>
-          <textarea
+        </ToolField>
+        <ToolField label="New Text" htmlFor="diff-new">
+          <Textarea
+            id="diff-new"
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             placeholder="Paste the new text..."
-            className="w-full h-32 p-3 border rounded font-mono text-sm"
+            className="min-h-32 font-mono text-sm"
+            spellCheck={false}
           />
-        </div>
+        </ToolField>
       </div>
 
-      <div className="flex items-end gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Diff Mode</label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value as "line" | "word")}
-            className="p-2 border rounded"
-          >
-            <option value="line">Line by line</option>
-            <option value="word">Word by word</option>
-          </select>
-        </div>
-      </div>
+      <ToolField label="Diff Mode">
+        <Select
+          value={mode}
+          onValueChange={(v) => setMode(v as "line" | "word")}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="line">Line by line</SelectItem>
+            <SelectItem value="word">Word by word</SelectItem>
+          </SelectContent>
+        </Select>
+      </ToolField>
 
-      <div className="mt-4">
+      <div>
         {mode === "line" ? renderLineDiff() : renderWordDiff()}
       </div>
-    </div>
+    </ToolContainer>
   );
 }

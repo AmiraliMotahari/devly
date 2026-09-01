@@ -19,11 +19,11 @@ export function SiteFooter() {
             </p>
             <div className="mt-4 flex flex-col gap-2 text-sm text-muted-foreground">
               <span className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                <ShieldCheck className="size-4 text-success" />
                 Files processed locally
               </span>
               <span className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber-500" />
+                <Zap className="size-4 text-warning" />
                 No sign-up required
               </span>
             </div>
@@ -69,7 +69,7 @@ export function SiteFooter() {
 
         <div className="mt-8 border-t border-border/60 pt-6 text-center text-sm text-muted-foreground">
           <p className="flex items-center justify-center gap-1.5">
-            Built with <Heart className="h-3.5 w-3.5 text-red-500" /> for a
+            Built with <Heart className="size-3.5 text-red-500" /> for a
             faster, more private web.
           </p>
         </div>

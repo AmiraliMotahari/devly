@@ -161,7 +161,7 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
   const canProcess = validFiles.length > 0 && !isProcessing;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {results.length === 0 && (
         <>
           <UploadZone
@@ -284,14 +284,14 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
 
           {error && results.length === 0 && (
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="size-4" />
               <AlertTitle>Processing failed</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {isProcessing ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2 font-medium">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -313,7 +313,7 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
               disabled={!canProcess}
               onClick={handleProcess}
             >
-              <Play className="mr-2 h-4 w-4" />
+              <Play data-icon="inline-start" />
               {validFiles.length > 1
                 ? `Process ${validFiles.length} files`
                 : "Process"}
@@ -324,7 +324,7 @@ export function ToolRunner({ tool, processor }: ToolRunnerProps) {
 
       {results.length > 0 && error && (
         <Alert>
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -349,7 +349,7 @@ export function ToolRunnerSkeleton({
   showOptions = true,
 }: ToolRunnerSkeletonProps) {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Upload zone */}
       <div className="rounded-xl border border-dashed border-border bg-muted/10 p-8">
         <div className="flex flex-col items-center justify-center text-center">
@@ -370,13 +370,13 @@ export function ToolRunnerSkeleton({
 
             <div className="grid gap-5 sm:grid-cols-2">
               {/* Option 1 */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-9 w-full rounded-md" />
               </div>
 
               {/* Option 2 */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Skeleton className="h-4 w-20" />
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-2 flex-1 rounded-full" />
@@ -385,13 +385,13 @@ export function ToolRunnerSkeleton({
               </div>
 
               {/* Option 3 */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Skeleton className="h-4 w-28" />
                 <Skeleton className="h-9 w-full rounded-md" />
               </div>
 
               {/* Option 4 */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-9 w-full rounded-md" />
               </div>

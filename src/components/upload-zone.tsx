@@ -153,7 +153,7 @@ export function UploadZone({
 
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <div
         role="button"
         tabIndex={0}
@@ -201,7 +201,7 @@ export function UploadZone({
       </div>
 
       {files.length > 0 && (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {files.map((uploaded) => (
             <div
               key={uploaded.id}
@@ -226,7 +226,7 @@ export function UploadZone({
                 </p>
                 {uploaded.error && (
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-destructive">
-                    <AlertCircle className="h-3 w-3" />
+                    <AlertCircle className="size-3" />
                     {uploaded.error}
                   </p>
                 )}
@@ -238,7 +238,7 @@ export function UploadZone({
                 onClick={() => removeFile(uploaded.id)}
                 aria-label="Remove file"
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </Button>
             </div>
           ))}

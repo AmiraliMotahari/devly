@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ToolActions,
+  ToolContainer,
+  ToolError,
+  ToolInput,
+  ToolOutput,
+} from "@/components/tool-forms";
 
 function decodeEntities(text: string): string {
   const el = document.createElement("textarea");
@@ -120,55 +127,41 @@ export function HtmlToMarkdown({}: ToolComponentProps) {
     }
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([output], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "converted.md";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setError("");
   };
 
   return (
-    <div className="tool-container space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">HTML Input</label>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste your HTML here..."
-          className="w-full h-48 p-3 border rounded font-mono text-sm"
-        />
-      </div>
+    <ToolContainer>
+      <ToolInput
+        id="html-input"
+        label="HTML Input"
+        value={input}
+        onChange={setInput}
+        placeholder="Paste your HTML here..."
+        rows={10}
+      />
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <ToolError message={error} />}
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleConvert}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Convert
-        </button>
-        {output && (
-          <button
-            onClick={handleDownload}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Download Markdown
-          </button>
-        )}
-      </div>
+      <ToolActions
+        onRun={handleConvert}
+        onClear={handleClear}
+        runLabel="Convert"
+        disabled={!input.trim()}
+      />
 
       {output && (
-        <div>
-          <label className="block text-sm font-medium mb-2">Markdown Output</label>
-          <pre className="w-full h-48 p-3 border rounded overflow-auto font-mono text-sm bg-gray-50">
-            {output}
-          </pre>
-        </div>
+        <ToolOutput
+          id="md-output"
+          label="Markdown Output"
+          value={output}
+          filename="converted.md"
+          mimeType="text/markdown"
+        />
       )}
-    </div>
+    </ToolContainer>
   );
 }

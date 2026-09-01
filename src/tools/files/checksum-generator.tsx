@@ -2,6 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Check, Copy, FileIcon, Loader2, Trash2, Upload } from "lucide-react";
@@ -198,7 +205,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
   const allProcessed = files.every((f) => f.hashes || f.isProcessing);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div
         role="button"
         tabIndex={0}
@@ -238,22 +245,23 @@ export function ChecksumGenerator({}: ToolComponentProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="checksum-algorithm" className="text-sm font-medium">
             Algorithm
           </label>
-          <select
-            value={algorithm}
-            onChange={(e) => setAlgorithm(e.target.value)}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="all">All algorithms</option>
-            <option value="md5">MD5</option>
-            <option value="sha1">SHA-1</option>
-            <option value="sha256">SHA-256</option>
-            <option value="sha384">SHA-384</option>
-            <option value="sha512">SHA-512</option>
-          </select>
+          <Select value={algorithm} onValueChange={setAlgorithm}>
+            <SelectTrigger id="checksum-algorithm" className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All algorithms</SelectItem>
+              <SelectItem value="md5">MD5</SelectItem>
+              <SelectItem value="sha1">SHA-1</SelectItem>
+              <SelectItem value="sha256">SHA-256</SelectItem>
+              <SelectItem value="sha384">SHA-384</SelectItem>
+              <SelectItem value="sha512">SHA-512</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {files.length > 0 && !allProcessed && (
@@ -265,7 +273,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
       </div>
 
       {files.length > 0 && (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {files.map((file) => (
             <Card key={file.id}>
               <CardContent className="pt-6">
@@ -286,7 +294,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
                     onClick={() => removeFile(file.id)}
                     aria-label="Remove file"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="size-4" />
                   </Button>
                 </div>
 
@@ -298,7 +306,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
                 )}
 
                 {file.hashes && (
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     {Object.entries(file.hashes).map(([algo, hash]) => (
                       <div key={algo} className="flex items-center gap-2">
                         <span className="w-20 text-xs font-medium text-muted-foreground">
@@ -317,7 +325,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
                           {copiedId === `${file.id}-${algo}` ? (
                             <Check className="h-3 w-3 text-green-500" />
                           ) : (
-                            <Copy className="h-3 w-3" />
+                            <Copy className="size-3" />
                           )}
                         </Button>
                       </div>
@@ -328,7 +336,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
                       className="mt-2"
                       onClick={() => copyAllHashes(file)}
                     >
-                      <Copy className="mr-2 h-4 w-4" />
+                      <Copy data-icon="inline-start" />
                       Copy All
                     </Button>
                   </div>

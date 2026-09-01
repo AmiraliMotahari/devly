@@ -1,6 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Copy, Download } from "lucide-react";
@@ -64,9 +71,9 @@ export function MetaTagGenerator({}: ToolComponentProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Page URL</label>
           <input
             type="url"
@@ -76,7 +83,7 @@ export function MetaTagGenerator({}: ToolComponentProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Page Title</label>
           <input
             type="text"
@@ -86,7 +93,7 @@ export function MetaTagGenerator({}: ToolComponentProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Description</label>
           <input
             type="text"
@@ -96,7 +103,7 @@ export function MetaTagGenerator({}: ToolComponentProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Author</label>
           <input
             type="text"
@@ -106,7 +113,7 @@ export function MetaTagGenerator({}: ToolComponentProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">OG Image URL</label>
           <input
             type="url"
@@ -116,7 +123,7 @@ export function MetaTagGenerator({}: ToolComponentProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Theme Color</label>
           <div className="flex gap-2">
             <input
@@ -136,36 +143,40 @@ export function MetaTagGenerator({}: ToolComponentProps) {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Twitter Card Type</label>
-        <select
+      <div className="flex flex-col gap-2">
+        <label htmlFor="twitter-card" className="text-sm font-medium">Twitter Card Type</label>
+        <Select
           value={twitterCard}
-          onChange={(e) => setTwitterCard(e.target.value as "summary" | "summary_large_image")}
-          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+          onValueChange={(v) => setTwitterCard(v as "summary" | "summary_large_image")}
         >
-          <option value="summary">Summary (small image)</option>
-          <option value="summary_large_image">Summary Large Image (recommended)</option>
-        </select>
+          <SelectTrigger id="twitter-card" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="summary">Summary (small image)</SelectItem>
+            <SelectItem value="summary_large_image">Summary Large Image (recommended)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Button onClick={generate} className="w-full">Generate Meta Tags</Button>
 
       {output && (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Generated Meta Tags</label>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                <Copy className="h-4 w-4 mr-1" />
+                <Copy data-icon="inline-start" />
                 {copied ? "Copied!" : "Copy"}
               </Button>
               <Button variant="outline" size="sm" onClick={download}>
-                <Download className="h-4 w-4 mr-1" />
+                <Download data-icon="inline-start" />
                 Download
               </Button>
             </div>
           </div>
-          <pre className="w-full p-4 border rounded-lg bg-gray-50 dark:bg-gray-900 overflow-auto text-xs font-mono max-h-80">
+          <pre className="w-full p-4 border rounded-lg bg-muted overflow-auto text-xs font-mono max-h-80">
             {output}
           </pre>
         </div>

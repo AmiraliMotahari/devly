@@ -46,16 +46,16 @@ export function ContrastChecker({ tool }: ToolComponentProps) {
   const passesAAA = ratio !== null && ratio >= 7;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Foreground color</label>
           <div className="flex gap-2">
             <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="h-10 w-16 cursor-pointer rounded-md border border-border" />
             <Input value={fg} onChange={(e) => setFg(e.target.value)} />
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Background color</label>
           <div className="flex gap-2">
             <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-10 w-16 cursor-pointer rounded-md border border-border" />
