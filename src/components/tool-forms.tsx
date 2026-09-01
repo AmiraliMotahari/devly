@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import { CodeBlock, resolveCodeLanguage } from "@/components/code-block";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -114,14 +115,18 @@ export function ToolOutput({
     URL.revokeObjectURL(url);
   };
 
+  const language = resolveCodeLanguage({ filename, mimeType });
+
   return (
     <ToolField label={label} htmlFor={id}>
-      <pre
-        id={id}
-        className="max-h-96 w-full overflow-auto rounded-md border bg-muted p-3 font-mono text-sm whitespace-pre-wrap break-words"
-      >
-        {value}
-      </pre>
+      <CodeBlock
+        code={value}
+        language={language}
+        filename={filename}
+        showLineNumbers={false}
+        maxHeight="max-h-96"
+        className="w-full"
+      />
       <div className="flex flex-wrap gap-2">
         <CopyToClipboard value={value} variant="outline" size="sm" showLabel />
         <Button variant="outline" size="sm" onClick={handleDownload}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import { CodeBlock } from "@/components/code-block";
 import {
   Select,
   SelectContent,
@@ -160,16 +160,13 @@ export function MetaTagGenerator({}: ToolComponentProps) {
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Generated Meta Tags</label>
             <div className="flex gap-2">
-              <CopyToClipboard value={output} variant="outline" size="sm" showLabel />
               <Button variant="outline" size="sm" onClick={download}>
                 <Download data-icon="inline-start" />
                 Download
               </Button>
             </div>
           </div>
-          <pre className="w-full p-4 border rounded-lg bg-muted overflow-auto text-xs font-mono max-h-80">
-            {output}
-          </pre>
+          <CodeBlock code={output} language="html" filename="meta-tags.html" className="w-full" maxHeight="max-h-80" />
         </div>
       )}
     </div>

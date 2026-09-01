@@ -186,3 +186,49 @@
     @apply font-sans;
   }
 }
+
+/* ── Shiki dual-theme support (CodeBlock) ───────────────────────────
+   react-shiki renders tokens with CSS variables for both themes
+   (defaultColor: false → spans carry --shiki-light / --shiki-dark).
+   Class-based switching matches next-themes' `attribute="class`.
+   Light is the base; .dark swaps to the Dark+ variables. */
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+.shiki-code,
+.shiki-code span {
+  color: var(--shiki-light) !important;
+  background-color: var(--shiki-light-bg) !important;
+  font-style: var(--shiki-light-font-style) !important;
+  font-weight: var(--shiki-light-font-weight) !important;
+  text-decoration: var(--shiki-light-text-decoration) !important;
+}
+
+.dark .shiki-code,
+.dark .shiki-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+/* CodeBlock body: mono typography (alignment is handled by
+   react-shiki's .rs-* gutter; these only set the stage). */
+.shiki-code .shiki {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: transparent !important;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  font-variant-ligatures: none;
+}
+
+/* Highlighted-line band — token-based color, adapts to both themes. */
+.shiki-code .line.highlighted {
+  background-color: color-mix(in srgb, var(--muted) 70%, transparent) !important;
+}
