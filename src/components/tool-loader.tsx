@@ -447,6 +447,130 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+
+  // ── Phase 6 additions ─────────────────────────────────
+  "jpg-to-png": dynamic(
+    () =>
+      import("@/tools/image/jpg-to-png").then((m) => ({ default: m.JpgToPng })),
+    { loading },
+  ),
+  "crop-image": dynamic(
+    () =>
+      import("@/tools/image/crop-image").then((m) => ({ default: m.CropImage })),
+    { loading },
+  ),
+  "image-watermark": dynamic(
+    () =>
+      import("@/tools/image/image-watermark").then((m) => ({
+        default: m.ImageWatermark,
+      })),
+    { loading },
+  ),
+  "images-to-pdf": dynamic(
+    () =>
+      import("@/tools/pdf/images-to-pdf").then((m) => ({
+        default: m.ImagesToPdf,
+      })),
+    { loading },
+  ),
+  "pdf-to-text": dynamic(
+    () =>
+      import("@/tools/pdf/pdf-to-text").then((m) => ({
+        default: m.PdfToText,
+      })),
+    { loading },
+  ),
+  "json-validator": dynamic(
+    () =>
+      import("@/tools/developer/json-validator").then((m) => ({
+        default: m.JsonValidator,
+      })),
+    { loading },
+  ),
+  "json-diff": dynamic(
+    () =>
+      import("@/tools/developer/json-diff").then((m) => ({
+        default: m.JsonDiff,
+      })),
+    { loading },
+  ),
+  "password-generator": dynamic(
+    () =>
+      import("@/tools/developer/password-generator").then((m) => ({
+        default: m.PasswordGenerator,
+      })),
+    { loading },
+  ),
+  "hmac-generator": dynamic(
+    () =>
+      import("@/tools/developer/hmac-generator").then((m) => ({
+        default: m.HmacGenerator,
+      })),
+    { loading },
+  ),
+  "sort-lines": dynamic(
+    () =>
+      import("@/tools/text/sort-lines").then((m) => ({
+        default: m.SortLines,
+      })),
+    { loading },
+  ),
+  "remove-duplicate-lines": dynamic(
+    () =>
+      import("@/tools/text/remove-duplicate-lines").then((m) => ({
+        default: m.RemoveDuplicateLines,
+      })),
+    { loading },
+  ),
+  "find-and-replace": dynamic(
+    () =>
+      import("@/tools/text/find-and-replace").then((m) => ({
+        default: m.FindAndReplace,
+      })),
+    { loading },
+  ),
+  "html-encode-decode": dynamic(
+    () =>
+      import("@/tools/text/html-encode-decode").then((m) => ({
+        default: m.HtmlEncodeDecode,
+      })),
+    { loading },
+  ),
+  "lorem-ipsum": dynamic(
+    () =>
+      import("@/tools/text/lorem-ipsum").then((m) => ({
+        default: m.LoremIpsum,
+      })),
+    { loading },
+  ),
+  "timezone-converter": dynamic(
+    () =>
+      import("@/tools/datetime/timezone-converter").then((m) => ({
+        default: m.TimezoneConverter,
+      })),
+    { loading },
+  ),
+  "date-difference": dynamic(
+    () =>
+      import("@/tools/datetime/date-difference").then((m) => ({
+        default: m.DateDifference,
+      })),
+    { loading },
+  ),
+  "age-calculator": dynamic(
+    () =>
+      import("@/tools/datetime/age-calculator").then((m) => ({
+        default: m.AgeCalculator,
+      })),
+    { loading },
+  ),
+  "base-converter": dynamic(
+    () =>
+      import("@/tools/converters/base-converter").then((m) => ({
+        default: m.BaseConverter,
+      })),
+    { loading },
+  ),
 };
 
 export function ToolLoader({ tool }: { tool: ToolDefinition }) {
