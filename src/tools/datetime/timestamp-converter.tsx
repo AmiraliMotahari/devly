@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import type { ToolComponentProps } from "@/tools/tool-props";
 
 const now = Date.now();
@@ -30,15 +30,6 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
       parsedTs = Math.floor(d.getTime() / 1000);
     }
   }
-
-  const copy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -90,13 +81,7 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
                   <p className="text-xs text-muted-foreground">ISO 8601</p>
                   <div className="flex items-center justify-between">
                     <p className="font-mono text-sm">{date.toISOString()}</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copy(date.toISOString())}
-                    >
-<Copy className="size-4" />
-                    </Button>
+                    <CopyToClipboard value={date.toISOString()} variant="ghost" size="sm" />
                   </div>
                 </CardContent>
               </Card>
@@ -125,13 +110,7 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
                   </p>
                   <div className="flex items-center justify-between">
                     <p className="font-mono text-lg font-bold">{parsedTs}</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copy(String(parsedTs))}
-                    >
-<Copy className="size-4" />
-                    </Button>
+                    <CopyToClipboard value={String(parsedTs)} variant="ghost" size="sm" />
                   </div>
                 </CardContent>
               </Card>

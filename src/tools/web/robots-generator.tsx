@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Copy, Download, Plus, Trash2 } from "lucide-react";
+import { Download, Plus, Trash2 } from "lucide-react";
 
 interface Rule {
   userAgent: string;
@@ -75,15 +75,6 @@ export function RobotsGenerator({}: ToolComponentProps) {
 
   const removeRule = (index: number) => {
     setRules((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(output);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
   };
 
   const download = () => {
@@ -198,10 +189,7 @@ export function RobotsGenerator({}: ToolComponentProps) {
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Generated robots.txt</label>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                <Copy data-icon="inline-start" />
-                Copy
-              </Button>
+              <CopyToClipboard value={output} variant="outline" size="sm" showLabel />
               <Button variant="outline" size="sm" onClick={download}>
                 <Download data-icon="inline-start" />
                 Download

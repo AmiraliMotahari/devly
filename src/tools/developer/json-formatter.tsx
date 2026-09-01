@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { Copy, AlertCircle, Play } from 'lucide-react';
+import { AlertCircle, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { CopyToClipboard } from '@/components/copy-to-clipboard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,15 +27,6 @@ export function JsonFormatter({ tool }: ToolComponentProps) {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Invalid JSON.');
       setOutput('');
-    }
-  };
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(output);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
     }
   };
 
@@ -65,10 +56,7 @@ export function JsonFormatter({ tool }: ToolComponentProps) {
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">Formatted output</label>
-              <Button variant="ghost" size="sm" onClick={copy}>
-<Copy data-icon="inline-start" />
-                Copy
-              </Button>
+              <CopyToClipboard value={output} variant="ghost" size="sm" showLabel />
             </div>
             <Textarea
               readOnly

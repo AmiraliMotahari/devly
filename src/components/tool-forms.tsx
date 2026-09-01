@@ -1,11 +1,11 @@
 "use client";
 
-import { AlertCircle, Copy, Download } from "lucide-react";
+import { AlertCircle, Download } from "lucide-react";
 import type { ReactNode } from "react";
-import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -104,15 +104,6 @@ export function ToolOutput({
   mimeType: string;
   id?: string;
 }) {
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
-  };
-
   const handleDownload = () => {
     const blob = new Blob([value], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -132,10 +123,7 @@ export function ToolOutput({
         {value}
       </pre>
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" onClick={handleCopy}>
-          <Copy data-icon="inline-start" />
-          Copy
-        </Button>
+        <CopyToClipboard value={value} variant="outline" size="sm" showLabel />
         <Button variant="outline" size="sm" onClick={handleDownload}>
           <Download data-icon="inline-start" />
           Download {filename.split(".").pop()?.toUpperCase() ?? "file"}

@@ -12,7 +12,7 @@ import {
 } from "@/components/tool-forms";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Check, Copy } from "lucide-react";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 
 const CHARSETS = {
   lowercase: "abcdefghijklmnopqrstuvwxyz",
@@ -71,7 +71,6 @@ export function PasswordGenerator({}: ToolComponentProps) {
   });
   const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [password, setPassword] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const poolSize = Object.entries(sets)
     .filter(([, enabled]) => enabled)
@@ -96,18 +95,6 @@ export function PasswordGenerator({}: ToolComponentProps) {
       return;
     }
     setPassword(pwd);
-    setCopied(false);
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(password);
-      setCopied(true);
-      toast.success("Password copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
   };
 
   return (
@@ -187,18 +174,12 @@ export function PasswordGenerator({}: ToolComponentProps) {
             <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-sm">
               {password}
             </code>
-            <button
-              type="button"
-              onClick={handleCopy}
+            <CopyToClipboard
+              value={password}
+              variant="ghost"
+              size="icon"
               aria-label="Copy password"
-              className="shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              {copied ? (
-                <Check className="size-4 text-success" />
-              ) : (
-                <Copy className="size-4" />
-              )}
-            </button>
+            />
           </div>
           <p className={`text-sm font-medium ${strengthColor}`}>{strength}</p>
         </ToolField>

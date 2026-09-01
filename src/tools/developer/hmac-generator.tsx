@@ -10,8 +10,7 @@ import {
   ToolRow,
   ToolSelect,
 } from "@/components/tool-forms";
-import { toast } from "sonner";
-import { Check, Copy } from "lucide-react";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 
 type HashName = "SHA-1" | "SHA-256" | "SHA-384" | "SHA-512";
 
@@ -35,13 +34,11 @@ export function HmacGenerator({}: ToolComponentProps) {
   const [secret, setSecret] = useState("");
   const [algorithm, setAlgorithm] = useState<HashName>("SHA-256");
   const [output, setOutput] = useState("");
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
 
   const handleGenerate = async () => {
     setError("");
     setOutput("");
-    setCopied(false);
 
     if (!message.trim()) {
       setError("Please enter a message");
@@ -70,17 +67,6 @@ export function HmacGenerator({}: ToolComponentProps) {
       setError(
         err instanceof Error ? err.message : "Failed to generate HMAC",
       );
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(output);
-      setCopied(true);
-      toast.success("Copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
     }
   };
 
@@ -127,18 +113,12 @@ export function HmacGenerator({}: ToolComponentProps) {
             <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-xs">
               {output}
             </code>
-            <button
-              type="button"
-              onClick={handleCopy}
+            <CopyToClipboard
+              value={output}
+              variant="ghost"
+              size="icon"
               aria-label="Copy HMAC"
-              className="shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              {copied ? (
-                <Check className="size-4 text-success" />
-              ) : (
-                <Copy className="size-4" />
-              )}
-            </button>
+            />
           </div>
         </ToolField>
       )}

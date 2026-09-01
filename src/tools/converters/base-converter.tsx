@@ -9,8 +9,7 @@ import {
 } from "@/components/tool-forms";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Check, Copy } from "lucide-react";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 
 const BASES = [
   { base: 2, label: "Binary (2)", pattern: /^[01]+$/, prefix: "0b" },
@@ -26,7 +25,6 @@ export function BaseConverter({}: ToolComponentProps) {
   const [value, setValue] = useState("");
   const [outputs, setOutputs] = useState<Record<number, string> | null>(null);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState<number | null>(null);
 
   const parseInBase = (input: string, base: number): number | null => {
     const clean = input
@@ -61,18 +59,6 @@ export function BaseConverter({}: ToolComponentProps) {
       result[base] = num.toString(base);
     }
     setOutputs(result);
-  };
-
-  const copy = async (base: number) => {
-    if (!outputs) return;
-    try {
-      await navigator.clipboard.writeText(outputs[base]);
-      setCopied(base);
-      toast.success("Copied to clipboard");
-      setTimeout(() => setCopied(null), 2000);
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
   };
 
   const fromOptions = BASES.map((b) => ({
@@ -130,18 +116,12 @@ export function BaseConverter({}: ToolComponentProps) {
                     <p className="text-xs text-muted-foreground">{label}</p>
                     <p className="font-mono text-sm">{outputs[base]}</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => copy(base)}
+                  <CopyToClipboard
+                    value={outputs[base]}
+                    variant="ghost"
+                    size="icon"
                     aria-label={`Copy base-${base} value`}
-                    className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    {copied === base ? (
-                      <Check className="size-4 text-success" />
-                    ) : (
-                      <Copy className="size-4" />
-                    )}
-                  </button>
+                  />
                 </CardContent>
               </Card>
             ))}

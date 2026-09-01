@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { Copy, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CopyToClipboard } from '@/components/copy-to-clipboard';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
@@ -12,7 +13,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
 export function HashGenerator({ tool }: ToolComponentProps) {
@@ -31,15 +31,6 @@ export function HashGenerator({ tool }: ToolComponentProps) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
     setOutput(hex);
-  };
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(output);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
   };
 
   return (
@@ -75,10 +66,7 @@ export function HashGenerator({ tool }: ToolComponentProps) {
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
               <label className="text-sm font-medium">{algorithm} hash</label>
-              <Button variant="ghost" size="sm" onClick={copy}>
-                <Copy data-icon="inline-start" />
-                Copy
-              </Button>
+              <CopyToClipboard value={output} variant="ghost" size="sm" showLabel />
             </div>
             <Textarea readOnly value={output} className="min-h-20 font-mono text-sm" />
           </CardContent>

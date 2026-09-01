@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Check, Copy, FileIcon, Loader2, Trash2, Upload } from "lucide-react";
+import { FileIcon, Loader2, Trash2, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 
 interface UploadedFile {
@@ -130,7 +130,6 @@ async function shaHash(
 export function ChecksumGenerator({}: ToolComponentProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [algorithm, setAlgorithm] = useState<string>("all");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleFiles = (fileList: FileList) => {
     const newFiles = Array.from(fileList).map((f) => ({
@@ -187,30 +186,12 @@ export function ChecksumGenerator({}: ToolComponentProps) {
     }
   }, [files, processFile]);
 
-  const copyHash = async (id: string, hash: string) => {
-    try {
-      await navigator.clipboard.writeText(hash);
-      setCopiedId(id);
-      toast.success("Copied to clipboard");
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
-  };
-
-  const copyAllHashes = async (file: UploadedFile) => {
-    if (!file.hashes) return;
+  const hashesText = (file: UploadedFile): string => {
+    if (!file.hashes) return "";
     const text = Object.entries(file.hashes)
       .map(([algo, hash]) => `${algo.toUpperCase()}: ${hash}`)
       .join("\n");
-    try {
-      await navigator.clipboard.writeText(`${file.file.name}:\n${text}`);
-      setCopiedId(file.id);
-      toast.success("Copied to clipboard");
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
+    return `${file.file.name}:\n${text}`;
   };
 
   const allProcessed = files.every((f) => f.hashes || f.isProcessing);
@@ -326,30 +307,23 @@ export function ChecksumGenerator({}: ToolComponentProps) {
                         <code className="flex-1 truncate rounded bg-muted px-2 py-1 text-xs">
                           {hash}
                         </code>
-                        <Button
+                        <CopyToClipboard
+                          value={hash!}
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => copyHash(`${file.id}-${algo}`, hash!)}
-                          aria-label="Copy hash"
-                        >
-                          {copiedId === `${file.id}-${algo}` ? (
-                            <Check className="h-3 w-3 text-green-500" />
-                          ) : (
-                            <Copy className="size-3" />
-                          )}
-                        </Button>
+                          aria-label={`Copy ${algo.toUpperCase()} hash`}
+                        />
                       </div>
                     ))}
-                    <Button
+                    <CopyToClipboard
+                      value={hashesText(file)}
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => copyAllHashes(file)}
-                    >
-                      <Copy data-icon="inline-start" />
-                      Copy All
-                    </Button>
+                      showLabel
+                      label="Copy All"
+                    />
                   </div>
                 )}
               </CardContent>

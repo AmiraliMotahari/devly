@@ -1,127 +1,182 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import type { ToolComponentProps } from '@/tools/tool-props';
+import { useState } from "react";
+import {
+  parse,
+  formatCss,
+  formatHex,
+  formatRgb,
+  formatHsl,
+  rgb,
+  hsl,
+  hsv,
+  oklch,
+  oklab,
+  lab,
+  lch,
+  type Color,
+} from "culori";
+import type { ToolComponentProps } from "@/tools/tool-props";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { roundColor } from "./culori-utils";
 
-function hexToRgb(hex: string): [number, number, number] | null {
-  const m = hex.replace('#', '').match(/^([a-f0-9]{6}|[a-f0-9]{3})$/i);
-  if (!m) return null;
-  let h = m[1];
-  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
-  const num = parseInt(h, 16);
-  return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-}
+const FORMATS = [
+  { label: "HEX", value: "hex" },
+  { label: "RGB", value: "rgb" },
+  { label: "HSL", value: "hsl" },
+  { label: "HSV", value: "hsv" },
+  { label: "OKLCH", value: "oklch" },
+  { label: "OKLab", value: "oklab" },
+  { label: "LAB", value: "lab" },
+  { label: "LCH", value: "lch" },
+] as const;
 
-function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0;
-  const l = (max + min) / 2;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
+type Format = (typeof FORMATS)[number]["value"];
+
+const PLACEHOLDERS: Record<Format, string> = {
+  hex: "#6366f1",
+  rgb: "rgb(99, 102, 241)",
+  hsl: "hsl(239, 84%, 67%)",
+  hsv: "hsv(239, 84%, 95%)",
+  oklch: "oklch(0.585 0.233 277.117)",
+  oklab: "oklab(0.585 -0.119 0.202)",
+  lab: "lab(54, 38.5, -83.4)",
+  lch: "lch(54, 91.5, 294.5)",
+};
+
+// culori's formatCss renders a color in its own mode, so convert first
+const converters: Record<Format, (c: Color) => string> = {
+  hex: (c) => formatHex(c),
+  rgb: (c) => formatRgb(rgb(c)),
+  hsl: (c) => formatHsl(hsl(c)),
+  hsv: (c) => {
+    const h = roundColor(hsv(c), 2);
+    return `hsv(${h.h} ${Math.round(h.s * 100)}% ${Math.round(h.v * 100)}%)`;
+  },
+  oklch: (c) => formatCss(roundColor(oklch(c), 2)),
+  oklab: (c) => formatCss(roundColor(oklab(c), 2)),
+  lab: (c) => formatCss(roundColor(lab(c), 2)),
+  lch: (c) => formatCss(roundColor(lch(c), 2)),
+};
+
+function convert(parsed: Color, target: Format): string {
+  try {
+    return converters[target](parsed) || "";
+  } catch {
+    return "";
   }
-  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
 }
 
-function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  const d = max - min;
-  let h = 0;
-  const s = max === 0 ? 0 : d / max;
-  const v = max;
-  if (d !== 0) {
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-  return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)];
-}
+export function ColorConverter({}: ToolComponentProps) {
+  const [fromFormat, setFromFormat] = useState<Format>("hex");
+  const [toFormat, setToFormat] = useState<Format>("oklch");
+  const [input, setInput] = useState("#6366f1");
 
-export function ColorConverter({ tool }: ToolComponentProps) {
-  void tool;
-  const [hex, setHex] = useState('#3b82f6');
+  // culori's parse accepts any CSS color string, regardless of the
+  // selected "from" format — the dropdown just guides the placeholder.
+  const parsed = parse(input);
 
-  const rgb = hexToRgb(hex);
-  const r = rgb?.[0] ?? 0;
-  const g = rgb?.[1] ?? 0;
-  const b = rgb?.[2] ?? 0;
-  const [h, s, l] = rgb ? rgbToHsl(r, g, b) : [0, 0, 0];
-  const [hv, sv, vv] = rgb ? rgbToHsv(r, g, b) : [0, 0, 0];
-
-  const formats = [
-    { label: 'HEX', value: hex.toUpperCase() },
-    { label: 'RGB', value: `rgb(${r}, ${g}, ${b})` },
-    { label: 'HSL', value: `hsl(${h}, ${s}%, ${l}%)` },
-    { label: 'HSV', value: `hsv(${hv}, ${sv}%, ${vv}%)` },
-  ];
-
-  const copy = async (value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      toast.success(`Copied ${value}`);
-    } catch {
-      toast.error('Could not copy — clipboard unavailable');
-    }
-  };
+  const converted = parsed ? convert(parsed, toFormat) : "";
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="color-picker">Color picker</Label>
-          <input
-            id="color-picker"
-            type="color"
-            value={hex}
-            onChange={(e) => setHex(e.target.value)}
-            className="h-10 w-20 cursor-pointer rounded-md border border-border"
-          />
+          <Label htmlFor="cc-from">From format</Label>
+          <Select value={fromFormat} onValueChange={(v) => setFromFormat(v as Format)}>
+            <SelectTrigger id="cc-from" className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FORMATS.map((f) => (
+                <SelectItem key={f.value} value={f.value}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex flex-1 min-w-40 flex-col gap-2">
-          <Label htmlFor="hex-input">HEX</Label>
-          <Input id="hex-input" value={hex} onChange={(e) => setHex(e.target.value)} placeholder="#3b82f6" />
+        <div className="flex min-w-48 flex-1 flex-col gap-2">
+          <Label htmlFor="cc-input">Color value</Label>
+          <Input
+            id="cc-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={PLACEHOLDERS[fromFormat]}
+            className="font-mono"
+          />
         </div>
       </div>
 
-      {rgb && (
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="cc-to">To format</Label>
+          <Select value={toFormat} onValueChange={(v) => setToFormat(v as Format)}>
+            <SelectTrigger id="cc-to" className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FORMATS.map((f) => (
+                <SelectItem key={f.value} value={f.value}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {converted && (
+          <div className="flex min-w-48 flex-1 items-center gap-2">
+            <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-sm">
+              {converted}
+            </code>
+            <CopyToClipboard value={converted} variant="outline" showLabel />
+          </div>
+        )}
+      </div>
+
+      {input && !parsed && (
+        <p className="text-sm text-destructive">
+          Not a recognizable color. Paste any CSS color — hex, rgb(), hsl(),
+          oklch(), or a named color like rebeccapurple.
+        </p>
+      )}
+
+      {parsed && (
         <div
           className="h-24 rounded-lg border border-border"
-          style={{ backgroundColor: hex }}
+          style={{ backgroundColor: formatCss(parsed) }}
         />
       )}
 
-      <div className="flex flex-col gap-2">
-        {formats.map((f) => (
-          <Card key={f.label}>
-            <CardContent className="flex items-center justify-between p-4">
-              <div>
-                <p className="text-xs text-muted-foreground">{f.label}</p>
-                <p className="font-mono text-sm">{f.value}</p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => copy(f.value)}>
-                <Copy className="size-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {parsed && (
+        <div className="flex flex-col gap-2">
+          {FORMATS.map((f) => {
+            const value = convert(parsed, f.value);
+            if (!value) return null;
+            return (
+              <Card key={f.label}>
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">{f.label}</p>
+                    <p className="truncate font-mono text-sm">{value}</p>
+                  </div>
+                  <CopyToClipboard value={value} variant="ghost" size="sm" />
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CopyToClipboard } from '@/components/copy-to-clipboard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'sonner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 
 const UNITS: Record<string, Record<string, number>> = {
@@ -82,15 +80,6 @@ export function UnitConverter({ tool }: ToolComponentProps) {
     }
   }
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(result);
-      toast.success('Copied to clipboard');
-    } catch {
-      toast.error('Could not copy — clipboard unavailable');
-    }
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
@@ -146,10 +135,7 @@ export function UnitConverter({ tool }: ToolComponentProps) {
             <p className="text-xs text-muted-foreground">Result</p>
             <p className="text-2xl font-bold tabular-nums">{value} {from} = {result} {to}</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={copy}>
-            <Copy data-icon="inline-start" />
-            Copy
-          </Button>
+          <CopyToClipboard value={result} variant="ghost" size="sm" showLabel />
         </CardContent>
       </Card>
     </div>

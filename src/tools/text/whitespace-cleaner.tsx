@@ -1,13 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Copy } from "lucide-react";
 import { useState } from "react";
 
 export function WhitespaceCleaner({ tool }: ToolComponentProps) {
@@ -38,15 +36,6 @@ export function WhitespaceCleaner({ tool }: ToolComponentProps) {
       .filter((l) => l.trim() !== "")
       .join("\n");
   output = output.replace(/\n{3,}/g, "\n\n");
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(output);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -97,10 +86,7 @@ export function WhitespaceCleaner({ tool }: ToolComponentProps) {
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
               <Label htmlFor="ws-output">Cleaned output</Label>
-              <Button variant="ghost" size="sm" onClick={copy}>
-                <Copy data-icon="inline-start" />
-                Copy
-              </Button>
+              <CopyToClipboard value={output} variant="ghost" size="sm" showLabel />
             </div>
             <Textarea
               id="ws-output"

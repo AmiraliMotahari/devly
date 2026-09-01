@@ -1,25 +1,44 @@
 "use client";
 
+import { useState } from "react";
+import { v4, v5, v7 } from "uuid";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { ToolComponentProps } from "@/tools/tool-props";
-import { Copy, Play, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { Play, RefreshCw } from "lucide-react";
 
-function uuidv4(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
+type Version = "v4" | "v5" | "v7";
+
+const VERSION_INFO: Record<Version, { label: string; hint: string }> = {
+  v4: { label: "v4 — Random", hint: "Fully random, the universal default." },
+  v5: {
+    label: "v5 — Namespaced SHA-1",
+    hint: "Deterministic: the same name + namespace always yields the same UUID.",
+  },
+  v7: {
+    label: "v7 — Timestamp-sortable",
+    hint: "Millisecond timestamp prefix — sortable, great for database keys.",
+  },
+};
+
+const NAMESPACE_PRESETS = [
+  { label: "URL", value: v5.URL },
+  { label: "DNS", value: v5.DNS },
+  { label: "OID", value: "6ba7b812-9dad-11d1-80b4-00c04fd430c8" },
+  { label: "X500", value: "6ba7b814-9dad-11d1-80b4-00c04fd430c8" },
+];
 
 export function UuidGenerator({ tool }: ToolComponentProps) {
   const countOption = tool.options?.find((o) => o.key === "count");
@@ -30,36 +49,66 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
   const defaultUpper = Boolean(upperOption?.default ?? false);
   const defaultHyphens = Boolean(hyphensOption?.default ?? true);
 
+  const [version, setVersion] = useState<Version>("v4");
   const [count, setCount] = useState(defaultCount);
   const [uppercase, setUppercase] = useState(defaultUpper);
   const [hyphens, setHyphens] = useState(defaultHyphens);
+
+  const [namespace, setNamespace] = useState(v5.URL);
+  const [name, setName] = useState("https://example.com");
+
   const [uuids, setUuids] = useState<string[]>([]);
 
-  const generate = () => {
-    const list: string[] = [];
-    for (let i = 0; i < count; i++) {
-      let id = uuidv4();
-      if (!hyphens) id = id.replace(/-/g, "");
-      if (uppercase) id = id.toUpperCase();
-      list.push(id);
+  const generateOne = (): string => {
+    switch (version) {
+      case "v4":
+        return v4();
+      case "v5":
+        return v5(name, namespace);
+      case "v7":
+        return v7();
     }
-    setUuids(list);
   };
 
-  const copyAll = async () => {
-    try {
-      await navigator.clipboard.writeText(uuids.join("\n"));
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Could not copy — clipboard unavailable");
+  const generate = () => {
+    const next: string[] = [];
+    for (let i = 0; i < count; i++) {
+      let id = generateOne();
+      if (!hyphens) id = id.replace(/-/g, "");
+      if (uppercase) id = id.toUpperCase();
+      next.push(id);
     }
+    // v5 is deterministic — generating "count" of the same name+namespace
+    // yields identical UUIDs; that's expected, show it honestly.
+    setUuids(Array.from(new Set(next)));
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <label htmlFor="uuid-count" className="text-sm font-medium">Count</label>
+          <Label htmlFor="uuid-version">UUID version</Label>
+          <Select
+            value={version}
+            onValueChange={(v) => setVersion(v as Version)}
+          >
+            <SelectTrigger id="uuid-version" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(VERSION_INFO).map(([v, info]) => (
+                <SelectItem key={v} value={v}>
+                  {info.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {VERSION_INFO[version].hint}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="uuid-count">Count</Label>
           <Input
             id="uuid-count"
             type="number"
@@ -71,46 +120,92 @@ export function UuidGenerator({ tool }: ToolComponentProps) {
             }
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="uuid-uppercase" className="text-sm font-medium">Uppercase</label>
+      </div>
+
+      {version === "v5" && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="uuid-namespace">Namespace</Label>
+            <Select value={namespace} onValueChange={setNamespace}>
+              <SelectTrigger id="uuid-namespace" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {NAMESPACE_PRESETS.map((ns) => (
+                  <SelectItem key={ns.value} value={ns.value}>
+                    {ns.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="font-mono text-xs text-muted-foreground">{namespace}</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="uuid-name">Name</Label>
+            <Input
+              id="uuid-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. https://example.com"
+              className="font-mono"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-6">
+        <div className="flex items-center gap-2">
           <Switch
             id="uuid-uppercase"
             checked={uppercase}
             onCheckedChange={setUppercase}
           />
+          <Label htmlFor="uuid-uppercase" className="font-normal">
+            Uppercase
+          </Label>
         </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="uuid-hyphens" className="text-sm font-medium">Hyphens</label>
+        <div className="flex items-center gap-2">
           <Switch
             id="uuid-hyphens"
             checked={hyphens}
             onCheckedChange={setHyphens}
           />
+          <Label htmlFor="uuid-hyphens" className="font-normal">
+            Hyphens
+          </Label>
         </div>
       </div>
+
       <Button onClick={generate}>
         <Play data-icon="inline-start" /> Generate UUIDs
       </Button>
+
       {uuids.length > 0 && (
         <Card>
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium">
-                {uuids.length} UUIDs
-              </label>
+              <Label htmlFor="uuid-output">
+                {uuids.length} UUID{uuids.length === 1 ? "" : "s"} ({version})
+              </Label>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={copyAll}>
-                  <Copy className="size-4" /> Copy all
-                </Button>
+                <CopyToClipboard
+                  value={uuids.join("\n")}
+                  variant="ghost"
+                  size="sm"
+                  showLabel
+                  label="Copy all"
+                />
                 <Button variant="ghost" size="sm" onClick={generate}>
-                  <RefreshCw className="size-4" /> Regenerate
+                  <RefreshCw data-icon="inline-start" />
+                  Regenerate
                 </Button>
               </div>
             </div>
             <Textarea
+              id="uuid-output"
               readOnly
               value={uuids.join("\n")}
-              className="min-h-50 font-mono text-sm"
+              className="min-h-40 font-mono text-sm"
             />
           </CardContent>
         </Card>
