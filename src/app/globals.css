@@ -187,3 +187,36 @@
   }
 }
 
+/* Diff-tinted highlighted lines for CodeBlock inside diff views */
+.diff-added [data-slot="code-block"] {
+  --rs-highlighted-line-background: color-mix(
+    in oklab,
+    var(--success) 18%,
+    transparent
+  );
+}
+
+.diff-removed [data-slot="code-block"] {
+  --rs-highlighted-line-background: color-mix(
+    in oklab,
+    var(--destructive) 18%,
+    transparent
+  );
+}
+
+.diff-added .rs-default-styles .rs-highlighted-line,
+.diff-added .rs-highlighted-line {
+  background-color: color-mix(in oklab, var(--success) 18%, transparent) !important;
+  border-image: none !important;
+}
+
+.diff-removed .rs-default-styles .rs-highlighted-line,
+.diff-removed .rs-highlighted-line {
+  background-color: color-mix(
+    in oklab,
+    var(--destructive) 18%,
+    transparent
+  ) !important;
+  border-image: none !important;
+}
+

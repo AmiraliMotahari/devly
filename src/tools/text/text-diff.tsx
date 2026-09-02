@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { ToolContainer, ToolField } from "@/components/tool-forms";
+import { CodeBlock } from "@/components/code-block";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -138,7 +139,7 @@ function diffWords(oldText: string, newText: string): { type: string; text: stri
 export function TextDiff({}: ToolComponentProps) {
   const [oldText, setOldText] = useState("");
   const [newText, setNewText] = useState("");
-  const [mode, setMode] = useState<"line" | "word">("line");
+  const [mode, setMode] = useState<"line" | "word" | "unified">("line");
 
   const renderLineDiff = () => {
     if (!oldText && !newText) {
@@ -217,6 +218,76 @@ export function TextDiff({}: ToolComponentProps) {
     );
   };
 
+  const renderUnifiedDiff = () => {
+    if (!oldText && !newText) {
+      return (
+        <p className="text-sm text-muted-foreground">
+          Enter text in both fields to see the difference.
+        </p>
+      );
+    }
+    const diff = diffLines(oldText, newText);
+    const oldLines = diff
+      .filter((line) => line.type !== "added")
+      .map((line) => line.oldContent ?? line.newContent ?? "");
+    const newLines = diff
+      .filter((line) => line.type !== "removed")
+      .map((line) => line.newContent ?? line.oldContent ?? "");
+
+    let oldIdx = 0;
+    let newIdx = 0;
+    const oldChangedIdx: number[] = [];
+    const newChangedIdx: number[] = [];
+    for (const line of diff) {
+      if (line.type !== "added") {
+        oldIdx++;
+        if (line.type === "removed" || line.type === "modified") {
+          oldChangedIdx.push(oldIdx);
+        }
+      }
+      if (line.type !== "removed") {
+        newIdx++;
+        if (line.type === "added" || line.type === "modified") {
+          newChangedIdx.push(newIdx);
+        }
+      }
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="diff-removed">
+          <ToolField label={`Original (${oldLines.length} lines)`}>
+            <CodeBlock
+              code={oldLines.join("\n")}
+              language="text"
+              filename="original"
+              showLineNumbers
+              highlightLines={oldChangedIdx}
+              maxHeight="max-h-80"
+            />
+          </ToolField>
+        </div>
+        <div className="diff-added">
+          <ToolField label={`New (${newLines.length} lines)`}>
+            <CodeBlock
+              code={newLines.join("\n")}
+              language="text"
+              filename="new"
+              showLineNumbers
+              highlightLines={newChangedIdx}
+              maxHeight="max-h-80"
+            />
+          </ToolField>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {oldChangedIdx.length + newChangedIdx.length} changed line
+          {oldChangedIdx.length + newChangedIdx.length === 1 ? "" : "s"}{" "}
+          highlighted.
+        </p>
+      </div>
+    );
+  };
+
   return (
     <ToolContainer>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -245,7 +316,7 @@ export function TextDiff({}: ToolComponentProps) {
       <ToolField label="Diff Mode">
         <Select
           value={mode}
-          onValueChange={(v) => setMode(v as "line" | "word")}
+          onValueChange={(v) => setMode(v as "line" | "word" | "unified")}
         >
           <SelectTrigger className="w-44">
             <SelectValue />
@@ -253,12 +324,17 @@ export function TextDiff({}: ToolComponentProps) {
           <SelectContent>
             <SelectItem value="line">Line by line</SelectItem>
             <SelectItem value="word">Word by word</SelectItem>
+            <SelectItem value="unified">Unified (highlighted code)</SelectItem>
           </SelectContent>
         </Select>
       </ToolField>
 
       <div>
-        {mode === "line" ? renderLineDiff() : renderWordDiff()}
+        {mode === "line"
+          ? renderLineDiff()
+          : mode === "word"
+          ? renderWordDiff()
+          : renderUnifiedDiff()}
       </div>
     </ToolContainer>
   );
