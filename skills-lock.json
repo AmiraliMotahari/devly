@@ -25,6 +25,12 @@
       "skillPath": "skills/next-partial-prefetching-adoption/SKILL.md",
       "computedHash": "0e8e6cfdc21684b7a359ffc5bbe1ba3b7ae7f26a068b9e7dc6b1d0f170c9e98d"
     },
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "skillPath": "skills/playwright-cli/SKILL.md",
+      "computedHash": "19b6942c9cbcf9b9e3000fc497f8f156b8251d66055de806017e4aaa651e0c7b"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",

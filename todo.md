@@ -2,20 +2,34 @@
 
 ## V1
 
-- [ ]: General: Add reusable copy button (DRY)
-- [ ]: Color: Convert hex to oklch
-- [ ]: Color: Any to Any color convert (eg:hex to rbg, rbg to hex like google translate)
-- [ ]: Color: Copy/Paste css color vars and convert (eg: oklch to rbg ) -batched
-- [ ]: General: Redesign header with a more compact view (logo, home, categories, tools, search, theme-toggle, github)
-- [ ]: General: Change code based input/output blocks to code blocks with themed styles, line number something similar to vs-code (highlight.js)
-- [ ]: Web: use my qr-code(from my other project)
+- [x]: General: Add reusable copy button (DRY)
+- [x]: Color: Convert hex to oklch
+- [x]: Color: Any to Any color convert (eg:hex to rbg, rbg to hex like google translate)
+- [x]: Color: Copy/Paste css color vars and convert (eg: oklch to rbg ) -batched
+- [x]: UUID: Add different uuid generation version (v4, v5,...)
+
+- [x]: General: Change code based input/output blocks to code blocks with themed styles, line number something similar to vs-code (eg: highlight.js, react-syntax-highlighter)
+
+- [ ]: Web: use my qr-code(from my other project) located at "/"
 - [ ]: Web: Add barcode generator
-- [ ]: File: Password ZIP is currently only encrypting each file, fix the behavior and also add a decoder if needed
-- [ ]: PDF: all pdf tools are just examples implement real production ready tools
-- [ ]: Fix: command-pallet code (identical options are shown)
-- [ ]: Add a new tool that encrypt/decrypt a text with a given password/key
-- [ ]: UUID: Add different uuid generation version (v4, v5,...)
-- [ ]: Tests: Generate comprehensive test units
+
+- [x]: General: Redesign header with a more compact view (logo, home, categories, tools, search, theme-toggle, github). you should consider all sizes. best practices and modern and simple design.
+
+- [x]: File: Password ZIP is currently only encrypting each file, fix the behavior and also add a decoder
+- [x]: PDF: all pdf tools are just examples implement real production ready tools
+- [x]: Fix: command-pallet code (identical options are shown, unpleasant ui)
+- [x]: Add a new tool that encrypt/decrypt a text with a given password/key
+
+- [ ]: Tests: Generate comprehensive test units (vitest, playwright)
+- [ ]: Tests: Move all test, e2e files to /tests for better management
+
+- [ ]: CI/CD: add github workflow
+
+- [ ]: Add "filerobot-image-editor" for advance image edit
+- [ ]: Use "@jsquash/webp" for image compression
+- [ ]: Use react-upload-zone for better capability
+
+- [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture
 
 ## V2
 
@@ -38,3 +52,14 @@
 - [ ]: openTelementry
 - [ ]: Rate-limit
 - [ ]: Captcha "cloudflare"
+
+## V4
+
+- [ ]: AI/chat-box: Simple ai chat box using shadcn latest components
+- [ ]: AI/blog-writer: an SEO expert who first ask questions, r&ds then proceeds to write a post for a blog (available to download as .md, .txt, .html, ...)
+- [ ]: AI/seo-analyzer: An SEO expert who finds in and out of a given website anf suggest areas of improvement with step by step guides
+
+## V5
+
+- [ ]: Video tools
+- [ ]: Audio tools
