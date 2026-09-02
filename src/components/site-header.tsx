@@ -7,51 +7,46 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetTrigger
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
+import { CATEGORY_META } from "@/tools/categories";
 import { useIsApple } from "@/hooks/use-isApple";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { appName } from "@/lib/constants";
+import { appName, githubProfileUrl } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Menu, SearchIcon, X, ChevronDown } from "lucide-react";
+import {
+  ChevronDown,
+  Menu,
+  SearchIcon,
+  Wrench,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import GitHubIcon from "./github.icon";
+import GitHubIconSvg from "./github.icon";
 import Logo from "./logo";
-import { githubProfileUrl } from "@/lib/constants";
 import { Kbd, KbdGroup } from "./ui/kbd";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/category/images", label: "Images" },
-  { href: "/category/pdf", label: "PDF" },
-  { href: "/category/files", label: "Files" },
-  { href: "/category/developer", label: "Developer" },
-  { href: "/category/text", label: "Text" },
-  { href: "/category/web", label: "Web" },
-  { href: "/category/converters", label: "Converters" },
-];
+const CATEGORY_LINKS = (
+  Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]
+).map((cat) => ({ href: `/category/${cat}`, label: CATEGORY_META[cat].label }));
 
-const MORE_NAV_LINKS = [
-  { href: "/category/data", label: "Data" },
-  { href: "/category/colors", label: "Colors" },
-  { href: "/category/datetime", label: "Date & Time" },
-  { href: "/tools", label: "All tools" },
-];
-
-const ALL_NAV_LINKS = [...NAV_LINKS.slice(1), ...MORE_NAV_LINKS];
+const isActive = (pathname: string, href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
 
 const MobileNav = () => {
   const pathname = usePathname();
   const isMobile = useIsMobile();
-
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -66,19 +61,45 @@ const MobileNav = () => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size={"icon"}>
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+        <Button variant="outline" size="icon" aria-label="Open menu">
+          {open ? <X /> : <Menu />}
         </Button>
       </SheetTrigger>
-      <SheetContent className="pt-14 px-3">
-        <nav className="flex flex-col gap-1">
-          {ALL_NAV_LINKS.map((link) => (
+      <SheetContent side="right" className="w-72 pt-14">
+        <SheetTitle className="sr-only">Navigation</SheetTitle>
+        <nav className="flex flex-col gap-1" aria-label="Main">
+          <SheetClose asChild>
+            <Link
+              href="/"
+              className={cn(
+                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                isActive(pathname, "/") && "bg-accent text-foreground",
+              )}
+            >
+              Home
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/tools"
+              className={cn(
+                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                isActive(pathname, "/tools") && "bg-accent text-foreground",
+              )}
+            >
+              All tools
+            </Link>
+          </SheetClose>
+          <p className="px-3 pt-4 pb-1 text-xs font-medium text-muted-foreground">
+            Categories
+          </p>
+          {CATEGORY_LINKS.map((link) => (
             <SheetClose key={link.href} asChild>
               <Link
                 href={link.href}
                 className={cn(
                   "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                  pathname === link.href && "bg-accent text-foreground",
+                  isActive(pathname, link.href) && "bg-accent text-foreground",
                 )}
               >
                 {link.label}
@@ -95,76 +116,113 @@ export function SiteHeader() {
   const isApple = useIsApple();
   const pathname = usePathname();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const inCategories = CATEGORY_LINKS.some((l) =>
+    isActive(pathname, l.href),
+  );
 
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Logo />
-              <span className="text-lg tracking-tight">{appName}</span>
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            aria-label={`${appName} home`}
+          >
+            <Logo />
+            <span className="hidden text-base font-semibold tracking-tight sm:inline">
+              {appName}
+            </span>
+          </Link>
+
+          <div className="mx-1 hidden h-5 w-px bg-border md:block" />
+
+          <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+            <Link
+              href="/"
+              className={cn(
+                "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                isActive(pathname, "/") && "text-foreground",
+              )}
+            >
+              Home
             </Link>
-            <nav className="hidden items-center gap-1 md:flex">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
                   className={cn(
-                    "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                    pathname === link.href && "text-foreground",
+                    "flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
+                    inCategories && "text-foreground",
                   )}
                 >
-                  {link.label}
-                </Link>
-              ))}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label="More categories"
-                    className={cn(
-                      "flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                      MORE_NAV_LINKS.some((l) => l.href === pathname) &&
-                        "text-foreground",
-                    )}
-                  >
-                    More
-                    <ChevronDown className="size-3.5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {MORE_NAV_LINKS.map((link) => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link
-                        href={link.href}
-                        className={cn(
-                          pathname === link.href && "bg-accent text-foreground"
-                        )}
-                      >
-                        {link.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </nav>
-          </div>
+                  Categories
+                  <ChevronDown data-icon="inline-end" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                <DropdownMenuLabel className="sr-only">
+                  Categories
+                </DropdownMenuLabel>
+                {CATEGORY_LINKS.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link
+                      href={link.href}
+                      className={cn(
+                        isActive(pathname, link.href) &&
+                          "bg-accent text-foreground",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/tools">
+                    <Wrench data-icon="inline-start" />
+                    All tools
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Link
+              href="/tools"
+              className={cn(
+                "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                isActive(pathname, "/tools") && "text-foreground",
+              )}
+            >
+              Tools
+            </Link>
+          </nav>
+
+          <div className="flex-1" />
 
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
-              className="hidden h-9 w-64 justify-start gap-2 text-muted-foreground sm:flex"
+              size="sm"
+              className="hidden h-8 w-52 justify-start gap-2 text-muted-foreground lg:flex"
               onClick={() => setCommandPaletteOpen(true)}
             >
-              <SearchIcon className="size-4" />
+              <SearchIcon data-icon="inline-start" />
               <span className="flex-1 text-left text-sm font-normal">
-                Search...
+                Search tools…
               </span>
               <KbdGroup>
                 {isApple ? <Kbd>⌘</Kbd> : <Kbd>Ctrl</Kbd>}
                 <Kbd>K</Kbd>
               </KbdGroup>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setCommandPaletteOpen(true)}
+              aria-label="Search tools"
+            >
+              <SearchIcon />
             </Button>
             <ModeToggle />
             {githubProfileUrl && (
@@ -172,10 +230,10 @@ export function SiteHeader() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className="hidden sm:flex"
+                className="hidden sm:inline-flex"
               >
-                <Link href={githubProfileUrl} aria-label="GitHub">
-                  <GitHubIcon />
+                <Link href={githubProfileUrl} aria-label="GitHub profile">
+                  <GitHubIconSvg />
                 </Link>
               </Button>
             )}
