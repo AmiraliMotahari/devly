@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import { CodeBlock } from "@/components/code-block";
 
 const CHARSETS = {
   lowercase: "abcdefghijklmnopqrstuvwxyz",
@@ -171,9 +172,7 @@ export function PasswordGenerator({}: ToolComponentProps) {
           help={`~${entropy} bits of entropy · ${strength}`}
         >
           <div className="flex items-center gap-2">
-            <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-sm">
-              {password}
-            </code>
+             <CodeBlock code={password} language="text" />
             <CopyToClipboard
               value={password}
               variant="ghost"

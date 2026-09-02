@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import { CodeBlock } from "@/components/code-block";
 import {
   Select,
   SelectContent,
@@ -136,9 +137,7 @@ export function ColorConverter({}: ToolComponentProps) {
         </div>
         {converted && (
           <div className="flex min-w-48 flex-1 items-center gap-2">
-            <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-sm">
-              {converted}
-            </code>
+            <CodeBlock code={converted} language="text" />
             <CopyToClipboard value={converted} variant="outline" showLabel />
           </div>
         )}

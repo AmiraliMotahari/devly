@@ -9,6 +9,7 @@ import {
 } from "@/components/tool-forms";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2 } from "lucide-react";
+import { CodeBlock } from "@/components/code-block";
 
 function getJsonErrorPosition(input: string, message: string): number | null {
   // V8/SpiderMonkey messages include "position N" or "line X column Y"
@@ -98,18 +99,16 @@ export function JsonValidator({}: ToolComponentProps) {
         </Alert>
       )}
 
-      {result && !result.valid && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            <p>{result.message}</p>
-            {result.snippet && (
-              <pre className="mt-2 overflow-auto rounded-md bg-muted p-2 font-mono text-xs">
-                {result.snippet}
-              </pre>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
+       {result && !result.valid && (
+         <Alert variant="destructive">
+           <AlertDescription>
+             <p>{result.message}</p>
+             {result.snippet && (
+               <CodeBlock code={result.snippet} language="text" />
+             )}
+           </AlertDescription>
+         </Alert>
+       )}
     </ToolContainer>
   );
 }

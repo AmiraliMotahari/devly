@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatFileSize } from "@/lib/file-security";
+import { CodeBlock } from "@/components/code-block";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { FileIcon, Loader2, Trash2, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -304,9 +305,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
                         <span className="w-20 text-xs font-medium text-muted-foreground">
                           {algo.toUpperCase()}
                         </span>
-                        <code className="flex-1 truncate rounded bg-muted px-2 py-1 text-xs">
-                          {hash}
-                        </code>
+                        <CodeBlock code={hash ?? ""} language="text" />
                         <CopyToClipboard
                           value={hash!}
                           variant="ghost"

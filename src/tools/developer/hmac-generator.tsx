@@ -11,6 +11,7 @@ import {
   ToolSelect,
 } from "@/components/tool-forms";
 import { CopyToClipboard } from "@/components/copy-to-clipboard";
+import { CodeBlock } from "@/components/code-block";
 
 type HashName = "SHA-1" | "SHA-256" | "SHA-384" | "SHA-512";
 
@@ -110,9 +111,7 @@ export function HmacGenerator({}: ToolComponentProps) {
       {output && (
         <ToolField label={`HMAC-${algorithm}`}>
           <div className="flex items-center gap-2">
-            <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-xs">
-              {output}
-            </code>
+            <CodeBlock code={output} language="text" />
             <CopyToClipboard
               value={output}
               variant="ghost"
