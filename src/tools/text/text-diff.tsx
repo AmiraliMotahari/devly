@@ -199,7 +199,7 @@ export function TextDiff({}: ToolComponentProps) {
     }
     const diff = diffWords(oldText, newText);
     return (
-      <div className="border rounded p-4 font-mono text-sm whitespace-pre-wrap break-words max-h-96 overflow-auto">
+      <div className="border rounded p-4 font-mono text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-auto">
         {diff.map((part, idx) => (
           <span
             key={idx}

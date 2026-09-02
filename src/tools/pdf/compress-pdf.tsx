@@ -41,8 +41,10 @@ export function CompressPdf({ tool }: ToolComponentProps) {
 
     try {
       setProgress(20);
-      const bytes = await pdf.arrayBuffer();
-      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+      const originalBytes = await pdf.arrayBuffer();
+      const doc = await PDFDocument.load(originalBytes, {
+        ignoreEncryption: true,
+      });
 
       setProgress(50);
       doc.setTitle("");
@@ -57,7 +59,14 @@ export function CompressPdf({ tool }: ToolComponentProps) {
       const compressedBytes = await doc.save({ useObjectStreams });
 
       setProgress(90);
-      const blob = new Blob([new Uint8Array(compressedBytes)], { type: "application/pdf" });
+
+      // Be honest: if re-saving grew the file, deliver the original bytes
+      // instead of pretending we saved space.
+      const grew = compressedBytes.byteLength >= originalBytes.byteLength;
+      const finalBytes: Uint8Array<ArrayBuffer> = grew
+        ? new Uint8Array(originalBytes)
+        : new Uint8Array(compressedBytes);
+      const blob = new Blob([finalBytes], { type: "application/pdf" });
 
       const savings = ((pdf.size - blob.size) / pdf.size) * 100;
       const savedBytes = pdf.size - blob.size;
@@ -70,7 +79,13 @@ export function CompressPdf({ tool }: ToolComponentProps) {
         metadata: {
           "Original size": formatFileSize(pdf.size),
           "Compressed size": formatFileSize(blob.size),
-          "Space saved": `${formatFileSize(Math.abs(savedBytes))} (${savings.toFixed(1)}%)`,
+          ...(grew
+            ? {
+                Note: "Already fully optimized — original file returned unchanged.",
+              }
+            : {
+                "Space saved": `${formatFileSize(savedBytes)} (${savings.toFixed(1)}%)`,
+              }),
           "Compression level": level,
         },
       }]);

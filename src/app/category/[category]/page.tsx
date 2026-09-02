@@ -68,7 +68,7 @@ const CategoryDetails = async ({ params }: { params: PageParams }) => {
   const Icon = ICON_MAP[meta.icon] ?? ArrowRight;
 
   return (
-    <div className="container mx-auto px-4 py-12 animate-fade-in">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 animate-fade-in">
       <div className="mb-8">
         <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Icon className="size-6" />
@@ -122,7 +122,7 @@ export default async function CategoryPage({ params }: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="container mx-auto px-4 py-12 animate-fade-in">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 animate-fade-in">
           <div className="mb-8">
             <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Skeleton className="size-6" />

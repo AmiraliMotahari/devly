@@ -781,7 +781,11 @@ export const toolDefinitions: ToolDefinition[] = [
       },
     ],
     keywords: ["zip", "password", "encrypt", "secure", "archive"],
-    relatedToolSlugs: ["create-zip", "extract-zip", "checksum-generator"],
+    relatedToolSlugs: [
+      "extract-encrypted-zip",
+      "create-zip",
+      "extract-zip",
+    ],
     faq: [
       {
         question: "Is my password stored or sent anywhere?",
@@ -799,6 +803,58 @@ export const toolDefinitions: ToolDefinition[] = [
       "Enter a strong password",
       "A password-protected ZIP is created in your browser",
       "Download the encrypted ZIP file",
+    ],
+    available: true,
+  },
+  {
+    id: "files-zip-extract-encrypted",
+    slug: "extract-encrypted-zip",
+    name: "Decrypt Encrypted ZIP",
+    description:
+      "Unlock and restore files from a Password ZIP archive. AES-256-GCM decryption happens entirely in your browser.",
+    category: "files",
+    aliases: [
+      "decrypt zip",
+      "unencrypt zip",
+      "open encrypted zip",
+      "password zip extractor",
+    ],
+    inputKind: "file",
+    outputKind: "file",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    acceptFileTypes: ["application/zip"],
+    maxFileSizeMB: 500,
+    maxFiles: 1,
+    options: [
+      {
+        key: "password",
+        label: "Password",
+        type: "text",
+        default: "",
+        help: "The password the archive was encrypted with.",
+      },
+    ],
+    keywords: ["zip", "password", "decrypt", "encrypt", "unlock", "aes"],
+    relatedToolSlugs: ["create-encrypted-zip", "extract-zip"],
+    faq: [
+      {
+        question: "Can this open any password-protected ZIP?",
+        answer:
+          "It opens archives created by the Password ZIP tool. Standard ZIP password protection (WinZip AES or legacy) is a different format.",
+      },
+      {
+        question: "How do I know the password was correct?",
+        answer:
+          "Every file is authenticated by AES-GCM. A wrong password fails verification and is reported — nothing is silently corrupted.",
+      },
+    ],
+    howItWorks: [
+      "Upload the encrypted ZIP archive",
+      "Enter the password it was encrypted with",
+      "Each file is decrypted and verified with AES-256-GCM",
+      "Download the restored files (individually or as a ZIP)",
     ],
     available: true,
   },
@@ -1099,7 +1155,7 @@ export const toolDefinitions: ToolDefinition[] = [
     description:
       "Generate a JSON Schema from sample JSON data. Infer types, formats, required fields and more.",
     category: "developer",
-    aliases: ["json schema", "schema generator", "json type inference"],
+    aliases: ["schema generator", "json type inference", "infer schema"],
     inputKind: "text",
     outputKind: "text",
     processingMode: "client",
@@ -1541,6 +1597,80 @@ export const toolDefinitions: ToolDefinition[] = [
     ],
     keywords: ["diff", "compare", "text", "differences", "change"],
     relatedToolSlugs: ["word-counter", "case-converter"],
+    available: true,
+  },
+  {
+    id: "text-encrypt-decrypt",
+    slug: "text-encrypt-decrypt",
+    name: "Encrypt Text",
+    description:
+      "Encrypt or decrypt text with a password using AES-256-GCM. Share the encrypted message safely — only the password holder can read it.",
+    category: "text",
+    aliases: [
+      "encrypt text",
+      "decrypt text",
+      "text encryption",
+      "password protect text",
+      "secret message",
+    ],
+    inputKind: "text",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    options: [
+      {
+        key: "mode",
+        label: "Mode",
+        type: "select",
+        default: "encrypt",
+        options: [
+          { label: "Encrypt", value: "encrypt" },
+          { label: "Decrypt", value: "decrypt" },
+        ],
+      },
+      {
+        key: "password",
+        label: "Password",
+        type: "text",
+        default: "",
+        help: "The password used to encrypt or decrypt the text.",
+      },
+    ],
+    keywords: [
+      "encrypt",
+      "decrypt",
+      "aes",
+      "gcm",
+      "password",
+      "cipher",
+      "secret",
+      "crypto",
+    ],
+    relatedToolSlugs: ["create-encrypted-zip", "extract-encrypted-zip", "hash-generator"],
+    faq: [
+      {
+        question: "Is my text or password sent anywhere?",
+        answer:
+          "No. Encryption happens entirely in your browser with the Web Crypto API. Nothing is transmitted or stored.",
+      },
+      {
+        question: "What format is the encrypted message?",
+        answer:
+          "A devly-v1 envelope containing the salt, IV and AES-256-GCM ciphertext, encoded as base64. Anyone with the password and this tool can decrypt it.",
+      },
+      {
+        question: "How strong is the encryption?",
+        answer:
+          "AES-256-GCM authenticated encryption with a key derived from your password using PBKDF2-SHA256 at 100,000 iterations.",
+      },
+    ],
+    howItWorks: [
+      "Choose encrypt or decrypt mode",
+      "Paste your text and enter a password",
+      "AES-256-GCM runs locally in your browser",
+      "Copy the encrypted envelope or the restored text",
+    ],
     available: true,
   },
 
@@ -1992,7 +2122,7 @@ export const toolDefinitions: ToolDefinition[] = [
     description:
       "Generate a draft-07 JSON Schema from a JSON sample. Infers types, properties, required fields, and string formats.",
     category: "data",
-    aliases: ["json schema", "generate schema", "json to schema"],
+    aliases: ["json schema", "generate schema", "json to schema", "schema from json"],
     inputKind: "text",
     outputKind: "text",
     processingMode: "client",

@@ -103,7 +103,7 @@ export default function HomePage() {
       </section>
 
       {/* Popular Tools */}
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Popular tools</h2>
         </div>
@@ -134,7 +134,7 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
         <h2 className="mb-6 text-2xl font-bold tracking-tight">
           Browse by category
         </h2>
@@ -169,7 +169,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Utilities */}
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
         <h2 className="mb-6 text-2xl font-bold tracking-tight">
           Featured utilities
         </h2>
@@ -194,7 +194,7 @@ export default function HomePage() {
 
       {/* How it works */}
       <section className="border-t border-border/60 bg-muted/30">
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-16">
           <h2 className="mb-8 text-center text-2xl font-bold tracking-tight">
             How it works
           </h2>
@@ -234,7 +234,7 @@ export default function HomePage() {
       </section>
 
       {/* Privacy banner */}
-      <section className="container mx-auto px-4 py-16 text-center">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-16 text-center">
         <div className="mx-auto max-w-2xl">
           <ShieldCheck className="mx-auto mb-4 size-12 text-success" />
           <h2 className="text-2xl font-bold tracking-tight">
@@ -245,9 +245,14 @@ export default function HomePage() {
             possible. No uploads, no tracking, no storing your data on servers.
             What you process stays yours.
           </p>
-          <Button asChild className="mt-6">
-            <Link href="/category">Browse tools</Link>
-          </Button>
+          <div className="flex justify-center items-center gap-3">
+            <Button asChild className="mt-6">
+              <Link href="/tools">Browse tools</Link>
+            </Button>
+            <Button asChild variant={"secondary"} className="mt-6">
+              <Link href="/category">Browse Categories</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>

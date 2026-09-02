@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
+import { loadPdfjs } from "./pdfjs";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -38,8 +39,7 @@ export function PdfToText({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const pdfjsLib = await import("pdfjs-dist");
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      const pdfjsLib = await loadPdfjs();
 
       const bytes = await pdf.arrayBuffer();
       const loadingTask = pdfjsLib.getDocument({ data: bytes });

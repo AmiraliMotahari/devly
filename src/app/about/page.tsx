@@ -33,7 +33,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-16">
+    <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-12 py-16">
       <div className="text-center">
         <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Sparkles className="size-8" />

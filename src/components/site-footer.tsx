@@ -7,7 +7,7 @@ import Logo from "./logo";
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-muted/30">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -69,8 +69,8 @@ export function SiteFooter() {
 
         <div className="mt-8 border-t border-border/60 pt-6 text-center text-sm text-muted-foreground">
           <p className="flex items-center justify-center gap-1.5">
-            Built with <Heart className="size-3.5 text-red-500" /> for a
-            faster, more private web.
+            Built with <Heart className="size-3.5 text-red-500" /> for a faster,
+            more private web.
           </p>
         </div>
       </div>

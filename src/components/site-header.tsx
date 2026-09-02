@@ -23,13 +23,7 @@ import { useIsApple } from "@/hooks/use-isApple";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { appName, githubProfileUrl } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import {
-  ChevronDown,
-  Menu,
-  SearchIcon,
-  Wrench,
-  X,
-} from "lucide-react";
+import { ChevronDown, Menu, SearchIcon, Wrench, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -67,12 +61,12 @@ const MobileNav = () => {
       </SheetTrigger>
       <SheetContent side="right" className="w-72 pt-14">
         <SheetTitle className="sr-only">Navigation</SheetTitle>
-        <nav className="flex flex-col gap-1" aria-label="Main">
+        <nav className="flex flex-col gap-1 px-2" aria-label="Main">
           <SheetClose asChild>
             <Link
               href="/"
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground",
                 isActive(pathname, "/") && "bg-accent text-foreground",
               )}
             >
@@ -83,7 +77,7 @@ const MobileNav = () => {
             <Link
               href="/tools"
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground",
                 isActive(pathname, "/tools") && "bg-accent text-foreground",
               )}
             >
@@ -98,7 +92,7 @@ const MobileNav = () => {
               <Link
                 href={link.href}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground",
                   isActive(pathname, link.href) && "bg-accent text-foreground",
                 )}
               >
@@ -116,21 +110,19 @@ export function SiteHeader() {
   const isApple = useIsApple();
   const pathname = usePathname();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const inCategories = CATEGORY_LINKS.some((l) =>
-    isActive(pathname, l.href),
-  );
+  const [dropdownMenuOpen, setDropdownMenuOpen] = useState(false);
 
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
+        <div className="container mx-auto flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-12">
           <Link
             href="/"
             className="flex shrink-0 items-center gap-2 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             aria-label={`${appName} home`}
           >
             <Logo />
-            <span className="hidden text-base font-semibold tracking-tight sm:inline">
+            <span className="text-base font-semibold tracking-tight">
               {appName}
             </span>
           </Link>
@@ -138,27 +130,24 @@ export function SiteHeader() {
           <div className="mx-1 hidden h-5 w-px bg-border md:block" />
 
           <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
-            <Link
-              href="/"
-              className={cn(
-                "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                isActive(pathname, "/") && "text-foreground",
-              )}
+            <Button asChild variant={"ghost"}>
+              <Link href="/">Home</Link>
+            </Button>
+            <DropdownMenu
+              open={dropdownMenuOpen}
+              onOpenChange={setDropdownMenuOpen}
             >
-              Home
-            </Link>
-            <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
-                    inCategories && "text-foreground",
-                  )}
-                >
+                <Button type="button" variant={"ghost"}>
                   Categories
-                  <ChevronDown data-icon="inline-end" />
-                </button>
+                  <ChevronDown
+                    data-icon="inline-end"
+                    className={cn(
+                      "transition-all duration-150",
+                      dropdownMenuOpen && "-rotate-180",
+                    )}
+                  />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-52">
                 <DropdownMenuLabel className="sr-only">
@@ -179,22 +168,16 @@ export function SiteHeader() {
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/tools">
+                  <Link href="/category">
                     <Wrench data-icon="inline-start" />
-                    All tools
+                    All categories
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link
-              href="/tools"
-              className={cn(
-                "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                isActive(pathname, "/tools") && "text-foreground",
-              )}
-            >
-              Tools
-            </Link>
+            <Button asChild variant={"ghost"}>
+              <Link href="/tools">Tools</Link>
+            </Button>
           </nav>
 
           <div className="flex-1" />

@@ -39,6 +39,15 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   const results = query ? searchTools(query, 8) : [];
 
+  // Collapse near-identical hits (same slug) so the palette never shows
+  // duplicate rows for one tool.
+  const seen = new Set<string>();
+  const dedupedResults = results.filter(({ tool }) => {
+    if (seen.has(tool.slug)) return false;
+    seen.add(tool.slug);
+    return true;
+  });
+
   const toTools = (slugs: string[]) =>
     slugs
       .map((slug) => toolDefinitions.find((t) => t.slug === slug))
@@ -56,7 +65,11 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
+    <CommandDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      className="max-sm:top-1/6"
+    >
       <Command>
         <CommandInput
           placeholder="Search for a tool..."
@@ -64,8 +77,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           onValueChange={setQuery}
         />
         <CommandList>
-          <CommandEmpty>No tools found.</CommandEmpty>
-
           {!query && favorites.length > 0 && (
             <CommandGroup heading="Favorites">
               {favorites.map((tool) => (
@@ -75,7 +86,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   onSelect={() => navigate(`/tools/${tool.slug}`)}
                 >
                   <Star className="size-4 fill-amber-400 text-amber-500" />
-                  {tool.name}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{tool.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {tool.description}
+                    </span>
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -86,11 +102,16 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               {recent.map((tool) => (
                 <CommandItem
                   key={tool.id}
-                  value={tool.name}
+                  value={`${tool.name} ${tool.slug}`}
                   onSelect={() => navigate(`/tools/${tool.slug}`)}
                 >
-                  <Clock className="mr-2 size-4 text-muted-foreground" />
-                  {tool.name}
+                  <Clock className="size-4 text-muted-foreground" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{tool.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {tool.description}
+                    </span>
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -120,22 +141,27 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             </CommandGroup>
           )}
 
-          {query && results.length > 0 && (
+          {query && dedupedResults.length > 0 && (
             <CommandGroup heading="Tools">
-              {results.map(({ tool }) => (
+              {dedupedResults.map(({ tool }) => (
                 <CommandItem
                   key={tool.id}
-                  value={tool.name}
+                  value={`${tool.name} ${tool.slug}`}
                   onSelect={() => navigate(`/tools/${tool.slug}`)}
                 >
-                  <Shield className="mr-2 size-4 text-muted-foreground" />
-                  {tool.name}
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    {CATEGORY_META[tool.category].label}
+                  <Shield className="size-4 text-muted-foreground" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{tool.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {tool.description}
+                    </span>
                   </span>
                 </CommandItem>
               ))}
             </CommandGroup>
+          )}
+          {query && dedupedResults.length === 0 && (
+            <CommandEmpty>No tools found for “{query}”.</CommandEmpty>
           )}
         </CommandList>
       </Command>

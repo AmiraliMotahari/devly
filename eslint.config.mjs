@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Pinned third-party runtime assets served verbatim from /public:
+    "public/pdf.worker.min.mjs",
   ]),
 ]);
 

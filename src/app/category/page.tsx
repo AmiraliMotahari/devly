@@ -40,7 +40,7 @@ export default async function CategoryPage() {
   const categories = TOOL_CATEGORIES;
 
   return (
-    <section className="container mx-auto px-4 py-12 animate-fade-in">
+    <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">
           Browse by category

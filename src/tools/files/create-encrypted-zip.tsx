@@ -12,127 +12,29 @@ import { Progress } from "@/components/ui/progress";
 import { ResultPanel } from "@/components/result-panel";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import {
+  ENCRYPTED_EXTENSION,
+  MANIFEST_FILENAME,
+  PBKDF2_ITERATIONS,
+  bytesToBase64,
+  createManifest,
+  encryptFile,
+  type ManifestEntry,
+} from "./encrypted-archive";
 
 const MAX_FILES = 200;
-const PBKDF2_ITERATIONS = 100_000;
-const AES_KEY_LENGTH = 256;
-const SALT_LENGTH = 16;
-const IV_LENGTH = 12;
 
 const ARCHIVE_FILENAME = "encrypted-archive.zip";
-const MANIFEST_FILENAME = "MANIFEST.json";
 const README_FILENAME = "README.txt";
-const ENCRYPTED_EXTENSION = ".enc";
 
 interface UploadedFile {
   id: string;
   file: File;
 }
 
-interface ManifestEntry {
-  name: string;
-  salt: string;
-  iv: string;
-  size: number;
-  encryptedSize: number;
-}
-
-interface Manifest {
-  version: "1.0";
-  algorithm: "AES-256-GCM";
-  keyDerivation: {
-    algorithm: "PBKDF2-SHA256";
-    iterations: number;
-  };
-  files: ManifestEntry[];
-}
-
 interface Result {
   filename: string;
   blob: Blob;
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  let binary = "";
-
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-
-  return btoa(binary);
-}
-
-async function deriveKey(
-  password: string,
-  salt: Uint8Array<ArrayBuffer>,
-): Promise<CryptoKey> {
-  const encoder = new TextEncoder();
-
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    { name: "PBKDF2" },
-    false,
-    ["deriveKey"],
-  );
-
-  return crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt,
-      iterations: PBKDF2_ITERATIONS,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    {
-      name: "AES-GCM",
-      length: AES_KEY_LENGTH,
-    },
-    false,
-    ["encrypt", "decrypt"],
-  );
-}
-
-async function encryptFile(
-  file: File,
-  password: string,
-): Promise<{
-  encrypted: Uint8Array<ArrayBuffer>;
-  salt: Uint8Array<ArrayBuffer>;
-  iv: Uint8Array<ArrayBuffer>;
-}> {
-  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
-  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
-
-  const key = await deriveKey(password, salt);
-  const data = await file.arrayBuffer();
-
-  const encrypted = await crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv,
-    },
-    key,
-    data,
-  );
-
-  return {
-    encrypted: new Uint8Array(encrypted),
-    salt,
-    iv,
-  };
-}
-
-function createManifest(entries: ManifestEntry[]): Manifest {
-  return {
-    version: "1.0",
-    algorithm: "AES-256-GCM",
-    keyDerivation: {
-      algorithm: "PBKDF2-SHA256",
-      iterations: PBKDF2_ITERATIONS,
-    },
-    files: entries,
-  };
 }
 
 function createReadme(entries: ManifestEntry[]): string {
@@ -143,7 +45,7 @@ function createReadme(entries: ManifestEntry[]): string {
     `Encryption: AES-256-GCM`,
     `Key derivation: PBKDF2-SHA256 (${PBKDF2_ITERATIONS.toLocaleString()} iterations)`,
     "",
-    "To decrypt the files, use the same password with a compatible decrypt tool.",
+    "To decrypt the files, open this archive with the Decrypt Encrypted ZIP tool using the same password.",
     "",
     "Files in this archive:",
     ...entries.map(
@@ -427,9 +329,10 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
         />
 
         <p className="text-xs text-muted-foreground">
-          Each file is encrypted with AES-256-GCM using a key derived from your
-          password with PBKDF2-SHA256. The encrypted files are stored in a
-          standard ZIP archive together with a MANIFEST.json.
+          Each file is individually encrypted with AES-256-GCM (keys derived
+          from your password via PBKDF2-SHA256), then packaged into a ZIP with
+          a MANIFEST.json of salts and IVs. Decrypt with the Decrypt Encrypted
+          ZIP tool — the password never leaves this page.
         </p>
       </div>
 

@@ -59,6 +59,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      pako:
+        specifier: ^3.0.1
+        version: 3.0.1
       papaparse:
         specifier: ^5.7.0
         version: 5.7.0
@@ -117,6 +120,9 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.19.43
+      '@types/pako':
+        specifier: ^3.0.0
+        version: 3.0.0
       '@types/qrcode':
         specifier: ^1.5.6
         version: 1.5.6
@@ -1600,6 +1606,10 @@ packages:
 
   '@types/node@20.19.43':
     resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
+
+  '@types/pako@3.0.0':
+    resolution: {integrity: sha512-MtIzg1Ul1GxhHZLq6oSKvWQENKqmfK1fdaW+SDcPJe7+YcJVo6AbmkW0BvGFH6+559+hEuCwdXZZe8F85lBPkA==}
+    deprecated: This is a stub types definition. pako provides its own type definitions, so you do not need this installed.
 
   '@types/qrcode@1.5.6':
     resolution: {integrity: sha512-te7NQcV2BOvdj2b1hCAHzAoMNuj65kNBMz0KBaxM6c3VGBOhU0dURQKOtH8CFNI/dsKkwlv32p26qYQTWoB5bw==}
@@ -3523,6 +3533,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  pako@3.0.1:
+    resolution: {integrity: sha512-GupotUUI0mlhugKjUs4bjOwLt3nrehy9Ys2dxC0GtgVef5cnKggkDMmf2bq2poCCuVXopWPmqsc9VDT2iJUy+w==}
 
   papaparse@5.7.0:
     resolution: {integrity: sha512-qBGxg/7Q3Kl9Wfhrz2Z74UnvnHTXLNG6jmKJFeBvP2+y4lV7So+7SR62+Zd47JvdrCkX+nDcnr0ObPzek/+6RA==}
@@ -5889,6 +5902,10 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/pako@3.0.0':
+    dependencies:
+      pako: 3.0.1
+
   '@types/qrcode@1.5.6':
     dependencies:
       '@types/node': 20.19.43
@@ -8084,6 +8101,8 @@ snapshots:
   p-try@2.2.0: {}
 
   pako@1.0.11: {}
+
+  pako@3.0.1: {}
 
   papaparse@5.7.0: {}
 

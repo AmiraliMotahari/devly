@@ -153,6 +153,13 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "extract-encrypted-zip": dynamic(
+    () =>
+      import("@/tools/files/extract-encrypted-zip").then((m) => ({
+        default: m.ExtractEncryptedZip,
+      })),
+    { loading },
+  ),
   "checksum-generator": dynamic(
     () =>
       import("@/tools/files/checksum-generator").then((m) => ({
@@ -325,6 +332,13 @@ const TOOL_COMPONENTS: Record<
     () =>
       import("@/tools/text/text-diff").then((m) => ({
         default: m.TextDiff,
+      })),
+    { loading },
+  ),
+  "text-encrypt-decrypt": dynamic(
+    () =>
+      import("@/tools/text/text-encrypt-decrypt").then((m) => ({
+        default: m.TextEncryptDecrypt,
       })),
     { loading },
   ),
