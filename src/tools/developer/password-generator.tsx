@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import type { ToolComponentProps } from "@/tools/tool-props";
+import { CodeBlock } from "@/components/code-block";
 import {
   ToolActions,
   ToolCheckbox,
@@ -11,9 +10,9 @@ import {
   ToolSelect,
 } from "@/components/tool-forms";
 import { Input } from "@/components/ui/input";
+import type { ToolComponentProps } from "@/tools/tool-props";
+import { useState } from "react";
 import { toast } from "sonner";
-import { CopyToClipboard } from "@/components/copy-to-clipboard";
-import { CodeBlock } from "@/components/code-block";
 
 const CHARSETS = {
   lowercase: "abcdefghijklmnopqrstuvwxyz",
@@ -24,7 +23,12 @@ const CHARSETS = {
 
 function generatePassword(
   length: number,
-  sets: { lowercase: boolean; uppercase: boolean; numbers: boolean; symbols: boolean },
+  sets: {
+    lowercase: boolean;
+    uppercase: boolean;
+    numbers: boolean;
+    symbols: boolean;
+  },
   excludeSimilar: boolean,
 ): string {
   const similar = "il1Lo0O";
@@ -35,11 +39,16 @@ function generatePassword(
     if (!enabled) continue;
     let chars = CHARSETS[name as keyof typeof CHARSETS];
     if (excludeSimilar) {
-      chars = chars.split("").filter((c) => !similar.includes(c)).join("");
+      chars = chars
+        .split("")
+        .filter((c) => !similar.includes(c))
+        .join("");
     }
     pool += chars;
     if (chars.length > 0) {
-      guaranteed.push(chars[crypto.getRandomValues(new Uint32Array(1))[0] % chars.length]);
+      guaranteed.push(
+        chars[crypto.getRandomValues(new Uint32Array(1))[0] % chars.length],
+      );
     }
   }
 
@@ -72,22 +81,38 @@ export function PasswordGenerator({}: ToolComponentProps) {
   });
   const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [password, setPassword] = useState("");
+  const [preset, setPreset] = useState("");
 
   const poolSize = Object.entries(sets)
     .filter(([, enabled]) => enabled)
     .reduce((size, [name]) => {
       let chars = CHARSETS[name as keyof typeof CHARSETS];
       if (excludeSimilar) {
-        chars = chars.split("").filter((c) => !"il1Lo0O".includes(c)).join("");
+        chars = chars
+          .split("")
+          .filter((c) => !"il1Lo0O".includes(c))
+          .join("");
       }
       return size + chars.length;
     }, 0);
 
   const entropy = estimateEntropy(password.length || length, poolSize);
   const strength =
-    entropy >= 100 ? "Excellent" : entropy >= 80 ? "Strong" : entropy >= 60 ? "Good" : entropy >= 40 ? "Fair" : "Weak";
+    entropy >= 100
+      ? "Excellent"
+      : entropy >= 80
+        ? "Strong"
+        : entropy >= 60
+          ? "Good"
+          : entropy >= 40
+            ? "Fair"
+            : "Weak";
   const strengthColor =
-    entropy >= 80 ? "text-success" : entropy >= 60 ? "text-warning" : "text-destructive";
+    entropy >= 80
+      ? "text-success"
+      : entropy >= 60
+        ? "text-warning"
+        : "text-destructive";
 
   const handleGenerate = () => {
     const pwd = generatePassword(length, sets, excludeSimilar);
@@ -102,7 +127,9 @@ export function PasswordGenerator({}: ToolComponentProps) {
     <ToolContainer>
       <ToolRow>
         <div className="flex flex-col gap-2">
-          <label htmlFor="pwd-length" className="text-sm font-medium">Length</label>
+          <label htmlFor="pwd-length" className="text-sm font-medium">
+            Length
+          </label>
           <Input
             id="pwd-length"
             type="number"
@@ -117,15 +144,36 @@ export function PasswordGenerator({}: ToolComponentProps) {
         </div>
         <ToolSelect
           label="Preset"
-          value=""
+          placeholder="Select a preset"
+          value={preset}
           onValueChange={(v) => {
             if (v === "pin") {
-              setLength(6); setSets({ lowercase: false, uppercase: false, numbers: true, symbols: false });
+              setLength(6);
+              setSets({
+                lowercase: false,
+                uppercase: false,
+                numbers: true,
+                symbols: false,
+              });
             } else if (v === "memorable") {
-              setLength(24); setSets({ lowercase: true, uppercase: true, numbers: true, symbols: false }); setExcludeSimilar(true);
+              setLength(24);
+              setSets({
+                lowercase: true,
+                uppercase: true,
+                numbers: true,
+                symbols: false,
+              });
+              setExcludeSimilar(true);
             } else if (v === "max") {
-              setLength(64); setSets({ lowercase: true, uppercase: true, numbers: true, symbols: true });
+              setLength(64);
+              setSets({
+                lowercase: true,
+                uppercase: true,
+                numbers: true,
+                symbols: true,
+              });
             }
+            setPreset(v);
           }}
           options={[
             { label: "Choose preset…", value: "" },
@@ -171,15 +219,7 @@ export function PasswordGenerator({}: ToolComponentProps) {
           label="Password"
           help={`~${entropy} bits of entropy · ${strength}`}
         >
-          <div className="flex items-center gap-2">
-             <CodeBlock code={password} language="text" />
-            <CopyToClipboard
-              value={password}
-              variant="ghost"
-              size="icon"
-              aria-label="Copy password"
-            />
-          </div>
+          <CodeBlock code={password} language="text" showLineNumbers={false} />
           <p className={`text-sm font-medium ${strengthColor}`}>{strength}</p>
         </ToolField>
       )}

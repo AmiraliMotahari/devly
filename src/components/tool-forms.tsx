@@ -164,18 +164,20 @@ export function ToolSelect({
   onValueChange,
   options,
   help,
+  placeholder,
 }: {
   label: string;
   value: string;
   onValueChange: (value: string) => void;
   options: ToolSelectOption[];
   help?: string;
+  placeholder?: string;
 }) {
   return (
     <ToolField label={label} help={help}>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className="w-44">
-          <SelectValue />
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           {options.map((opt) => (

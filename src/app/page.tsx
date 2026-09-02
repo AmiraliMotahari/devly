@@ -10,6 +10,7 @@ import type { ToolCategory } from "@/types/tool";
 import {
   ArrowRight,
   CalendarClock,
+  ChevronRight,
   Code2,
   FileText,
   FolderArchive,
@@ -104,8 +105,14 @@ export default function HomePage() {
 
       {/* Popular Tools */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex justify-between items-center">
           <h2 className="text-2xl font-bold tracking-tight">Popular tools</h2>
+          <Button asChild variant={"outline"}>
+            <Link href={"/tools"}>
+              <span>View All</span>
+              <ChevronRight />
+            </Link>
+          </Button>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {popularTools.map((tool) => (
@@ -135,9 +142,17 @@ export default function HomePage() {
 
       {/* Categories */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
-        <h2 className="mb-6 text-2xl font-bold tracking-tight">
-          Browse by category
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="mb-6 text-2xl font-bold tracking-tight">
+            Browse by category
+          </h2>
+          <Button asChild variant={"outline"}>
+            <Link href={"/category"}>
+              <span>View All</span>
+              <ChevronRight />
+            </Link>
+          </Button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {(Object.keys(CATEGORY_META) as ToolCategory[]).map((cat) => {
             const Icon = ICON_MAP[CATEGORY_META[cat].icon] ?? Sparkles;
