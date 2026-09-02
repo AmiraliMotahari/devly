@@ -7,11 +7,11 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList
+  CommandList,
 } from "@/components/ui/command";
+import { useToolHistory } from "@/hooks/use-tool-history";
 import { CATEGORY_META, toolDefinitions } from "@/tools";
 import { searchTools } from "@/tools/search";
-import { useToolHistory } from "@/hooks/use-tool-history";
 import { Clock, Folder, Shield, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,7 +24,7 @@ interface CommandPaletteProps {
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const router = useRouter();
-  const { recentSlugs, favoriteSlugs, toggleFavorite } = useToolHistory();
+  const { recentSlugs, favoriteSlugs } = useToolHistory();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -44,7 +44,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       .map((slug) => toolDefinitions.find((t) => t.slug === slug))
       .filter((t): t is NonNullable<typeof t> => t !== undefined);
 
-  const recent = toTools(recentSlugs).slice(0, 5);
+  const recent = toTools(
+    recentSlugs.filter((resent) => !favoriteSlugs.includes(resent)),
+  ).slice(0, 5);
   const favorites = toTools(favoriteSlugs).slice(0, 5);
 
   const navigate = (path: string) => {
@@ -72,19 +74,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   value={tool.name}
                   onSelect={() => navigate(`/tools/${tool.slug}`)}
                 >
-                  <Star className="mr-2 size-4 fill-amber-400 text-amber-500" />
+                  <Star className="size-4 fill-amber-400 text-amber-500" />
                   {tool.name}
-                  <button
-                    type="button"
-                    aria-label={`Remove ${tool.name} from favorites`}
-                    className="ml-auto rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(tool.slug);
-                    }}
-                  >
-                    <Star className="size-4" />
-                  </button>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -100,27 +91,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 >
                   <Clock className="mr-2 size-4 text-muted-foreground" />
                   {tool.name}
-                  <button
-                    type="button"
-                    aria-label={
-                      favoriteSlugs.includes(tool.slug)
-                        ? `Remove ${tool.name} from favorites`
-                        : `Add ${tool.name} to favorites`
-                    }
-                    className="ml-auto rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(tool.slug);
-                    }}
-                  >
-                    <Star
-                      className={
-                        favoriteSlugs.includes(tool.slug)
-                          ? "size-4 fill-amber-400 text-amber-500"
-                          : "size-4"
-                      }
-                    />
-                  </button>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -128,7 +98,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
           {!query && (
             <CommandGroup heading="Categories">
-              {(Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]).map((cat) => (
+              {(
+                Object.keys(CATEGORY_META) as (keyof typeof CATEGORY_META)[]
+              ).map((cat) => (
                 <CommandItem
                   key={cat}
                   value={CATEGORY_META[cat].label}
@@ -138,7 +110,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   {CATEGORY_META[cat].label}
                 </CommandItem>
               ))}
-              <CommandItem value="all tools" onSelect={() => navigate("/tools")}>
+              <CommandItem
+                value="all tools"
+                onSelect={() => navigate("/tools")}
+              >
                 <Folder className="mr-2 size-4 text-muted-foreground" />
                 All tools
               </CommandItem>
