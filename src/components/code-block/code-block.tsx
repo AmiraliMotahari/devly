@@ -26,8 +26,11 @@ export function CodeBlock({
   );
 
   const resolvedLanguage = resolveLanguage(language);
-  const title = filename ??
-    (resolvedLanguage === "text" ? undefined : getLanguageLabel(resolvedLanguage));
+  const title =
+    filename ??
+    (resolvedLanguage === "text"
+      ? undefined
+      : getLanguageLabel(resolvedLanguage));
   const lineCount = code === "" ? 0 : code.split("\n").length;
 
   return (
@@ -78,7 +81,6 @@ export function CodeBlock({
 
       <div className={cn("overflow-x-auto overflow-y-auto", maxHeight)}>
         <ShikiCode
-        
           code={code}
           language={resolvedLanguage}
           showLineNumbers={showLineNumbers}

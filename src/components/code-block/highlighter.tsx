@@ -45,23 +45,19 @@ export function ShikiCode({
   return (
     <ShikiHighlighter
       language={resolvedLanguage}
-      theme={{ light: "light-plus", dark: "dark-plus" }}
       engine={ENGINE}
-      defaultColor={false}
-      addDefaultStyles={false}
+      // theme={theme === "dark" ? "light-plus" : "light-plus"}
+      theme={{
+        light: "light-plus",
+        dark: "dark-plus",
+      }}
+      defaultColor={"light-dark()"}
       showLanguage={false}
       showLineNumbers={showLineNumbers}
-      highlightLineNumbers={
-        highlightLines ? [...highlightLines] : undefined
-      }
+      highlightLineNumbers={highlightLines ? [...highlightLines] : undefined}
       preloadLanguages={preloadLanguages}
       tabindex={0}
-      className="shiki-code"
-      style={{
-        "--rs-line-numbers-foreground": "var(--muted-foreground)",
-        "--rs-line-numbers-opacity": "0.55",
-        "--rs-line-numbers-width": "3ch",
-      } as React.CSSProperties}
+      className="[&_pre]:rounded-none!"
     >
       {code}
     </ShikiHighlighter>
