@@ -20,6 +20,53 @@ const INDENT_OPTIONS = [
   { label: "4 spaces", value: "4" },
 ];
 
+/**
+ * Convert a parsed JSON value into xml-js's *compact* representation:
+ * strings/numbers become _text, arrays repeat elements, nested objects nest.
+ * Without this mapping, js2xml on plain objects returns an empty string.
+ */
+function toCompactXml(value: unknown, key: string): Record<string, unknown> {
+  if (value === null || value === undefined) {
+    return { [key]: { _text: "" } };
+  }
+
+  if (Array.isArray(value)) {
+    return {
+      [key]: value.map((item) => toCompactXmlValue(item)),
+    };
+  }
+
+  if (typeof value === "object") {
+    const inner: Record<string, unknown> = {};
+    for (const [childKey, childValue] of Object.entries(
+      value as Record<string, unknown>,
+    )) {
+      Object.assign(inner, toCompactXml(childValue, childKey));
+    }
+    return { [key]: inner };
+  }
+
+  return { [key]: { _text: String(value) } };
+}
+
+/** Array items: each entry becomes its own element via its own key. */
+function toCompactXmlValue(value: unknown): Record<string, unknown> {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value)
+  ) {
+    const inner: Record<string, unknown> = {};
+    for (const [childKey, childValue] of Object.entries(
+      value as Record<string, unknown>,
+    )) {
+      Object.assign(inner, toCompactXml(childValue, childKey));
+    }
+    return inner;
+  }
+  return { _text: String(value) };
+}
+
 export function JsonToXmlTool({}: ToolComponentProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
@@ -37,22 +84,32 @@ export function JsonToXmlTool({}: ToolComponentProps) {
         return;
       }
 
-      const parsed = JSON.parse(input);
-      const wrapped =
-        Array.isArray(parsed) || typeof parsed !== "object" || parsed === null
-          ? { [rootElement]: parsed }
-          : parsed;
+      const parsed: unknown = JSON.parse(input);
+      const needsWrapper =
+        Array.isArray(parsed) || typeof parsed !== "object" || parsed === null;
+      const root = needsWrapper
+        ? { [rootElement || "root"]: parsed }
+        : (parsed as Record<string, unknown>);
 
-      const options: Record<string, unknown> = {
-        compact,
+      const compactRep: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(root)) {
+        Object.assign(compactRep, toCompactXml(value, key));
+      }
+
+      const xml = js2xml(compactRep, {
+        compact: true,
         spaces: compact ? 0 : parseInt(indentSize, 10),
-        indentText: compact ? false : true,
-        textKey: "_text",
-        declaration: includeDeclaration ? { encoding: "UTF-8" } : undefined,
-      };
+      });
 
-      const xml = js2xml(wrapped, options as never);
-      setOutput(xml);
+      if (typeof xml !== "string" || xml.length === 0) {
+        throw new Error("Conversion produced empty XML — check your input");
+      }
+
+      setOutput(
+        includeDeclaration
+          ? `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`
+          : xml,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to convert JSON");
     }

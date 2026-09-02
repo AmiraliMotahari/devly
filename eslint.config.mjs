@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated coverage output (v8):
+    "coverage/**",
     // Pinned third-party runtime assets served verbatim from /public:
     "public/pdf.worker.min.mjs",
   ]),

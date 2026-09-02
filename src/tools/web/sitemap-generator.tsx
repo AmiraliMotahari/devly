@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import { Download, Plus, Trash2 } from "lucide-react";
 
@@ -26,11 +26,19 @@ export function SitemapGenerator({}: ToolComponentProps) {
     { url: "", lastmod: "", priority: "0.5", changefreq: "weekly" },
   ]);
   const [output, setOutput] = useState("");
+  // Hydration-safe: today's date differs between server and client render
+  // (timezone), so compute it after mount.
+  const [today, setToday] = useState("");
 
+  useEffect(() => {
+    // Client-only: today's date depends on the viewer's timezone and would
+    // differ from the server-rendered value (hydration mismatch).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setToday(new Date().toISOString().split("T")[0]);
+  }, []);
   const generate = () => {
     const today = new Date().toISOString().split("T")[0];
     const base = baseUrl.replace(/\/$/, "");
-
     const urls = entries
       .filter((e) => e.url.trim())
       .map((e) => {
@@ -82,8 +90,6 @@ ${urls}
     a.click();
     URL.revokeObjectURL(url);
   };
-
-  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="flex flex-col gap-6">

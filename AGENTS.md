@@ -18,7 +18,8 @@ Generated from verified repo sources (README, package.json, next.config.ts, tool
 | `pnpm build` | Next.js production build (`next build`) |
 | `pnpm start` | Run production build (`next start`) |
 | `pnpm lint` | Run ESLint (`eslint .`) |
-| `pnpm test` | **No test script defined** — see Testing quirks below |
+| `pnpm test` | Vitest unit + component tests |
+| `pnpm test:e2e` | Playwright E2E (prod build; Chromium + @critical webkit/firefox) |
 
 > **Note**: This repo uses **pnpm v10.15.1** (package.json). Always use `pnpm`; do not switch to npm/yarn.
 
@@ -63,12 +64,12 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 - **Next.js config** (`next.config.ts`) controls React compiler, caching, prefetching, and experimental features. Do not disable `cacheComponents` or `partialPrefetching` without re‑evaluating route instant‑navigation behavior.
 - **ESLint** extends `eslint-config-next` and `eslint-config-next/typescript`. Ignores `.next/`, `out/`, `build/`, `next-env.d.ts` globally.
 
-## Testing Quirks
+## Testing
 
-- No test runner or test script is configured in `package.json`.
-- The codebase contains no `__tests__` or `__spec__` directories.
-- Tools are verified manually via the running dev server (`pnpm dev`).
-- If you add unit tests, place them beside the tool component and import from the same source.
+- **Unit/component tests** (Vitest + React Testing Library, jsdom) live beside sources as `*.test.ts(x)`; run with `pnpm test`.
+- **E2E tests** (Playwright) live in `e2e/`; run with `pnpm test:e2e`, filter with `pnpm test:e2e -- -g "<name>"`. See `TESTING.md` for conventions (hydration waits, error-alert scoping, output extraction, `@critical` cross-browser tagging).
+- Deterministic fixtures live in `tests/fixtures/` — reuse them.
+- When adding a tool, the registry-driven `e2e/all-tools.spec.ts` covers its page automatically; add deeper workflow tests in the relevant suite if the tool has unique behavior.
 
 ## Important Conventions
 

@@ -1365,7 +1365,7 @@ export const toolDefinitions: ToolDefinition[] = [
     supportsBatch: false,
     requiresAuthentication: false,
     keywords: ["robots", "txt", "crawler", "seo", "search engine"],
-    relatedToolSlugs: ["meta-tag-generator", "sitemap"],
+    relatedToolSlugs: ["meta-tag-generator", "sitemap-generator"],
     available: true,
   },
   {

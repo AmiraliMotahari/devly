@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <book id="1">
+    <title>Refactoring</title>
+    <author>Martin Fowler</author>
+  </book>
+  <book id="2">
+    <title>Clean Code</title>
+    <author>Robert Martin</author>
+  </book>
+</catalog>

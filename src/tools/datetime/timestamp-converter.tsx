@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CopyToClipboard } from "@/components/copy-to-clipboard";
@@ -9,13 +9,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ToolComponentProps } from "@/tools/tool-props";
 
-const now = Date.now();
-
 export function TimestampConverter({ tool }: ToolComponentProps) {
   void tool;
   const [mode, setMode] = useState<"ts-to-date" | "date-to-ts">("ts-to-date");
-  const [timestamp, setTimestamp] = useState(String(Math.floor(now / 1000)));
+  // Hydration-safe: Date.now() differs between server render and client
+  // hydrate, so the current timestamp is computed after mount only.
+  const [nowTs, setNowTs] = useState<number | null>(null);
+  const [timestamp, setTimestamp] = useState("");
   const [dateInput, setDateInput] = useState("");
+
+  useEffect(() => {
+    // Client-only: computing the current timestamp during SSR would
+    // guarantee a hydration mismatch (server/client time differ).
+    const current = Math.floor(Date.now() / 1000);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNowTs(current);
+    setTimestamp((prev) => prev || String(current));
+  }, []);
 
   const ts = Number(timestamp);
   const tsValid = !isNaN(ts) && timestamp.trim() !== "";
@@ -138,14 +148,17 @@ export function TimestampConverter({ tool }: ToolComponentProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Current timestamp</p>
-              <p className="font-mono text-sm">{Math.floor(now / 1000)}</p>
+              <p className="font-mono text-sm">
+                {nowTs === null ? "—" : nowTs}
+              </p>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                const n = Math.floor(now / 1000);
-                setTimestamp(String(n));
+                const current = Math.floor(Date.now() / 1000);
+                setNowTs(current);
+                setTimestamp(String(current));
                 setMode("ts-to-date");
               }}
             >

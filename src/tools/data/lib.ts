@@ -4,6 +4,53 @@ export function normalizeSeparator(sep: CsvSeparator): string {
   return sep === "tab" ? "\t" : sep;
 }
 
+function splitCsvLine(line: string, sep: string): string[] {
+  const fields: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  let i = 0;
+
+  while (i < line.length) {
+    const char = line[i];
+
+    if (inQuotes) {
+      if (char === '"') {
+        // Doubled quote inside a quoted field is a literal quote.
+        if (line[i + 1] === '"') {
+          current += '"';
+          i += 2;
+          continue;
+        }
+        inQuotes = false;
+        i++;
+        continue;
+      }
+      current += char;
+      i++;
+      continue;
+    }
+
+    if (char === '"' && current === "") {
+      inQuotes = true;
+      i++;
+      continue;
+    }
+
+    if (char === sep) {
+      fields.push(current);
+      current = "";
+      i++;
+      continue;
+    }
+
+    current += char;
+    i++;
+  }
+
+  fields.push(current);
+  return fields;
+}
+
 export function csvToArray(
   text: string,
   sep: string = ",",
@@ -12,14 +59,7 @@ export function csvToArray(
   const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
   if (lines.length === 0) return [];
 
-  const rows = lines.map((line) => {
-    if (line.includes('"')) {
-      return line.split(new RegExp(`(?<!")${sep}(?![^"]*")`, "g")).map((f) =>
-        f.replace(/^"|"$/g, "")
-      );
-    }
-    return line.split(sep);
-  });
+  const rows = lines.map((line) => splitCsvLine(line, sep));
 
   if (!hasHeaders || rows.length === 0) {
     return rows.map((row) =>
@@ -35,16 +75,23 @@ export function csvToArray(
   );
 }
 
-export function escapeCsvValue(value: string, sep: string): string {
+export function escapeCsvValue(value: unknown, sep: string): string {
+  const str =
+    value === null || value === undefined
+      ? ""
+      : typeof value === "string"
+        ? value
+        : String(value);
+
   const needsQuoting =
-    value.includes(sep) ||
-    value.includes('"') ||
-    value.includes("\n") ||
-    value.includes("\r");
+    str.includes(sep) ||
+    str.includes('"') ||
+    str.includes("\n") ||
+    str.includes("\r");
   if (needsQuoting) {
-    return `"${value.replace(/"/g, '""')}"`;
+    return `"${str.replace(/"/g, '""')}"`;
   }
-  return value;
+  return str;
 }
 
 export function flattenObject(

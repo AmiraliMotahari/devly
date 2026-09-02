@@ -157,7 +157,7 @@ export function UploadZone({
       <div
         role="button"
         tabIndex={0}
-        aria-label="Upload files"
+        aria-label={label}
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
