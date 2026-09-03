@@ -258,6 +258,13 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "barcode-generator": dynamic(
+    () =>
+      import("@/tools/web/barcode-generator").then((m) => ({
+        default: m.BarcodeGenerator,
+      })),
+    { loading },
+  ),
   "meta-tag-generator": dynamic(
     () =>
       import("@/tools/web/meta-tag-generator").then((m) => ({

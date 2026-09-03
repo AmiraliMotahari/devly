@@ -1287,7 +1287,7 @@ export const toolDefinitions: ToolDefinition[] = [
     slug: "qr-code-generator",
     name: "QR Code Generator",
     description:
-      "Generate QR codes from any text or URL. Download as PNG or SVG.",
+      "Generate styled QR codes for URLs, text, Wi-Fi, email, phone, SMS and vCards. Add logos, gradients and custom dot styles, then download as PNG, JPEG, WEBP or SVG.",
     category: "web",
     aliases: ["qr", "qrcode", "qr generator"],
     inputKind: "text",
@@ -1295,41 +1295,93 @@ export const toolDefinitions: ToolDefinition[] = [
     processingMode: "client",
     supportsBatch: false,
     requiresAuthentication: false,
-    options: [
-      {
-        key: "size",
-        label: "Size (px)",
-        type: "number",
-        default: 256,
-        min: 64,
-        max: 1024,
-      },
-      {
-        key: "margin",
-        label: "Margin",
-        type: "number",
-        default: 4,
-        min: 0,
-        max: 10,
-      },
-      {
-        key: "format",
-        label: "Format",
-        type: "select",
-        default: "png",
-        options: [
-          { label: "PNG", value: "png" },
-          { label: "SVG", value: "svg" },
-        ],
-      },
+    keywords: [
+      "qr",
+      "qrcode",
+      "generate",
+      "wifi",
+      "vcard",
+      "logo",
     ],
-    keywords: ["qr", "qrcode", "barcode", "generate"],
-    relatedToolSlugs: ["uuid-generator"],
+    relatedToolSlugs: ["barcode-generator", "uuid-generator"],
     faq: [
       {
         question: "What can I encode in a QR code?",
         answer:
-          "Any text: URLs, phone numbers, email addresses, Wi-Fi credentials, or plain text.",
+          "URLs, plain text, Wi-Fi credentials, email drafts (mailto), phone numbers, SMS messages and contact cards (vCard).",
+      },
+      {
+        question: "Can I add my logo to the QR code?",
+        answer:
+          "Yes. Upload a logo in the Logo card — it is embedded in the center. Keep error correction at H so the code stays scannable.",
+      },
+      {
+        question: "Which export formats are available?",
+        answer: "PNG, JPEG, WEBP and SVG — all rendered locally in your browser.",
+      },
+    ],
+    available: true,
+  },
+  {
+    id: "web-barcode",
+    slug: "barcode-generator",
+    name: "Barcode Generator",
+    description:
+      "Generate every major barcode type — Code 128, EAN, UPC, ITF, GS1 DataBar, Data Matrix, PDF417, Aztec, postal and healthcare codes. Style colors, size, rotation and text, then download as PNG, JPEG, WEBP or SVG.",
+    category: "web",
+    aliases: [
+      "barcode",
+      "ean",
+      "upc",
+      "code 128",
+      "code128",
+      "code 39",
+      "itf",
+      "gs1",
+      "data matrix",
+      "pdf417",
+    ],
+    inputKind: "text",
+    outputKind: "image",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    keywords: [
+      "barcode",
+      "ean13",
+      "upc",
+      "code128",
+      "code39",
+      "gs1",
+      "databar",
+      "datamatrix",
+      "pdf417",
+      "aztec",
+      "postal",
+      "isbn",
+      "label",
+    ],
+    relatedToolSlugs: ["qr-code-generator"],
+    faq: [
+      {
+        question: "Which barcode types are supported?",
+        answer:
+          "Over 100 symbologies: Code 128/39/93, EAN-8/13, UPC-A/E, ITF, GS1-128, GS1 DataBar, Data Matrix, PDF417, Aztec, postal codes like USPS Intelligent Mail, plus HIBC healthcare variants.",
+      },
+      {
+        question: "Can the tool compute check digits for me?",
+        answer:
+          "Yes. For EAN-13, EAN-8, UPC-A and Code 128 family, enter the data without the check digit and it is added automatically.",
+      },
+      {
+        question: "How do GS1 barcodes work?",
+        answer:
+          "Wrap Application Identifiers in parentheses — e.g. (01)09521234543213(3103)000123 — and keep “Parse GS1 AIs” enabled so the tool converts them to FNC1 groups.",
+      },
+      {
+        question: "Which export formats are available?",
+        answer:
+          "PNG, JPEG, WEBP and SVG — all rendered locally in your browser.",
       },
     ],
     available: true,

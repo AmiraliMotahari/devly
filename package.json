@@ -20,6 +20,7 @@
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@shikijs/langs": "^4.4.3",
+    "bwip-js": "^4.11.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -39,6 +40,7 @@
     "papaparse": "^5.7.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.2.108",
+    "qr-code-styling": "^1.9.2",
     "qrcode": "^1.5.4",
     "qs": "^6.15.3",
     "radix-ui": "^1.6.7",
