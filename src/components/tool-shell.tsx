@@ -26,7 +26,10 @@ export function ToolShell({ tool, children }: ToolShellProps) {
   const category = CATEGORY_META[tool.category];
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div
+      className="container mx-auto max-w-4xl px-4 py-8"
+      data-testid="tool-shell"
+    >
       <ToolVisitRecorder slug={tool.slug} />
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
@@ -54,7 +57,9 @@ export function ToolShell({ tool, children }: ToolShellProps) {
 
       <div className="mb-6">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold tracking-tight">{tool.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="tool-title">
+            {tool.name}
+          </h1>
           <FavoriteButton slug={tool.slug} />
         </div>
         <p className="mt-2 text-lg text-muted-foreground">{tool.description}</p>
@@ -146,7 +151,10 @@ export function ToolShell({ tool, children }: ToolShellProps) {
 
 export function ToolShellSkeleton() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div
+      className="container mx-auto max-w-4xl px-4 py-8"
+      data-testid="tool-shell-skeleton"
+    >
       {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2">
         <Skeleton className="h-4 w-12" />

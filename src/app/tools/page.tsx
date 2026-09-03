@@ -45,7 +45,9 @@ export default function ToolsDirectoryPage() {
   return (
     <section className="container mx-auto animate-fade-in px-4 sm:px-6 lg:px-12 py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">All tools</h1>
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="tools-title">
+          All tools
+        </h1>
         <p className="mt-2 text-lg text-muted-foreground">
           {availableTools.length} tools across {TOOL_CATEGORIES.length}{" "}
           categories — all free, no sign-up, and processed locally in your

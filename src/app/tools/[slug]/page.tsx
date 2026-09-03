@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ToolShell, ToolShellSkeleton } from "@/components/tool-shell";
-import { RelatedTools, RelatedToolsSkeleton } from "@/components/related-tools";
+import { ToolShell } from "@/components/tool-shell";
+import { RelatedTools } from "@/components/related-tools";
 import { ToolLoader } from "@/components/tool-loader";
 import { getToolBySlug, toolDefinitions } from "@/tools";
 import { appName } from "@/lib/constants";
-import { Suspense } from "react";
 
 type PageProps = {
   params: Promise<{ slug: string | undefined }>;
@@ -66,17 +65,7 @@ async function ToolDetails({
     </>
   );
 }
+
 export default async function ToolPage({ params }: PageProps) {
-  return (
-    <Suspense
-      fallback={
-        <>
-          <ToolShellSkeleton />
-          <RelatedToolsSkeleton />
-        </>
-      }
-    >
-      <ToolDetails params={params} />
-    </Suspense>
-  );
+  return <ToolDetails params={params} />;
 }

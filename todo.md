@@ -31,7 +31,7 @@
 
 - [ ]: Update readme.md
 
-- [ ]: Optimization: Add instant navigation, prefetching, cache-components
+- [x]: Optimization: Add instant navigation, prefetching, cache-components
 - [ ]: Cleanup: Remove unused packages
 
 - [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture

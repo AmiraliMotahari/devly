@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   experimental: {
     typedEnv: true,
     useOffline: true,
+    // Expose the instant() testing API in production builds only when the
+    // e2e rig explicitly opts in (never in real production deploys).
+    exposeTestingApiInProductionBuild: process.env.EXPOSE_TESTING_API === "1",
   },
 };
 
