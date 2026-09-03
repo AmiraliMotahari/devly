@@ -10,9 +10,6 @@
 
 - [x]: General: Change code based input/output blocks to code blocks with themed styles, line number something similar to vs-code (eg: highlight.js, react-syntax-highlighter)
 
-- [ ]: Web: use my qr-code(from my other project) located at "/"
-- [ ]: Web: Add barcode generator
-
 - [x]: General: Redesign header with a more compact view (logo, home, categories, tools, search, theme-toggle, github). you should consider all sizes. best practices and modern and simple design.
 
 - [x]: File: Password ZIP is currently only encrypting each file, fix the behavior and also add a decoder
@@ -20,16 +17,25 @@
 - [x]: Fix: command-pallet code (identical options are shown, unpleasant ui)
 - [x]: Add a new tool that encrypt/decrypt a text with a given password/key
 
-- [ ]: Tests: Generate comprehensive test units (vitest, playwright)
+- [x]: Tests: Generate comprehensive test units (vitest, playwright)
 - [ ]: Tests: Move all test, e2e files to /tests for better management
 
-- [ ]: CI/CD: add github workflow
+- [x]: Web: use my qr-code(from my other project) located at "/"
+- [x]: Web: Add barcode generator
 
 - [ ]: Add "filerobot-image-editor" for advance image edit
 - [ ]: Use "@jsquash/webp" for image compression
 - [ ]: Use react-upload-zone for better capability
+- [ ]: Add zod for validation and better ux
+- [ ]: Add currency exchange using Frankfurter API.
+
+- [ ]: Update readme.md
+
+- [ ]: Optimization: Add instant navigation, prefetching, cache-components
+- [ ]: Cleanup: Remove unused packages
 
 - [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture
+- [ ]: CI/CD: add github workflow
 
 ## V2
 

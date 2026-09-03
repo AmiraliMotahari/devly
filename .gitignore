@@ -40,7 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# vitest
 /test-results
+
 # playwright
 /playwright-report
 /blob-report
