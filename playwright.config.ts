@@ -60,6 +60,15 @@ export default defineConfig({
           process.env.E2E_USE_DEV === "1"
             ? `pnpm next dev -p ${PORT}`
             : `pnpm next build && pnpm next start -p ${PORT}`,
+        // The instant() navigation lock only exists in production builds
+        // made with EXPOSE_TESTING_API=1 (see instant-nav.rig.md). Always
+        // inject it so tests/e2e/instant-nav.spec.ts works from `pnpm
+        // test:e2e` without manual env setup. It gates a testing API only,
+        // never deployed codepaths.
+        env: {
+          EXPOSE_TESTING_API: "1",
+          ...process.env,
+        },
         url: BASE_URL,
         reuseExistingServer: !isCI,
         timeout: 420_000,
