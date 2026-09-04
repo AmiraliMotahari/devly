@@ -22,7 +22,7 @@ import { CATEGORY_META } from "@/tools/categories";
 import { useIsApple } from "@/hooks/use-isApple";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { appName, githubProfileUrl } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 import { ChevronDown, Menu, SearchIcon, Wrench, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

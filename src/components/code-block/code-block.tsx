@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 import { getLanguageLabel, resolveLanguage } from "./language";
 import { ShikiCode } from "./highlighter";
