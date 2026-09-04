@@ -8,7 +8,7 @@ import {
   symbologyByBcid,
   SYMBOLOGIES,
   TEXT_CAPABLE_BCIDS,
-} from "./lib";
+} from "@/tools/web/barcode/lib";
 import {
   buildRenderOptions,
   describeRenderError,
@@ -16,7 +16,7 @@ import {
   toBwipColor,
   validateInput,
   withIntrinsicSize,
-} from "./utils";
+} from "@/tools/web/barcode/utils";
 
 describe("barcode lib", () => {
   it("has no duplicate bcids", () => {

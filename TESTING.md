@@ -23,7 +23,7 @@ pnpm test:e2e:ui         # Playwright UI mode (debug individual tests)
 pnpm test:e2e:dev        # Playwright against the dev server (fast iteration)
 
 # Run one unit test file
-pnpm test src/tools/data/lib.test.ts
+pnpm test tests/unit/tools/data/lib.test.ts
 
 # Run one E2E test by name (substring match)
 pnpm test:e2e -- -g "converts JSON to YAML"
@@ -37,15 +37,15 @@ pnpm exec playwright show-trace test-results/<test-dir>/trace.zip
 
 ## Layout
 
-- `src/**/*.test.ts(x)` — unit & component tests, colocated with source
-- `e2e/*.spec.ts` — Playwright suites
+- `tests/unit/**/*.test.ts(x)` — unit & component tests, mirroring `src/` structure
+- `tests/e2e/*.spec.ts` — Playwright suites
   - `app-shell` — home, navigation, palette, theme, responsive, routing
   - `all-tools` — registry-driven: every tool's page contract (84 tools)
   - `converters` — bidirectional data converters, known crypto vectors
   - `crypto-text` — encryption round-trips, generators, diff
   - `file-tools` — image/PDF/ZIP real-file processing, downloads
   - `generators-download` — robots/sitemap/meta output validity, clipboard, reset
-- `e2e/helpers.ts` — shared fixtures: `navigateToTool`, `fillInput`, `runTool`,
+- `tests/e2e/helpers.ts` — shared fixtures: `navigateToTool`, `fillInput`, `runTool`,
   `getOutputText`, `uploadFile`, `downloadOutput`, `trackPageErrors`
 - `tests/fixtures/` — deterministic inputs (sample.json/xml/csv/yaml/toml,
   valid pixel images, minimal PDF)

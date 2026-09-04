@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { toolDefinitions } from "../src/tools/definitions";
+import { toolDefinitions } from "../../src/tools/definitions";
 
 /**
  * Registry-driven smoke coverage: every registered tool gets a real visit

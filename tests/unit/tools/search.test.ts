@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { searchTools } from "./search";
-import { toolDefinitions } from "./definitions";
+import { searchTools } from "@/tools/search";
+import { toolDefinitions } from "@/tools/definitions";
 
 const everySlug = () => toolDefinitions.map((t) => t.slug);
 

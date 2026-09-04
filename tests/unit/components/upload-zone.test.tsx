@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { UploadZone, type UploadedFile } from "./upload-zone";
+import { UploadZone, type UploadedFile } from "@/components/upload-zone";
 
 function selectFiles(zoneLabel: string, files: File[]) {
   const zone = screen.getByRole("button", { name: zoneLabel });

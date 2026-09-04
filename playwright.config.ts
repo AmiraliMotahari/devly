@@ -5,7 +5,7 @@ const BASE_URL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 const isCI = !!process.env.CI;
 
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,

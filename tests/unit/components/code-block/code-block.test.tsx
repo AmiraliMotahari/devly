@@ -2,8 +2,8 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CodeBlock } from "./code-block";
-import { resolveLanguage } from "./language";
+import { CodeBlock } from "@/components/code-block/code-block";
+import { resolveLanguage } from "@/components/code-block/language";
 
 // The app mounts TooltipProvider in layout.tsx; tests render in isolation.
 function renderWithProviders(ui: React.ReactElement) {

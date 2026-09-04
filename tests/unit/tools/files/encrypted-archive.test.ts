@@ -12,7 +12,7 @@ import {
   deriveKey,
   encryptBytes,
   encryptFile,
-} from "./encrypted-archive";
+} from "@/tools/files/encrypted-archive";
 
 function roundTripData(): ArrayBuffer {
   return new TextEncoder().encode(

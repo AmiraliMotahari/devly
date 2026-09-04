@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { toolDefinitions, getRelatedTools, getToolBySlug, getToolsByCategory } from "./definitions";
-import { CATEGORY_META, TOOL_CATEGORIES } from "./categories";
+import { toolDefinitions, getRelatedTools, getToolBySlug, getToolsByCategory } from "@/tools/definitions";
+import { CATEGORY_META, TOOL_CATEGORIES } from "@/tools/categories";
 
 const validCategories = new Set(Object.keys(CATEGORY_META));
 

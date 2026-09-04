@@ -9,7 +9,7 @@ import {
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-const FIXTURES = path.resolve(__dirname, "../tests/fixtures");
+const FIXTURES = path.resolve(__dirname, "../fixtures");
 const fixtureFile = (name: string) => path.join(FIXTURES, name);
 
 const jsonFixture = readFileSync(fixtureFile("sample.json"), "utf8");

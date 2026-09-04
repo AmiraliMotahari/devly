@@ -3,7 +3,7 @@ import {
   getLanguageLabel,
   resolveCodeLanguage,
   resolveLanguage,
-} from "./language";
+} from "@/components/code-block/language";
 
 describe("resolveLanguage — aliases", () => {
   it.each([

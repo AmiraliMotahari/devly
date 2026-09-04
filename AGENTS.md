@@ -66,10 +66,10 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 
 ## Testing
 
-- **Unit/component tests** (Vitest + React Testing Library, jsdom) live beside sources as `*.test.ts(x)`; run with `pnpm test`.
-- **E2E tests** (Playwright) live in `e2e/`; run with `pnpm test:e2e`, filter with `pnpm test:e2e -- -g "<name>"`. See `TESTING.md` for conventions (hydration waits, error-alert scoping, output extraction, `@critical` cross-browser tagging).
+- **Unit/component tests** (Vitest + React Testing Library, jsdom) live in `tests/unit/` (mirroring `src/` structure) as `*.test.ts(x)`; run with `pnpm test`.
+- **E2E tests** (Playwright) live in `tests/e2e/`; run with `pnpm test:e2e`, filter with `pnpm test:e2e -- -g "<name>"`. See `TESTING.md` for conventions (hydration waits, error-alert scoping, output extraction, `@critical` cross-browser tagging).
 - Deterministic fixtures live in `tests/fixtures/` — reuse them.
-- When adding a tool, the registry-driven `e2e/all-tools.spec.ts` covers its page automatically; add deeper workflow tests in the relevant suite if the tool has unique behavior.
+- When adding a tool, the registry-driven `tests/e2e/all-tools.spec.ts` covers its page automatically; add deeper workflow tests in the relevant suite if the tool has unique behavior.
 
 ## Important Conventions
 

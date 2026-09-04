@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import path from "node:path";
 
-export const FIXTURES = path.resolve(__dirname, "../tests/fixtures");
+export const FIXTURES = path.resolve(__dirname, "../fixtures");
 
 export const fixture = (name: string) => path.join(FIXTURES, name);
 

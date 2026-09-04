@@ -11,7 +11,7 @@ import {
   sanitizeFilename,
   validateFileCount,
   validateFileSize,
-} from "./file-security";
+} from "@/lib/file-security";
 
 function makeFile(
   content: string | Uint8Array<ArrayBuffer>,

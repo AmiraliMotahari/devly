@@ -5,7 +5,7 @@ import {
   flattenObject,
   jsonArrayToCsv,
   normalizeSeparator,
-} from "./lib";
+} from "@/tools/data/lib";
 
 describe("normalizeSeparator", () => {
   it("maps 'tab' to a tab character", () => {

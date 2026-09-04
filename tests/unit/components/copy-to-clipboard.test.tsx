@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CopyToClipboard } from "./copy-to-clipboard";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 
 const writeText = vi.fn();
 

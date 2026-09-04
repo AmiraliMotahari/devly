@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { roundColor } from "./culori-utils";
+import { roundColor } from "@/tools/colors/culori-utils";
 import { parse, formatHex, type Color } from "culori";
 
 describe("roundColor", () => {
