@@ -18,7 +18,7 @@
 - [x]: Add a new tool that encrypt/decrypt a text with a given password/key
 
 - [x]: Tests: Generate comprehensive test units (vitest, playwright)
-- [ ]: Tests: Move all test, e2e files to /tests for better management
+- [x]: Tests: Move all test, e2e files to /tests for better management
 
 - [x]: Web: use my qr-code(from my other project) located at "/"
 - [x]: Web: Add barcode generator
@@ -44,6 +44,17 @@
 
 ## V3
 
+- [ ]: AI/chat-box: Simple ai chat box using shadcn latest components
+- [ ]: AI/blog-writer: an SEO expert who first ask questions, r&ds then proceeds to write a post for a blog (available to download as .md, .txt, .html, ...)
+- [ ]: AI/seo-analyzer: An SEO expert who finds in and out of a given website anf suggest areas of improvement with step by step guides
+
+## V4
+
+- [ ]: Video tools
+- [ ]: Audio tools
+
+## V5
+
 - [ ]: Implement server side generations for tools that need or offer better result if ran on the server. Todo this first plan what must be done, design the architecture and before you start it ask me for the tech stack. This must be wired to a central orchestrator for actions like rate-limit, analytics and etc.
 - [ ]: Admin dashboard
 - [ ]: Admin Analytics
@@ -58,14 +69,3 @@
 - [ ]: openTelementry
 - [ ]: Rate-limit
 - [ ]: Captcha "cloudflare"
-
-## V4
-
-- [ ]: AI/chat-box: Simple ai chat box using shadcn latest components
-- [ ]: AI/blog-writer: an SEO expert who first ask questions, r&ds then proceeds to write a post for a blog (available to download as .md, .txt, .html, ...)
-- [ ]: AI/seo-analyzer: An SEO expert who finds in and out of a given website anf suggest areas of improvement with step by step guides
-
-## V5
-
-- [ ]: Video tools
-- [ ]: Audio tools
