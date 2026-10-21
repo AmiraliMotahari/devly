@@ -28,9 +28,9 @@ Current tool categories include:
 - Color tools
 - Web and QR tools
 - Date and time utilities
-- Unit converters
+- Unit and currency converters
 
-The project currently focuses on small, focused tools with consistent UI and reusable building blocks. More advanced file, image, PDF, offline, and AI functionality is planned.
+The project focuses on focused tools with consistent UI and reusable building blocks, plus a full in-browser image editor. More advanced file, PDF, offline, and AI functionality is planned.
 
 ---
 
@@ -40,7 +40,7 @@ Some of the currently implemented tools include:
 
 | Category | Examples |
 |---|---|
-| Image | JPG/PNG/WebP conversion, resize, crop, rotate, flip, compression, filters, watermark, favicon generation |
+| Image | JPG/PNG/WebP conversion, resize, crop, rotate, flip, compression, filters, watermark, favicon generation, **Advanced Image Editor** (layers, text, shapes, merge, split, collage) |
 | PDF | Merge, split, compression, rotation, PDF-to-image, PDF-to-text, image-to-PDF, image extraction |
 | File | ZIP creation/extraction, encrypted ZIP, checksums, file metadata |
 | Developer | JSON, YAML, XML, hashing, HMAC, UUID, JWT decoding, passwords, Base64, URL encoding, cron, base conversion |
@@ -49,7 +49,17 @@ Some of the currently implemented tools include:
 | Color | Color conversion, CSS variable conversion, contrast checking |
 | Web | QR code, barcodes, meta tags, robots.txt and sitemap generation |
 | Date & Time | Timestamps, time zones, date differences, age calculation |
-| Units | Common unit conversions |
+| Units | Common unit conversions, **currency conversion** with live rates (Frankfurter API) |
+
+The **Advanced Image Editor** is a single tool that covers the whole
+image workflow: a layer stack with move/resize/rotate, pixel adjustments
+and filter presets, text and shape layers, an atomic crop, plus merge,
+split (with draggable cut guides) and collage. Everything runs in the
+browser — images are never uploaded.
+
+The **Currency Converter** is the only tool that uses the network: it
+fetches reference rates from the public Frankfurter API. It sends
+currency codes only, never files.
 
 This list describes the current direction of the project rather than promising that every format or edge case is supported.
 
@@ -116,7 +126,9 @@ src/
 ├── tools/
 │   ├── definitions.ts      # Tool metadata / source of truth
 │   ├── search.ts           # Search-related logic
-│   ├── image/              # Image tools
+│   ├── image/              # Image tools + the advanced editor
+│   │   ├── editor/         #   Advanced Image Editor (canvas, layers, panels)
+│   │   ├── processing/     #   Pure render/geometry/export modules
 │   ├── pdf/                # PDF tools
 │   ├── files/              # File/archive tools
 │   ├── developer/          # Developer tools
@@ -125,7 +137,7 @@ src/
 │   ├── text/               # Text tools
 │   ├── web/                # Web/QR tools
 │   ├── datetime/           # Date/time tools
-│   └── converters/         # Unit converters
+│   └── converters/         # Unit + currency converters
 │
 └── types/
     └── tool.ts             # Shared tool types
@@ -198,10 +210,10 @@ See `AGENTS.md` for the current development guidelines.
 | PDF | pdf-lib + pdfjs-dist |
 | Images | Browser Canvas APIs and related browser APIs |
 | Barcodes | bwip-js |
-| QR | qr-code-styling + qrcode |
+| QR | qr-code-styling |
 | ZIP | JSZip + Pako |
 | Cryptography | Web Crypto API |
-| 3D | Three.js + @react-three/fiber |
+| WebP encoding | @jsquash/webp (WASM libwebp, fallback where the browser has no WebP encoder) |
 | Theming | next-themes |
 | Testing | Vitest + React Testing Library + Playwright |
 | Linting | ESLint + eslint-config-next |
@@ -279,6 +291,7 @@ pnpm start
 | `pnpm build` | Create a production build |
 | `pnpm start` | Run the production build |
 | `pnpm lint` | Run ESLint |
+| `pnpm type:check` | Run the TypeScript compiler (no emit) |
 | `pnpm test` | Run Vitest tests |
 | `pnpm test:watch` | Run Vitest in watch mode |
 | `pnpm test:coverage` | Generate test coverage |
@@ -322,11 +335,10 @@ The project is under active development. Planned work includes:
 
 ### Foundation
 
-- Improve and simplify the file, image, and PDF processing architecture
+- Improve and simplify the file and PDF processing architecture
 - Expand shared validation and upload components
 - Improve test organization and coverage
 - Add CI/CD
-- Remove unused dependencies
 - Improve documentation
 
 ### More utility tools
@@ -337,7 +349,6 @@ The project is under active development. Planned work includes:
 - Additional data converters
 - Networking and regex utilities
 - More generators
-- Currency conversion
 - Expanded unit conversion
 
 ### Higher-level workflows
