@@ -1945,6 +1945,23 @@ export const toolDefinitions: ToolDefinition[] = [
     relatedToolSlugs: [],
     available: true,
   },
+  {
+    id: "converter-currency",
+    slug: "currency-converter",
+    name: "Currency Converter",
+    description:
+      "Convert between world currencies using live reference rates from the Frankfurter API.",
+    category: "converters",
+    aliases: ["currency", "exchange rate", "forex", "money converter"],
+    inputKind: "none",
+    outputKind: "text",
+    processingMode: "client",
+    supportsBatch: false,
+    requiresAuthentication: false,
+    keywords: ["currency", "exchange", "rate", "forex", "usd", "eur"],
+    relatedToolSlugs: ["unit-converter"],
+    available: true,
+  },
 
   // ── Data ──────────────────────────────────────────────
   {

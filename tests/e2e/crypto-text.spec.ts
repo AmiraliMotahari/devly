@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
-  fillInput,
+  fillInputs,
   getOutputText,
   navigateToTool,
   runTool,
@@ -18,8 +18,10 @@ test.describe("Encrypt Text (AES-256-GCM + PBKDF2)", () => {
     const password = "correct-horse-battery-staple";
 
     // Encrypt
-    await fillInput(page, "Plain text", secret);
-    await page.locator("#ted-password").fill(password);
+    await fillInputs(page, [
+      { label: "Plain text", value: secret },
+      { label: "Password", value: password },
+    ]);
     await runTool(page, "Encrypt");
 
     const envelope = (await getOutputText(page)).trim();
@@ -32,8 +34,10 @@ test.describe("Encrypt Text (AES-256-GCM + PBKDF2)", () => {
     await page.getByRole("combobox").first().click();
     await page.getByRole("option", { name: "Decrypt" }).click();
 
-    await fillInput(page, "Encrypted message", envelope);
-    await page.locator("#ted-password").fill(password);
+    await fillInputs(page, [
+      { label: "Encrypted message", value: envelope },
+      { label: "Password", value: password },
+    ]);
     await runTool(page, "Decrypt");
 
     const decrypted = await getOutputText(page);
@@ -46,15 +50,19 @@ test.describe("Encrypt Text (AES-256-GCM + PBKDF2)", () => {
   }) => {
     await navigateToTool(page, "text-encrypt-decrypt");
 
-    await fillInput(page, "Plain text", "top secret");
-    await page.locator("#ted-password").fill("right-password");
+    await fillInputs(page, [
+      { label: "Plain text", value: "top secret" },
+      { label: "Password", value: "right-password" },
+    ]);
     await runTool(page, "Encrypt");
     const envelope = (await getOutputText(page)).trim();
 
     await page.getByRole("combobox").first().click();
     await page.getByRole("option", { name: "Decrypt" }).click();
-    await fillInput(page, "Encrypted message", envelope);
-    await page.locator("#ted-password").fill("wrong-password");
+    await fillInputs(page, [
+      { label: "Encrypted message", value: envelope },
+      { label: "Password", value: "wrong-password" },
+    ]);
     await runTool(page, "Decrypt");
 
     await expect(page.locator('[data-slot="alert"]').first()).toBeVisible();
@@ -70,8 +78,10 @@ test.describe("Encrypt Text (AES-256-GCM + PBKDF2)", () => {
     await page.getByRole("combobox").first().click();
     await page.getByRole("option", { name: "Decrypt" }).click();
 
-    await fillInput(page, "Encrypted message", "just some plain text");
-    await page.locator("#ted-password").fill("pw");
+    await fillInputs(page, [
+      { label: "Encrypted message", value: "just some plain text" },
+      { label: "Password", value: "pw" },
+    ]);
     await runTool(page, "Decrypt");
 
     await expect(page.locator('[data-slot="alert"]').first()).toBeVisible();

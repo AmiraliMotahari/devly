@@ -27,7 +27,7 @@
 - [ ]: Add "filerobot-image-editor" for advance image edit
 - [ ]: Use react-upload-zone for better capability
 - [ ]: Add zod for validation and better ux
-- [ ]: Add currency exchange using Frankfurter API.
+- [x]: Add currency exchange using Frankfurter API.
 
 - [ ]: Update readme.md
 

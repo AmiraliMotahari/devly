@@ -42,19 +42,18 @@ export async function navigateToTool(page: Page, slug: string) {
  * then confirm React received the input by asserting a primary action
  * button left the disabled state.
  */
+/** The input/textarea behind a label. */
+function fieldFor(page: Page, label: string | RegExp) {
+  const labelLocator = page.locator("label", { hasText: label }).first();
+  return labelLocator.locator("xpath=..").locator("textarea, input").first();
+}
+
 export async function fillInput(
   page: Page,
   label: string | RegExp,
   value: string,
 ) {
-  const labelLocator =
-    typeof label === "string"
-      ? page.locator("label", { hasText: label }).first()
-      : page.locator("label", { hasText: label }).first();
-  const field = labelLocator
-    .locator("xpath=..")
-    .locator("textarea, input")
-    .first();
+  const field = fieldFor(page, label);
   await field.fill(value);
 
   // Hydration/state guard: after filling a non-empty value, most tools'
@@ -72,6 +71,35 @@ export async function fillInput(
       await field.fill(value);
     }
   }
+}
+
+/**
+ * Fill several fields at once and make sure the values actually stuck.
+ * Tool components are lazy-loaded: a fill that lands before the tool
+ * hydrates is wiped by React (it re-renders the controlled input with the
+ * empty state), so re-fill until the DOM shows what we set.
+ */
+export async function fillInputs(
+  page: Page,
+  fields: { label: string | RegExp; value: string }[],
+  attempts = 4,
+) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    for (const { label, value } of fields) {
+      await fieldFor(page, label).fill(value);
+    }
+    // Give a pending hydration the chance to wipe the values.
+    await page.waitForTimeout(250);
+    const current = await Promise.all(
+      fields.map(({ label, value }) =>
+        fieldFor(page, label)
+          .inputValue()
+          .catch(() => value),
+      ),
+    );
+    if (current.every((v, i) => v === fields[i].value)) return;
+  }
+  throw new Error("Input values did not stick");
 }
 
 /** The primary action button (Convert / Run / Generate / …). */
@@ -142,11 +170,27 @@ export async function uploadFile(
   inputSelector = 'input[type="file"]',
 ) {
   const input = page.locator(inputSelector).first();
-  await input.setInputFiles(filePath);
-  // Wait for the file row to appear (name shown in the UI).
-  await expect(page.locator("text=" + path.basename(filePath))).toBeVisible({
-    timeout: 10_000,
-  });
+  const row = page.locator("text=" + path.basename(filePath));
+  // Hydration guard: a change event that lands before React hydrates is
+  // lost, so the file row never appears. Retry once.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await input.setInputFiles(filePath);
+    try {
+      await expect(row).toBeVisible({ timeout: 10_000 });
+      return;
+    } catch {
+      if (attempt === 1) {
+        throw new Error(`Upload did not register: ${path.basename(filePath)}`);
+      }
+      // Clear the input: selecting the same file again would not fire a
+      // change event (the value is unchanged), so the retry would be a no-op.
+      await input
+        .evaluate((el: HTMLInputElement) => {
+          el.value = "";
+        })
+        .catch(() => {});
+    }
+  }
 }
 
 /**

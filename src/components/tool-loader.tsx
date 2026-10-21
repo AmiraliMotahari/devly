@@ -384,6 +384,13 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "currency-converter": dynamic(
+    () =>
+      import("@/tools/converters/currency-converter").then((m) => ({
+        default: m.CurrencyConverter,
+      })),
+    { loading },
+  ),
   "csv-to-json": dynamic(
     () =>
       import("@/tools/data/csv-to-json").then((m) => ({
