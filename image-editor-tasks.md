@@ -22,30 +22,40 @@ mislabeled file.
 
 - [✓] Install `@jsquash/webp` (+ `wasm-feature-detect`) as a dependency
 - [✓] Fix latent type-check break: jest-dom v7 augments `vitest`, but
-  Vitest 4 declares `Assertion` in `@vitest/expect` → added
-  `tests/setup/jest-dom-matchers.d.ts` + pinned `@vitest/expect` devDep.
-  (A stale `tsconfig.tsbuildinfo` was hiding this on every clean install.)
-- [ ] Shared encoder `src/lib/image-encode.ts`:
+  Vitest 5 declares `Assertion<R, T>` — added
+  `tests/setup/jest-dom-matchers.d.ts` re-declaring it with Vitest 5's
+  signature. (A stale `tsconfig.tsbuildinfo` was hiding this.)
+- [✓] Fix the Vitest setup file: a **top-level `await`** made Vitest skip
+  everything after it, so the jsdom polyfills (WebCrypto, DataTransfer,
+  ResizeObserver) never installed. It is now synchronous, and jest-dom
+  matchers are registered on the `expect` instance the tests actually use
+  (the package's own `/vitest` entry extends a different instance).
+  Deps pinned to the versions this workspace runs (vitest 5.0.0,
+  @playwright/test 1.63.0 — the lockfile was stale vs. node_modules).
+- [✓] Shared encoder `src/lib/image-encode.ts`:
   - native `toBlob` → magic-byte verification of the result
   - WebP fallback via dynamic `import("@jsquash/webp")` (lazy chunk, only
     loaded when the browser lacks native WebP encoding)
   - friendly, actionable error when neither path works
   - pure helpers (`detectImageFormat`) so they are unit-testable
-- [ ] Wire the encoder into every `canvas.toBlob` call site:
+- [✓] Wire the encoder into every `canvas.toBlob` call site:
   `src/tools/image/{shared,compress-image,crop-image,flip-image,
   image-filters,image-watermark,resize-image,rotate-image,
-  social-image-optimizer}.tsx` + editor `src/tools/image/processing/export.ts`
-- [ ] Unit tests (`tests/unit/lib/image-encode.test.ts`):
+  social-image-optimizer}.tsx` + editor `src/tools/image/processing/render.ts`
+  + `src/tools/pdf/{extract-images,pdf-to-images}.tsx` +
+  `src/tools/web/barcode-generator.tsx`
+- [✓] Unit tests (`tests/unit/lib/image-encode.test.ts`, 12):
   format detection per magic bytes; Safari-style fallback (mock `toBlob`
   returning PNG) → WASM encoder used; WASM failure → friendly error;
   native path untouched when the browser encodes correctly
-- [ ] E2E tests: PNG→WebP + JPG→WebP assert **RIFF/WEBP magic bytes** of
-  the downloaded file, tagged `@critical` so they also run on WebKit
-  (Safari engine) — the check that would have caught this bug
-- [ ] Verify WebKit behaviour (does Playwright's WebKit fall back to PNG?)
-  to confirm the `@critical` test exercises the fallback path
-- [ ] Docs: TESTING.md (suite counts, fixtures), todo.md (@jsquash/webp item)
-- [ ] Verify: `pnpm lint`, `pnpm type:check`, `pnpm test`, `pnpm test:e2e`,
+- [✓] E2E tests: PNG→WebP + JPG→WebP + WebP→PNG assert **RIFF/WEBP magic
+  bytes** of the downloaded file, tagged `@critical` so they also run on
+  WebKit (Safari's engine — verified: WebKit's `toBlob('image/webp')`
+  returns PNG, the exact bug). All pass on chromium/webkit/firefox.
+- [✓] Docs: TESTING.md (suite counts 382, fixtures, conventions);
+  todo.md + features.todo.md (@jsquash/webp item marked done)
+- [✓] Verify: `pnpm lint`, `pnpm type:check`, `pnpm test` (382/382),
+  `pnpm test:e2e` (204 passed / 2 known skips, all browsers),
   `pnpm build` — all green
 
 ---

@@ -203,7 +203,7 @@ This could become one of Devly's strongest differentiators.
 - [ ] GIF → video
 - [ ] TIFF → JPG/PNG
 - [ ] BMP → JPG/PNG
-- [ ] WebP compression with `@jsquash/webp`
+- [x] WebP compression with `@jsquash/webp` (encoder fallback: Safari has no native WebP encoder)
 
 ### Editing
 

@@ -24,7 +24,7 @@
 - [x]: Web: Add barcode generator
 
 - [ ]: Add "filerobot-image-editor" for advance image edit
-- [ ]: Use "@jsquash/webp" for image compression
+- [x]: Use "@jsquash/webp" for image compression (WebP encoding fallback for Safari)
 - [ ]: Use react-upload-zone for better capability
 - [ ]: Add zod for validation and better ux
 - [ ]: Add currency exchange using Frankfurter API.

@@ -15,7 +15,7 @@ Playwright (webkit/firefox) @critical browser-API tests
 ## Commands
 
 ```bash
-pnpm test                # Vitest unit + component tests (370 tests)
+pnpm test                # Vitest unit + component tests (382 tests)
 pnpm test:watch          # Vitest in watch mode
 pnpm test:coverage       # Vitest with v8 coverage report
 pnpm test:e2e            # Playwright: builds prod app, serves :3100, runs all suites
@@ -43,7 +43,9 @@ pnpm exec playwright show-trace test-results/<test-dir>/trace.zip
   - `all-tools` — registry-driven: every tool's page contract (86 tools)
   - `converters` — bidirectional data converters, known crypto vectors
   - `crypto-text` — encryption round-trips, generators, diff
-  - `file-tools` — image/PDF/ZIP real-file processing, downloads
+  - `file-tools` — image/PDF/ZIP real-file processing, downloads;
+    PNG→WebP / JPG→WebP / WebP→PNG assert real RIFF/WEBP magic bytes
+    (@critical: WebKit is Safari's engine and has no native WebP encoder)
   - `generators-download` — robots/sitemap/meta output validity, clipboard, reset
   - `image-editor` — Advanced Image Editor: import, adjust, text, border,
     undo/redo, export (PNG magic bytes), merge (order controls,
@@ -57,6 +59,9 @@ pnpm exec playwright show-trace test-results/<test-dir>/trace.zip
   valid pixel images, solid.png for pixel asserts, wide.png 1200×800 for
   overflow/pan interactions, minimal PDF)
 - `tests/setup/vitest-setup.ts` — jsdom polyfills (WebCrypto, DataTransfer)
+  — must stay **synchronous**: a top-level `await` makes Vitest skip
+  everything after it, so the polyfills would never install
+- `tests/setup/jest-dom-matchers.d.ts` — jest-dom matcher types for Vitest 5
 
 ## Conventions
 
@@ -76,6 +81,9 @@ pnpm exec playwright show-trace test-results/<test-dir>/trace.zip
   other browsers verify copy via the success toast. Tests needing Safari /
   Firefox fidelity are tagged `@critical`.
 - **Known vectors**: hash tests use FIPS 180 vectors; Base64 uses RFC 4648.
+- **Output bytes over output labels**: a produced file is checked by its
+  magic bytes, not its extension — browsers can silently encode a
+  different format than requested (Safari encodes PNG for WebP).
 
 ## Coverage philosophy
 
