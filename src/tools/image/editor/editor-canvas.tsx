@@ -603,8 +603,10 @@ export function EditorCanvas({
         ? (textMeasures.get(selected.id)?.height ?? selected.fontSize * selected.lineHeight)
         : selected.height;
     return {
-      left: selected.x * scale,
-      top: selected.y * scale,
+      // x/y are the layer CENTER, so the box starts half a size up-left —
+      // otherwise the frame (and its handles) sits off-center on the layer.
+      left: (selected.x - w / 2) * scale,
+      top: (selected.y - h / 2) * scale,
       width: w * scale,
       height: h * scale,
       transform: `rotate(${selected.rotation}deg)`,

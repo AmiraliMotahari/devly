@@ -56,6 +56,30 @@ test.describe("Advanced Image Editor", () => {
     await errors.assertNone("advanced-image-editor import");
   });
 
+  test("selection frame is centered on the layer it outlines", async ({ page }) => {
+    const errors = trackPageErrors(page);
+    await navigateToTool(page, "advanced-image-editor");
+    await uploadToEditor(page, [fixture("wide.png")]);
+
+    // The base layer is centered on the canvas, so its selection frame
+    // must be too (x/y are the layer CENTER — a frame placed by its
+    // top-left lands half a layer off).
+    const frame = page.getByTestId("layer-selection");
+    await expect(frame).toBeVisible();
+    const [frameBox, canvasBox] = await Promise.all([
+      frame.boundingBox(),
+      page.locator("[data-testid='editor-canvas'] canvas").boundingBox(),
+    ]);
+    if (!frameBox || !canvasBox) throw new Error("missing box");
+    const frameCenterX = frameBox.x + frameBox.width / 2;
+    const frameCenterY = frameBox.y + frameBox.height / 2;
+    const canvasCenterX = canvasBox.x + canvasBox.width / 2;
+    const canvasCenterY = canvasBox.y + canvasBox.height / 2;
+    expect(Math.abs(frameCenterX - canvasCenterX)).toBeLessThan(2);
+    expect(Math.abs(frameCenterY - canvasCenterY)).toBeLessThan(2);
+    await errors.assertNone("advanced-image-editor selection frame");
+  });
+
   test("adjustments update the image and reset works", async ({ page }) => {
     const errors = trackPageErrors(page);
     await navigateToTool(page, "advanced-image-editor");
