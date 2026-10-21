@@ -40,7 +40,7 @@
 ## V2
 
 - [x]: Full PWA implementation (manifest fixed — the icons 404'd, so the app was not installable; service worker added)
-- [x]: Use offline (network-first service worker: the app loads with the network off; `useOffline` + indicator already in place)
+- [x]: Use offline (network-first service worker: the app loads with the network off; shell precached at idle; the one network tool queues its request until the connection returns)
 
 ## V3
 

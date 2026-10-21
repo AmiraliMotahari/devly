@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,9 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
     date: string | null;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** True when the request failed because the browser is offline: it is
+   *  queued and retried automatically once the connection returns. */
+  const [queued, setQueued] = useState(false);
 
   const loading = data?.base !== base;
 
@@ -88,13 +91,31 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
       } catch (err) {
         if (controller.signal.aborted) return;
         setData({ base, rates: new Map(), date: null });
-        setError(
-          err instanceof Error ? err.message : "Could not load exchange rates.",
-        );
+        // A network-level failure (offline, DNS, unreachable host) is not a
+        // dead end: queue the request for when the connection is back.
+        if (err instanceof TypeError) {
+          setQueued(true);
+          setError(null);
+        } else {
+          setError(
+            err instanceof Error ? err.message : "Could not load exchange rates.",
+          );
+        }
       }
     })();
     return () => controller.abort();
   }, [base, loadRates]);
+
+  // Offline queue: retry as soon as the browser is online again.
+  useEffect(() => {
+    if (!queued) return;
+    const onOnline = () => {
+      setQueued(false);
+      void loadRates(base).catch(() => setQueued(true));
+    };
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [queued, base, loadRates]);
 
   const rate = useMemo(() => {
     const map = data?.base === base ? data.rates : null;
@@ -115,6 +136,15 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      {queued && (
+        <Alert data-testid="currency-offline-queue">
+          <WifiOff className="size-4" />
+          <AlertDescription>
+            You&apos;re offline — the rates will load automatically as soon as
+            you&apos;re back online.
+          </AlertDescription>
         </Alert>
       )}
 

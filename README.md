@@ -360,8 +360,7 @@ The project is under active development. Planned work includes:
 
 ### Offline / PWA
 
-- Offline-capable tools (all client-side tools work without a connection)
-- Pre-caching the build output so the first visit works offline too
+- Pre-caching every route so unvisited tools work offline too (~25 MB)
 - A network-status surface inside the app (not just a toast)
 
 ### AI

@@ -22,7 +22,8 @@ async function uploadToEditor(page: import("@playwright/test").Page, filePaths: 
   await expect(importState.first()).toBeVisible({ timeout: 20_000 });
   const input = page.locator('input[type="file"]').first();
   // Hydration guard: if the fill lands pre-hydration the change event is
-  // lost. Retry once when the editor doesn't open.
+  // lost. Retry once — clearing the input first, because selecting the same
+  // file again would not fire another change event.
   for (let attempt = 0; attempt < 2; attempt++) {
     await input.setInputFiles(filePaths);
     try {
@@ -30,6 +31,11 @@ async function uploadToEditor(page: import("@playwright/test").Page, filePaths: 
       return;
     } catch {
       if (attempt === 1) throw new Error("Upload did not open the editor (hydration race)");
+      await input
+        .evaluate((el: HTMLInputElement) => {
+          el.value = "";
+        })
+        .catch(() => {});
     }
   }
 }

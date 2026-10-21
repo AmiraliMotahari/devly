@@ -728,8 +728,8 @@ This should sit **on top of** your individual conversion engines rather than rep
 - [x] Service worker (network-first, `public/sw.js`)
 - [x] Offline tool shell (the app loads with the network off)
 - [x] Offline-capable tools (all client-side tools; only network tools need a connection)
-- [x] Cache static assets
-- [ ] Offline queue (nothing to queue — tools are local-first, no server mutations)
+- [x] Cache static assets (shell precached at idle — a burst of parallel fetches slowed the page)
+- [x] Offline queue (the currency tool queues its request and completes it when the connection returns)
 - [x] Network status indicator
 
 But I would change your "Use offline" item to:

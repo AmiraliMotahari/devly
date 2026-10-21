@@ -10,15 +10,9 @@
  * cache-first, which would serve stale pages.
  */
 const CACHE = "devly-v1";
-const SHELL = ["/", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.addAll(SHELL))
-      .then(() => self.skipWaiting()),
-  );
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", (event) => {
@@ -29,6 +23,29 @@ self.addEventListener("activate", (event) => {
         Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
       )
       .then(() => self.clients.claim()),
+  );
+});
+
+// The page asks the worker to cache URLs. It does this when the browser is
+// idle: caching during install would compete with the page's own assets and
+// slow the first paint.
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (data?.type !== "cache-urls" || !Array.isArray(data.urls)) return;
+  event.waitUntil(
+    caches.open(CACHE).then(async (cache) => {
+      // A few at a time: a burst of parallel fetches competes with the
+      // page's own loading.
+      for (let i = 0; i < data.urls.length; i += 4) {
+        await Promise.allSettled(
+          data.urls.slice(i, i + 4).map((url) =>
+            cache.add(url).catch(() => {
+              /* a single missing asset must not fail the batch */
+            }),
+          ),
+        );
+      }
+    }),
   );
 });
 

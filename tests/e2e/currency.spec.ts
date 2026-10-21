@@ -99,4 +99,43 @@ test.describe("Currency Converter (Frankfurter API)", () => {
     );
     await errors.assertNone("currency-converter failure");
   });
+
+  test("queues the request while offline and completes it when back online", async ({
+    page,
+  }) => {
+    // The rates request fails the way it does with no connection.
+    await page.route("**/api.frankfurter.dev/v2/rates**", (route) =>
+      route.abort("internetdisconnected"),
+    );
+    await page.route("**/api.frankfurter.dev/v2/currencies", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(CURRENCIES),
+      }),
+    );
+    await navigateToTool(page, "currency-converter");
+
+    // Offline is not a failure — the request is queued.
+    await expect(page.getByTestId("currency-offline-queue")).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Back online: the queued request runs and the result appears.
+    await page.unroute("**/api.frankfurter.dev/v2/rates**");
+    await page.route("**/api.frankfurter.dev/v2/rates**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(RATES),
+      }),
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("online")));
+
+    await expect(page.getByTestId("currency-result")).toContainText(
+      "89.08 EUR",
+      { timeout: 15_000 },
+    );
+    await expect(page.getByTestId("currency-offline-queue")).toBeHidden();
+  });
 });

@@ -54,6 +54,9 @@ export async function fillInput(
   value: string,
 ) {
   const field = fieldFor(page, label);
+  // Clear first: assigning a new value over an existing one does not
+  // always reach the component state of a controlled input.
+  await field.fill("");
   await field.fill(value);
 
   // Hydration/state guard: after filling a non-empty value, most tools'
@@ -68,6 +71,7 @@ export async function fillInput(
       await expect(primary).toBeEnabled({ timeout: 3_000 });
     } catch {
       // State didn't land (pre-hydration fill). Refill now that hydrated.
+      await field.fill("");
       await field.fill(value);
     }
   }
@@ -82,11 +86,21 @@ export async function fillInput(
 export async function fillInputs(
   page: Page,
   fields: { label: string | RegExp; value: string }[],
-  attempts = 4,
+  attempts = 3,
 ) {
+  // The primary action reflects the tool's state: it only enables once the
+  // values reached the component. That is the only reliable signal that a
+  // fill landed (the DOM shows the text even when React never saw it).
+  const primary = page
+    .locator('button:not([data-size="sm"]):not([aria-haspopup])')
+    .first();
+  const primaryExists = await primary.isVisible().catch(() => false);
+
   for (let attempt = 0; attempt < attempts; attempt++) {
     for (const { label, value } of fields) {
-      await fieldFor(page, label).fill(value);
+      const field = fieldFor(page, label);
+      await field.fill("");
+      await field.fill(value);
     }
     // Give a pending hydration the chance to wipe the values.
     await page.waitForTimeout(250);
@@ -97,7 +111,10 @@ export async function fillInputs(
           .catch(() => value),
       ),
     );
-    if (current.every((v, i) => v === fields[i].value)) return;
+    const valuesStick = current.every((v, i) => v === fields[i].value);
+    const stateStick =
+      !primaryExists || (await primary.isEnabled().catch(() => false));
+    if (valuesStick && stateStick) return;
   }
   throw new Error("Input values did not stick");
 }
@@ -137,13 +154,12 @@ export async function getOutputText(page: Page): Promise<string> {
   await expect(codeBlock.or(readonlyArea)).toBeVisible({ timeout: 20_000 });
 
   if (await codeBlock.isVisible().catch(() => false)) {
-    // Extract ONLY the code content, not the header (filename, buttons).
-    // Shiki renders inside .rs-root > pre; sr-only line summaries excluded.
-    const shikiPre = codeBlock.locator("pre").first();
-    if (await shikiPre.isVisible().catch(() => false)) {
-      return shikiPre.textContent() ?? "";
-    }
-    return codeBlock.textContent() ?? "";
+    // The code lives in the shiki container; the block's header (filename,
+    // copy button) must not leak into the text. The grammar loads
+    // asynchronously, so wait for the container before reading it.
+    const shiki = codeBlock.locator('[data-testid="shiki-container"]');
+    await expect(shiki).toBeVisible({ timeout: 20_000 });
+    return (await shiki.textContent()) ?? "";
   }
   return readonlyArea.inputValue();
 }
