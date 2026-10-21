@@ -5,19 +5,26 @@ const manifest = (): MetadataRoute.Manifest => {
   return {
     name: appName,
     short_name: appName,
+    description:
+      "A single place for file, media, developer, data, text, PDF and general-purpose utilities. Most tools run entirely in your browser.",
+    id: "/",
+    start_url: "/",
+    scope: "/",
+    lang: "en",
+    categories: ["utilities", "productivity"],
     theme_color: "#09111e",
     background_color: "#09111e",
     display: "standalone",
-    orientation: "portrait",
+    orientation: "any",
     icons: [
       {
-        src: "/images/web-app-manifest-192x192.png",
+        src: "/web-app-manifest-192x192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/images/web-app-manifest-512x512.png",
+        src: "/web-app-manifest-512x512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

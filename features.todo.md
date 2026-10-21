@@ -722,15 +722,15 @@ This should sit **on top of** your individual conversion engines rather than rep
 
 ### V2
 
-- [ ] Full PWA support
-- [ ] Installable app
-- [ ] App manifest
-- [ ] Service worker
-- [ ] Offline tool shell
-- [ ] Offline-capable tools
-- [ ] Cache static assets
-- [ ] Offline queue
-- [ ] Network status indicator
+- [x] Full PWA support
+- [x] Installable app (manifest icons resolved — they 404'd before)
+- [x] App manifest
+- [x] Service worker (network-first, `public/sw.js`)
+- [x] Offline tool shell (the app loads with the network off)
+- [x] Offline-capable tools (all client-side tools; only network tools need a connection)
+- [x] Cache static assets
+- [ ] Offline queue (nothing to queue — tools are local-first, no server mutations)
+- [x] Network status indicator
 
 But I would change your "Use offline" item to:
 

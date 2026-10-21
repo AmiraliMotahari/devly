@@ -360,9 +360,9 @@ The project is under active development. Planned work includes:
 
 ### Offline / PWA
 
-- PWA support
-- Offline-capable tools
-- Local-first processing where appropriate
+- Offline-capable tools (all client-side tools work without a connection)
+- Pre-caching the build output so the first visit works offline too
+- A network-status surface inside the app (not just a toast)
 
 ### AI
 

@@ -9,6 +9,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { OfflineIndicator } from "@/components/offline-indicator";
+import { ServiceWorker } from "@/components/service-worker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             disableTransitionOnChange
           >
             <OfflineIndicator />
+            <ServiceWorker />
             <TooltipProvider>
               <div className="flex min-h-screen flex-col">
                 <Suspense>
