@@ -96,6 +96,13 @@ const TOOL_COMPONENTS: Record<
       })),
     { loading },
   ),
+  "advanced-image-editor": dynamic(
+    () =>
+      import("@/tools/image/editor/advanced-image-editor").then((m) => ({
+        default: m.AdvancedImageEditor,
+      })),
+    { loading },
+  ),
   "merge-pdf": dynamic(
     () =>
       import("@/tools/pdf/merge-pdf").then((m) => ({ default: m.MergePdf })),

@@ -493,6 +493,84 @@ export const toolDefinitions: ToolDefinition[] = [
     ],
     available: true,
   },
+  {
+    id: "image-advanced-editor",
+    slug: "advanced-image-editor",
+    name: "Advanced Image Editor",
+    description:
+      "Full browser-based image editor: crop, resize, rotate, adjustments, filters, text, shapes, borders, merge, split and collage in one place.",
+    category: "images",
+    aliases: [
+      "photo editor",
+      "image editor",
+      "edit image",
+      "crop and text",
+      "collage maker",
+      "split image",
+      "merge images",
+      "remove background",
+    ],
+    inputKind: "file",
+    outputKind: "image",
+    processingMode: "client",
+    supportsBatch: true,
+    requiresAuthentication: false,
+    acceptFileTypes: ["image/*"],
+    maxFileSizeMB: 50,
+    maxFiles: 12,
+    keywords: [
+      "editor",
+      "edit",
+      "crop",
+      "resize",
+      "rotate",
+      "flip",
+      "adjust",
+      "brightness",
+      "contrast",
+      "filters",
+      "text",
+      "watermark",
+      "border",
+      "collage",
+      "split",
+      "merge",
+      "background removal",
+      "layers",
+      "photo",
+    ],
+    relatedToolSlugs: [
+      "resize-image",
+      "crop-image",
+      "image-filters",
+      "image-watermark",
+      "compress-image",
+    ],
+    faq: [
+      {
+        question: "Does this upload my images to a server?",
+        answer:
+          "No. The editor runs entirely in your browser using Canvas APIs — importing, editing and exporting all happen on your device.",
+      },
+      {
+        question: "Can I combine several photos into one?",
+        answer:
+          "Yes. Import multiple images and use Merge (vertical, horizontal or grid), Collage templates, or place extra images as layers.",
+      },
+      {
+        question: "How does background removal work?",
+        answer:
+          "It detects and removes a dominant background color (chroma-key style) right in the browser. It works best on flat or solid backgrounds; no AI model is downloaded.",
+      },
+    ],
+    howItWorks: [
+      "Import one or more images (drag, paste or browse)",
+      "Edit with crop, adjust, filters, text, shapes and canvas controls",
+      "Undo/redo any step; every change is reversible",
+      "Export as PNG, JPEG or WebP at any scale",
+    ],
+    available: true,
+  },
 
   // ── PDF ─────────────────────────────────────────────────
   {

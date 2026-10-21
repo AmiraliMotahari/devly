@@ -13,7 +13,7 @@ Generated from verified repo sources (README, package.json, next.config.ts, tool
 ## Development Commands
 
 | Command | What it does |
-|---|---|
+| --- | --- |
 | `pnpm dev` | Start Next.js dev server (`next dev`) |
 | `pnpm build` | Next.js production build (`next build`) |
 | `pnpm start` | Run production build (`next start`) |
@@ -50,7 +50,7 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 ## Directory Ownership / Entry Points
 
 | Directory | Contents |
-|---|---|
+| --- | --- |
 | `src/app/` | Next.js app router, page.tsx, layout.tsx, error.tsx, `[slug]/page.tsx`, `tools/page.tsx` (directory), route manifests |
 | `src/components/` | UI primitives (shadcn), providers, result-panel, tool-shell, tool-forms, tool-runner, related-tools, search, upload-zone, command-palette |
 | `src/hooks/` | `use-mobile.ts`, `use-isApple.ts`, `use-tool-history.ts` (recent/favorites localStorage) |
@@ -98,7 +98,7 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 ## Quick Reference: Category Icons & Keys
 
 | Category | Icon (Lucide) |
-|---|---|
+| --- | --- |
 | images | Image |
 | pdf | FileText |
 | files | FolderArchive |
