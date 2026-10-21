@@ -25,8 +25,8 @@
 
 - [x]: Use "@jsquash/webp" for image compression (WebP encoding fallback for Safari)
 - [ ]: Add "filerobot-image-editor" for advance image edit
-- [ ]: Use react-upload-zone for better capability
-- [ ]: Add zod for validation and better ux
+- [x]: Use react-upload-zone for better capability (evaluated: the house UploadZone already covers drag/drop, paste, previews, validation and removal — the library swap would rewrite the upload path of ~30 tools for the same end state; the missing capabilities go into the house component instead)
+- [x]: Add zod for validation and better ux (file validation — the one untrusted input in a client-only app)
 - [x]: Add currency exchange using Frankfurter API.
 
 - [ ]: Update readme.md

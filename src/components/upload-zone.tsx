@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Upload, X, FileIcon, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatFileSize } from '@/lib/file-security';
+import { validateFile as validateFileSchema } from '@/lib/file-validation';
 import { Button } from '@/components/ui/button';
 
 export interface UploadedFile {
@@ -43,30 +44,12 @@ export function UploadZone({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): { valid: boolean; error?: string } => {
-    if (maxFileSizeMB > 0 && file.size > maxFileSizeMB * 1024 * 1024) {
-      return { valid: false, error: `Exceeds ${maxFileSizeMB} MB limit` };
-    }
-    if (accept && accept.length > 0) {
-      const acceptedPatterns = accept.split(",").map((p) => p.trim().toLowerCase()).filter(Boolean);
-      const fileExt = `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`;
-      const mimeType = file.type.toLowerCase();
-      const matches = acceptedPatterns.some((pattern) => {
-        if (pattern.startsWith(".")) {
-          return fileExt === pattern;
-        }
-        if (pattern.endsWith("/*")) {
-          return mimeType.startsWith(pattern.slice(0, -1));
-        }
-        return mimeType === pattern;
-      });
-      if (!matches) {
-        return {
-          valid: false,
-          error: `Unsupported type${mimeType ? ` (${mimeType})` : ""} — expected: ${acceptedPatterns.join(", ")}`,
-        };
-      }
-    }
-    return { valid: true };
+    const error = validateFileSchema(
+      { name: file.name, size: file.size, type: file.type },
+      accept ?? "",
+      maxFileSizeMB,
+    );
+    return error ? { valid: false, error } : { valid: true };
   };
 
   const processFiles = useCallback(
