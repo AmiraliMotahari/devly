@@ -4,6 +4,7 @@ import { ToolRunner } from '@/components/tool-runner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 import type { ToolResult } from '@/types/tool';
 import { replaceExtension, getExtension } from '@/lib/file-security';
+import { encodeCanvasToBlob } from '@/lib/image-encode';
 
 export function CompressImage({ tool }: ToolComponentProps) {
   return (
@@ -43,13 +44,13 @@ export function CompressImage({ tool }: ToolComponentProps) {
           outputExt = ext === 'jpeg' ? 'jpeg' : 'jpg';
         }
 
-        const blob = await new Promise<Blob>((resolve, reject) => {
-          canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(new Error('Compression failed.'))),
-            outputType,
-            outputType === 'image/png' ? undefined : quality
-          );
-        });
+        // encodeCanvasToBlob verifies the encoded bytes match the requested
+        // format (Safari silently encodes PNG for WebP requests).
+        const blob = await encodeCanvasToBlob(
+          canvas,
+          outputType,
+          outputType === 'image/png' ? 1 : quality,
+        );
 
         ctx.onProgress(90, 'Finalizing...');
 

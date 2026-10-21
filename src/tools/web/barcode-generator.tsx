@@ -1,5 +1,6 @@
 "use client";
 
+import { encodeCanvasToBlob } from "@/lib/image-encode";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import bwipjs from "bwip-js/browser";
@@ -195,10 +196,7 @@ export function BarcodeGenerator({ tool }: ToolComponentProps) {
         }
         const img = await svgToImage(sized);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const blob = await new Promise<Blob | null>((resolve) =>
-          canvas.toBlob(resolve, `image/${format}`),
-        );
-        if (!blob) throw new Error("Export failed");
+        const blob = await encodeCanvasToBlob(canvas, `image/${format}`, 0.92);
         downloadBlob(
           `barcode-${bcid}.${format === "jpeg" ? "jpg" : format}`,
           blob,

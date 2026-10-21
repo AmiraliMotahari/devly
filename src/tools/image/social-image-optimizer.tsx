@@ -4,6 +4,7 @@ import { ToolRunner } from '@/components/tool-runner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 import type { ToolResult } from '@/types/tool';
 import { getExtension } from '@/lib/file-security';
+import { encodeCanvasToBlob } from '@/lib/image-encode';
 
 const PLATFORM_SIZES: Record<string, { width: number; height: number; name: string }> = {
   'instagram-post': { width: 1080, height: 1080, name: 'Instagram Post' },
@@ -74,13 +75,9 @@ export function SocialImageOptimizer({ tool }: ToolComponentProps) {
         const outputType =
           outputExt === 'png' ? 'image/png' : outputExt === 'webp' ? 'image/webp' : 'image/jpeg';
 
-        const blob = await new Promise<Blob>((resolve, reject) => {
-          canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(new Error('Optimization failed.'))),
-            outputType,
-            0.92,
-          );
-        });
+        // encodeCanvasToBlob verifies the encoded bytes match the requested
+        // format (Safari silently encodes PNG for WebP requests).
+        const blob = await encodeCanvasToBlob(canvas, outputType, 0.92);
 
         ctx.onProgress(95, 'Finalizing...');
 

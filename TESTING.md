@@ -15,7 +15,7 @@ Playwright (webkit/firefox) @critical browser-API tests
 ## Commands
 
 ```bash
-pnpm test                # Vitest unit + component tests (203 tests)
+pnpm test                # Vitest unit + component tests (370 tests)
 pnpm test:watch          # Vitest in watch mode
 pnpm test:coverage       # Vitest with v8 coverage report
 pnpm test:e2e            # Playwright: builds prod app, serves :3100, runs all suites
@@ -40,15 +40,22 @@ pnpm exec playwright show-trace test-results/<test-dir>/trace.zip
 - `tests/unit/**/*.test.ts(x)` — unit & component tests, mirroring `src/` structure
 - `tests/e2e/*.spec.ts` — Playwright suites
   - `app-shell` — home, navigation, palette, theme, responsive, routing
-  - `all-tools` — registry-driven: every tool's page contract (84 tools)
+  - `all-tools` — registry-driven: every tool's page contract (86 tools)
   - `converters` — bidirectional data converters, known crypto vectors
   - `crypto-text` — encryption round-trips, generators, diff
   - `file-tools` — image/PDF/ZIP real-file processing, downloads
   - `generators-download` — robots/sitemap/meta output validity, clipboard, reset
+  - `image-editor` — Advanced Image Editor: import, adjust, text, border,
+    undo/redo, export (PNG magic bytes), merge (order controls,
+    open-in-editor), split (custom guides + overlay), collage (slot swap),
+    bg removal, pixel asserts (filter delta / corner-radius alpha /
+    border edge), crop aspect lock, re-import dedupe, pan smoke,
+    text-only design entry
 - `tests/e2e/helpers.ts` — shared fixtures: `navigateToTool`, `fillInput`, `runTool`,
   `getOutputText`, `uploadFile`, `downloadOutput`, `trackPageErrors`
 - `tests/fixtures/` — deterministic inputs (sample.json/xml/csv/yaml/toml,
-  valid pixel images, minimal PDF)
+  valid pixel images, solid.png for pixel asserts, wide.png 1200×800 for
+  overflow/pan interactions, minimal PDF)
 - `tests/setup/vitest-setup.ts` — jsdom polyfills (WebCrypto, DataTransfer)
 
 ## Conventions

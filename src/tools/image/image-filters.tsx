@@ -4,6 +4,7 @@ import { ToolRunner } from '@/components/tool-runner';
 import type { ToolComponentProps } from '@/tools/tool-props';
 import type { ToolResult } from '@/types/tool';
 import { getExtension } from '@/lib/file-security';
+import { encodeCanvasToBlob } from '@/lib/image-encode';
 
 export function ImageFilters({ tool }: ToolComponentProps) {
   return (
@@ -94,13 +95,9 @@ export function ImageFilters({ tool }: ToolComponentProps) {
         const outputType =
           ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
 
-        const blob = await new Promise<Blob>((resolve, reject) => {
-          canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(new Error('Filter failed.'))),
-            outputType,
-            0.92,
-          );
-        });
+        // encodeCanvasToBlob verifies the encoded bytes match the requested
+        // format (Safari silently encodes PNG for WebP requests).
+        const blob = await encodeCanvasToBlob(canvas, outputType, 0.92);
 
         ctx.onProgress(95, 'Finalizing...');
 

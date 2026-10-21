@@ -1,5 +1,6 @@
 "use client";
 
+import { encodeCanvasToBlob } from "@/lib/image-encode";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -76,13 +77,9 @@ async function rawToPngBlob(
 
   ctx.putImageData(imageData, 0, 0);
 
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) =>
-        blob ? resolve(blob) : reject(new Error("PNG encoding failed")),
-      "image/png",
-    );
-  });
+  // Verified encoder: the produced bytes are checked against the requested
+  // format, so a file never ships under the wrong extension.
+  return encodeCanvasToBlob(canvas, "image/png", 1);
 }
 
 export function ExtractImages({ tool }: ToolComponentProps) {

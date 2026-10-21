@@ -2,6 +2,7 @@
 
 import type { ToolResult, ProcessingContext } from '@/types/tool';
 import { replaceExtension } from '@/lib/file-security';
+import { encodeCanvasToBlob } from '@/lib/image-encode';
 
 export async function convertImage(
   file: File,
@@ -26,13 +27,10 @@ export async function convertImage(
 
   ctx.onProgress(60, 'Converting...');
 
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error('Conversion failed.'))),
-      outputType,
-      quality / 100
-    );
-  });
+  // encodeCanvasToBlob verifies the produced bytes match the requested
+  // format — Safari silently encodes PNG for WebP requests, which would
+  // otherwise ship a mislabeled file.
+  const blob = await encodeCanvasToBlob(canvas, outputType, quality / 100);
 
   ctx.onProgress(90, 'Finalizing...');
 

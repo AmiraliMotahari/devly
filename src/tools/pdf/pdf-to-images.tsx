@@ -1,5 +1,6 @@
 "use client";
 
+import { encodeCanvasToBlob } from "@/lib/image-encode";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -73,13 +74,7 @@ export function PdfToImages({ tool }: ToolComponentProps) {
         const mimeType = format === "png" ? "image/png" : "image/jpeg";
         const quality = format === "jpeg" ? 0.92 : undefined;
 
-        const blob = await new Promise<Blob>((resolve, reject) => {
-          canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(new Error("Canvas conversion failed"))),
-            mimeType,
-            quality,
-          );
-        });
+        const blob = await encodeCanvasToBlob(canvas, mimeType, quality ?? 0.92);
 
         const filename = `${baseName}_page_${i}.${format}`;
         zip.file(filename, blob);

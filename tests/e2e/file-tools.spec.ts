@@ -32,9 +32,10 @@ test.describe("Image tools (real file processing)", () => {
     await errors.assertNone("png-to-jpg");
   });
 
-  test("JPG→WebP converts and downloads a WebP (RIFF header)", async ({
+  test("JPG→WebP converts and downloads a WebP (RIFF header) @critical", async ({
     page,
   }) => {
+    const errors = trackPageErrors(page);
     await navigateToTool(page, "jpg-to-webp");
     await uploadFile(page, fixture("pixel.jpg"));
 
@@ -49,10 +50,82 @@ test.describe("Image tools (real file processing)", () => {
     if (path) {
       const { readFileSync } = await import("node:fs");
       const buf = readFileSync(path);
-      // RIFF....WEBP
+      // RIFF....WEBP — Safari/WebKit has no native WebP *encoder* and
+      // silently returns PNG from canvas.toBlob('image/webp'); the tool
+      // must still deliver real WebP bytes (WASM fallback).
       expect(buf.subarray(0, 4).toString("ascii")).toBe("RIFF");
       expect(buf.subarray(8, 12).toString("ascii")).toBe("WEBP");
     }
+    await errors.assertNone("jpg-to-webp");
+  });
+
+  test("PNG→WebP converts and downloads a WebP (RIFF header) @critical", async ({
+    page,
+  }) => {
+    const errors = trackPageErrors(page);
+    await navigateToTool(page, "png-to-webp");
+    await uploadFile(page, fixture("solid.png"));
+
+    await runTool(page, "Process");
+
+    const download = page.waitForEvent("download", { timeout: 30_000 });
+    await page.getByRole("button", { name: /download/i }).first().click();
+    const dl = await download;
+
+    expect(dl.suggestedFilename()).toMatch(/\.webp$/i);
+    const path = await dl.path();
+    if (path) {
+      const { readFileSync } = await import("node:fs");
+      const buf = readFileSync(path);
+      // RIFF....WEBP (never PNG bytes under a .webp name)
+      expect(buf.subarray(0, 4).toString("ascii")).toBe("RIFF");
+      expect(buf.subarray(8, 12).toString("ascii")).toBe("WEBP");
+    }
+    await errors.assertNone("png-to-webp");
+  });
+
+  test("WebP→PNG converts a real WebP back to PNG @critical", async ({ page }) => {
+    const errors = trackPageErrors(page);
+
+    // Produce a genuine WebP first (works in every browser: the encoder
+    // falls back to WASM where the platform has no native support).
+    await navigateToTool(page, "png-to-webp");
+    await uploadFile(page, fixture("solid.png"));
+    await runTool(page, "Process");
+    const webpDownload = page.waitForEvent("download", { timeout: 30_000 });
+    await page.getByRole("button", { name: /download/i }).first().click();
+    const webp = await webpDownload;
+    const webpPath = await webp.path();
+    if (!webpPath) throw new Error("no webp fixture produced");
+
+    // Re-save with a .webp extension — the upload zone validates by
+    // extension, and Playwright's temp download has none.
+    const { mkdtemp, copyFile } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const dir = await mkdtemp(join(tmpdir(), "devly-webp-"));
+    const webpFixture = join(dir, "converted.webp");
+    await copyFile(webpPath, webpFixture);
+
+    // Now convert that WebP back to PNG.
+    await navigateToTool(page, "webp-to-png");
+    await uploadFile(page, webpFixture);
+    await runTool(page, "Process");
+
+    const download = page.waitForEvent("download", { timeout: 30_000 });
+    await page.getByRole("button", { name: /download/i }).first().click();
+    const dl = await download;
+
+    expect(dl.suggestedFilename()).toMatch(/\.png$/i);
+    const path = await dl.path();
+    if (path) {
+      const { readFileSync } = await import("node:fs");
+      const buf = readFileSync(path);
+      // PNG magic bytes
+      expect(buf[0]).toBe(0x89);
+      expect(buf.subarray(1, 4).toString("ascii")).toBe("PNG");
+    }
+    await errors.assertNone("webp-to-png");
   });
 
   test("rejecting a wrong file type is surfaced, app does not crash", async ({
