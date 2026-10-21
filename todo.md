@@ -23,18 +23,18 @@
 - [x]: Web: use my qr-code(from my other project) located at "/"
 - [x]: Web: Add barcode generator
 
-- [ ]: Add "filerobot-image-editor" for advance image edit
 - [x]: Use "@jsquash/webp" for image compression (WebP encoding fallback for Safari)
+- [ ]: Add "filerobot-image-editor" for advance image edit
 - [ ]: Use react-upload-zone for better capability
 - [ ]: Add zod for validation and better ux
 - [ ]: Add currency exchange using Frankfurter API.
 
 - [ ]: Update readme.md
 
-- [x]: Optimization: Add instant navigation, prefetching, cache-components
-- [ ]: Cleanup: Remove unused packages
-
+- [x]: Cleanup: Remove unused packages (15 removed: three/@react-three-*, marked, papaparse, json-2-csv, fast-xml-parser, html-minifier, diff, qrcode, clsx, tailwind-merge + 2 @types)
 - [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture
+
+- [x]: Optimization: Add instant navigation, prefetching, cache-components
 - [ ]: CI/CD: add github workflow
 
 ## V2
