@@ -6,6 +6,9 @@ These should happen **before adding a large number of new tools**.
 
 ### Architecture
 
+> Plan: [processing-architecture.md](./processing-architecture.md) — design
+> first, then build (file → image → PDF).
+
 - [ ] Rewrite **file architecture** from the ground up
 - [ ] Rewrite **image architecture** from the ground up
 - [ ] Rewrite **PDF architecture** from the ground up

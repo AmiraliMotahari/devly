@@ -32,7 +32,7 @@
 - [ ]: Update readme.md
 
 - [x]: Cleanup: Remove unused packages (15 removed: three/@react-three-*, marked, papaparse, json-2-csv, fast-xml-parser, html-minifier, diff, qrcode, clsx, tailwind-merge + 2 @types)
-- [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture
+- [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture (plan: processing-architecture.md)
 
 - [x]: Optimization: Add instant navigation, prefetching, cache-components
 - [ ]: CI/CD: add github workflow
