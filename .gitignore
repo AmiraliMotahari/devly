@@ -50,3 +50,6 @@ next-env.d.ts
 
 # e2e
 /node_modules/.cache
+
+# graphify knowledge-graph build outputs
+graphify-out/

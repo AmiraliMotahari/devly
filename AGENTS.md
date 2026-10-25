@@ -9,6 +9,37 @@ Generated from verified repo sources (README, package.json, next.config.ts, tool
 - **Styling**: Tailwind CSS + shadcn UI (Radix Nova), aliases configured in components.json
 - **Icons**: Lucide React
 - **Purpose**: A browser-first file/media/dev/toolkit — most tools run entirely in the client (no uploads, no server). Privacy is a core guarantee.
+- **Signature feature**: the Advanced Image Editor (`src/tools/image/`) — layers, text/shapes, adjustments/filters, crop, merge, split, collage; all in-browser.
+- **PWA/offline**: service worker `public/sw.js` (network-first, precached app shell at idle, offline request queue), plus `useOffline` experimental switch. Manifest at `src/app/manifest.ts`.
+- **Only networked tool**: the currency converter (`src/tools/converters/currency.ts`) fetches reference rates from the public Frankfurter API — it sends currency codes only, never files. Any new networked tool must respect the same privacy line and be called out in its definition.
+
+## Planning Docs & Roadmap
+
+Planning lives in three docs — check the relevant one before "helping" with a roadmap item:
+
+| Doc | Contents |
+| --- | --- |
+| `todo.md` | Versioned roadmap V1–V5 (V1/V2 largely done; V3 AI features; V4 video/audio; V5 server-side + platform) |
+| `features.todo.md` | Detailed per-domain backlog (canonical source of planned features) |
+| `processing-architecture.md` | Plan for rewriting the file/PDF/image processing into one pipeline per domain (file domain first, then image, then PDF) |
+
+Roadmap direction (as of 2026-10): **V3** adds AI features (chat box, blog-writer, SEO analyzer); **V4** adds video/audio tools; **V5** moves some tools server-side behind a central orchestrator (rate-limit, analytics) with Better-Auth + Drizzle/PostgreSQL/Redis + RabbitMQ + OpenTelemetry. Per `todo.md` V5, the orchestrator architecture must be designed and the tech stack confirmed **before** any server-side implementation — do not pre-empt this. Until then, treat "no server-side processing" as a hard rule.
+
+## Layer AGENTS.md Map
+
+Each architectural layer owns a scoped AGENTS.md. **Read the layer doc before touching that directory.** Consult the layer file first, then the root for tooling-wide conventions. Cross-links inside each layer doc describe what connects to what.
+
+| Layer | Doc | Owns |
+| --- | --- | --- |
+| Routing & metadata | [`src/app/AGENTS.md`](./src/app/AGENTS.md) | Pages, `layout.tsx`, sitemap/robots/manifest, instant-navigation shells |
+| Shared UI | [`src/components/AGENTS.md`](./src/components/AGENTS.md) | `tool-loader` registry, tool-forms/runner/shell, upload & result UI, shadcn primitives |
+| Tool catalog & implementations | [`src/tools/AGENTS.md`](./src/tools/AGENTS.md) | `definitions.ts` (88 tools), per-category tools, image editor, currency converter |
+| Framework-agnostic utils | [`src/lib/AGENTS.md`](./src/lib/AGENTS.md) | constants, `cn`, file security/validation, image encode |
+| Shared contracts | [`src/types/AGENTS.md`](./src/types/AGENTS.md) | `ToolDefinition` and friends; reserved `ProcessingMode` values |
+| React hooks | [`src/hooks/AGENTS.md`](./src/hooks/AGENTS.md) | `use-mobile`, `use-media-query`, `use-isApple`, `use-object-urls`, `use-tool-history` |
+| Verification | [`tests/AGENTS.md`](./tests/AGENTS.md) | Vitest unit tree mirroring `src/`, Playwright suites, fixtures |
+
+Dependency flow: `types` → `lib`/`hooks` → `tools` → `components` → `app`, with `tests` guarding everything. Keep it acyclic — pages never import tool internals directly, tools never import app files, and nothing imports `next.config`.
 
 ## Development Commands
 
@@ -54,8 +85,9 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 | `src/app/` | Next.js app router, page.tsx, layout.tsx, error.tsx, `[slug]/page.tsx`, `tools/page.tsx` (directory), route manifests |
 | `src/components/` | UI primitives (shadcn), providers, result-panel, tool-shell, tool-forms, tool-runner, related-tools, search, upload-zone, command-palette |
 | `src/hooks/` | `use-mobile.ts`, `use-isApple.ts`, `use-tool-history.ts` (recent/favorites localStorage) |
-| `src/lib/` | `constants.ts`, `utils.ts` (cn helper using twMerge/clsx), `file-security.ts` (mime detection, sanitize, size utils) |
-| `src/tools/` | Tool definitions, categories, search, and per‑category sub‑dirs: `data/`, `developer/`, `images/`, `pdf/`, `files/`, `text/`, `colors/`, `datetime/`, `converters/` |
+| `src/lib/` | `constants.ts`, `utils.ts` (cn helper using twMerge/clsx), `file-security.ts` (mime detection, sanitize, size utils), `file-validation.ts` (zod file validation), `image-encode.ts` (canvas→blob encoding with WebP fallback) |
+| `src/tools/` | Tool definitions, categories, search, tool-props, processors, and per‑category sub‑dirs: `data/`, `developer/`, `image/` (incl. the Advanced Image Editor), `pdf/`, `files/`, `text/`, `colors/`, `datetime/`, `converters/`, `web/` |
+| `src/tools/image/editor/` + `src/tools/image/processing/` | Advanced Image Editor: layer/canvas/panel UI in `editor/`; pure logic (render, geometry, adjustments, export, errors) in `processing/`. State lives in `editor/state.ts` (reducer, `EditorMode`, `HISTORY_LIMIT`) |
 | `src/types/tool.ts` | Shared types: `ToolDefinition`, `ToolOption`, `ProcessingMode`, `InputKind`, `OutputKind`, `ToolResult`, `ProgressFn`, `ProcessingContext`, `ToolProcessor` |
 
 ## Environment & Config
@@ -78,7 +110,6 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 - **Form UI**: Text-based tools use the shared primitives in `src/components/tool-forms.tsx` (`ToolContainer`, `ToolField`, `ToolInput`, `ToolOutput`, `ToolCheckbox`, `ToolSelect`, `ToolError`, `ToolActions`, `ToolRow`). File-based tools use `ToolRunner` + `UploadZone`. Never hand-roll switches/selects/sliders — use the shadcn primitives.
 - **Styling rules**: no `space-y-*` (use `flex flex-col gap-*`), no raw color classes (`bg-blue-500`, `text-red-500` — use shadcn variants / semantic tokens like `text-success`, `text-destructive`), no manual `dark:` color overrides (use tokens), `size-4` not `h-4 w-4`, icons in buttons use `data-icon="inline-start"`.
 - **Copy/download feedback**: use `toast.success(...)` from sonner (see `ToolOutput` and existing tools). Never write to clipboard without await + try/catch.
-- **Duplicates guard**: `definitions.ts` contains a dev-time check that console.errors on duplicate `slug`/`id`. Never add a slug that already exists.
 - **Duplicate-slug guard**: `src/tools/definitions.ts` logs duplicate `slug`/`id` errors in dev — never register two tools with the same slug.
 - **Dynamic imports**: Tool components are loaded via `next/dynamic` with a `loading` spinner. Keep the `loading` prop pattern when adding entries to `TOOL_COMPONENTS`.
 - **Route generation**: `generateStaticParams()` in `src/app/tools/[slug]/page.tsx` maps over `toolDefinitions`. Adding/removing definitions changes the set of static params — rebuild (`pnpm build`) to regenerate.
