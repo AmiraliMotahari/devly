@@ -13,6 +13,12 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
     },
+    "graphify": {
+      "source": "graphify-labs/graphify",
+      "sourceType": "github",
+      "skillPath": "graphify/SKILL.md",
+      "computedHash": "e8a378ed623d7cb2b8273e9ee0ae6fdd4d89ca4a7898d283f78b5f05466a878e"
+    },
     "next-cache-components-adoption": {
       "source": "vercel/next.js",
       "sourceType": "github",
