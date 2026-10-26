@@ -8,7 +8,7 @@
  * Cache name includes a build version so old caches are evicted on deploy.
  * The version is injected at build time by scripts/build-sw.mjs.
  */
-const CACHE_VERSION = "__BUILD_VERSION__";
+const CACHE_VERSION = "v2";
 const RUNTIME_CACHE = `devly-runtime-${CACHE_VERSION}`;
 const SHELL_CACHE = `devly-shell-${CACHE_VERSION}`;
 const MAX_RUNTIME_ENTRIES = 200;
@@ -97,7 +97,7 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname.startsWith("/_next/webpack-hmr")) return;
 
   event.respondWith(
-    fetch(request)
+    fetch(request, { cache: "no-store" })
       .then((response) => {
         if (response.ok && response.type === "basic") {
           const copy = response.clone();
