@@ -12,20 +12,21 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISSED_KEY = "devly:install-dismissed";
 const INSTALLED_KEY = "devly:installed";
 
-function isStandaloneMode(): boolean {
+function checkStandalone(): boolean {
   if (typeof window === "undefined") return false;
   if (window.matchMedia("(display-mode: standalone)").matches) return true;
   if ((navigator as { standalone?: boolean }).standalone === true) return true;
   return false;
 }
 
+function checkInstalled(): boolean {
+  if (typeof window === "undefined") return false;
+  if (localStorage.getItem(INSTALLED_KEY) === "1") return true;
+  return checkStandalone();
+}
+
 export function InstallPrompt() {
-  const [isInstalled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return (
-      localStorage.getItem(INSTALLED_KEY) === "1" || isStandaloneMode()
-    );
-  });
+  const [isInstalled, setIsInstalled] = useState(checkInstalled);
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem(DISMISSED_KEY) === "1";
@@ -36,10 +37,25 @@ export function InstallPrompt() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
   });
 
+  // Re-check standalone mode on every render (browser may update it after install).
+  const standalone = checkStandalone();
+  if (standalone && !isInstalled) {
+    // Persist the installed state if we detect standalone mode at runtime.
+    if (typeof window !== "undefined") {
+      localStorage.setItem(INSTALLED_KEY, "1");
+    }
+  }
+  const installed = isInstalled || standalone;
+
   useEffect(() => {
-    if (isInstalled) return;
+    if (installed) return;
 
     const handler = (e: Event) => {
+      // Don't show if already installed (handles re-fire on refresh).
+      if (checkInstalled() || checkStandalone()) {
+        localStorage.setItem(INSTALLED_KEY, "1");
+        return;
+      }
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
     };
@@ -47,6 +63,7 @@ export function InstallPrompt() {
 
     const onInstalled = () => {
       localStorage.setItem(INSTALLED_KEY, "1");
+      setIsInstalled(true);
       setDeferred(null);
     };
     window.addEventListener("appinstalled", onInstalled);
@@ -55,9 +72,9 @@ export function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", onInstalled);
     };
-  }, [isInstalled]);
+  }, [installed]);
 
-  if (isInstalled || isStandaloneMode()) return null;
+  if (installed) return null;
   if (dismissed) return null;
 
   if (isIOS) {
@@ -101,6 +118,7 @@ export function InstallPrompt() {
           const { outcome } = await deferred.userChoice;
           if (outcome === "accepted") {
             localStorage.setItem(INSTALLED_KEY, "1");
+            setIsInstalled(true);
             setDeferred(null);
           } else {
             localStorage.setItem(DISMISSED_KEY, "1");

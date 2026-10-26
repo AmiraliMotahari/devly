@@ -222,8 +222,10 @@ export function SiteHeader() {
                 </Link>
               </Button>
             )}
-            <DownloadOffline />
-            <InstallPrompt />
+            <div className="hidden items-center gap-2 sm:flex">
+              <DownloadOffline />
+              <InstallPrompt />
+            </div>
             <MobileNav />
           </div>
         </div>
