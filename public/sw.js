@@ -8,7 +8,7 @@
  * Cache name includes a build version so old caches are evicted on deploy.
  * The version is injected at build time by scripts/build-sw.mjs.
  */
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const RUNTIME_CACHE = `devly-runtime-${CACHE_VERSION}`;
 const SHELL_CACHE = `devly-shell-${CACHE_VERSION}`;
 const MAX_RUNTIME_ENTRIES = 200;
@@ -120,10 +120,12 @@ self.addEventListener("fetch", (event) => {
           (await caches.match(request, { cacheName: RUNTIME_CACHE })) ||
           (await caches.match(request, { cacheName: SHELL_CACHE }));
         if (cached) return cached;
-        // For static assets not in cache, reject (network error) instead
-        // of returning 503 — avoids ChunkLoadError in Turbopack.
+        // For static assets not in cache, return 404 instead of 503 or
+        // a rejected promise — a 404 is handled gracefully by Next.js's
+        // chunk loader (shows error boundary) instead of crashing with
+        // ChunkLoadError.
         if (isStaticAsset) {
-          return Promise.reject(new Error("offline"));
+          return new Response("", { status: 404, statusText: "Not Found" });
         }
         // For navigation requests to uncached routes, serve the branded
         // offline page.
