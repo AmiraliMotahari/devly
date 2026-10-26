@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export function DownloadOffline() {
-  const [status, setStatus] = useState<"idle" | "downloading" | "done">("idle");
+  const [status, setStatus] = useState<"idle" | "downloading" | "done">(() => {
+    if (typeof window === "undefined") return "idle";
+    return localStorage.getItem("devly:offline-downloaded") === "1" ? "done" : "idle";
+  });
   const [progress, setProgress] = useState(0);
 
   const handleDownload = async () => {
@@ -25,6 +28,7 @@ export function DownloadOffline() {
       if (event.data?.type === "precache-done") {
         setStatus("done");
         setProgress(100);
+        localStorage.setItem("devly:offline-downloaded", "1");
         navigator.serviceWorker.removeEventListener("message", onMessage);
         toast.success("Devly is ready for offline use.");
       }
