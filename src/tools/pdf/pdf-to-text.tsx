@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
-import { loadPdfjs } from "./pdfjs";
+import { pdfToText, friendlyPdfError } from "./processing/pipeline";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -39,43 +39,10 @@ export function PdfToText({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const pdfjsLib = await loadPdfjs();
-
-      const bytes = await pdf.arrayBuffer();
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const doc = await loadingTask.promise;
-
-      const parts: string[] = [];
-      for (let i = 1; i <= doc.numPages; i++) {
-        setProgress(Math.round((i / doc.numPages) * 90));
-        const page = await doc.getPage(i);
-        const content = await page.getTextContent();
-        // Rebuild lines using Y positions so paragraphs survive extraction
-        let lastY: number | null = null;
-        let line = "";
-        const lines: string[] = [];
-        for (const item of content.items as Array<{ str: string; transform: number[] }>) {
-          const y = Math.round(item.transform[5]);
-          if (lastY !== null && Math.abs(y - lastY) > 2) {
-            lines.push(line.trim());
-            line = "";
-          }
-          line += item.str;
-          if (!item.str.endsWith(" ")) line += " ";
-          lastY = y;
-        }
-        if (line.trim()) lines.push(line.trim());
-        parts.push(
-          `--- Page ${i} ---\n${lines.filter((l) => l.length > 0).join("\n")}`,
-        );
-      }
-
-      setProgress(100);
-      setText(parts.join("\n\n"));
+      const result = await pdfToText(pdf, setProgress);
+      setText(result.blob ? await result.blob.text() : "");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to extract text from PDF.",
-      );
+      setError(friendlyPdfError(err, "Failed to extract text from PDF."));
     } finally {
       setIsProcessing(false);
     }

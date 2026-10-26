@@ -1,6 +1,5 @@
 "use client";
 
-import { encodeCanvasToBlob } from "@/lib/image-encode";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,8 +15,7 @@ import { ResultPanel } from "@/components/result-panel";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
-import JSZip from "jszip";
-import { loadPdfjs } from "./pdfjs";
+import { pdfToImages, friendlyPdfError } from "./processing/pipeline";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -43,61 +41,10 @@ export function PdfToImages({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const bytes = await pdf.arrayBuffer();
-      const pdfjsLib = await loadPdfjs();
-
-      const loadingTask = pdfjsLib.getDocument({ data: bytes });
-      const pdfDoc = await loadingTask.promise;
-      const numPages = pdfDoc.numPages;
-      const scale = parseInt(dpi, 10) / 72;
-      const allResults: ToolResult[] = [];
-
-      const zip = new JSZip();
-      const baseName = pdf.name.replace(/\.pdf$/i, "");
-
-      for (let i = 1; i <= numPages; i++) {
-        setProgress(Math.round((i / numPages) * 90));
-        const page = await pdfDoc.getPage(i);
-        const viewport = page.getViewport({ scale });
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Could not get canvas context");
-
-        await page.render({
-          canvas,
-          canvasContext: ctx,
-          viewport,
-        }).promise;
-
-        const mimeType = format === "png" ? "image/png" : "image/jpeg";
-        const quality = format === "jpeg" ? 0.92 : undefined;
-
-        const blob = await encodeCanvasToBlob(canvas, mimeType, quality ?? 0.92);
-
-        const filename = `${baseName}_page_${i}.${format}`;
-        zip.file(filename, blob);
-        allResults.push({ filename, blob, outputSize: blob.size });
-      }
-
-      if (allResults.length === 1) {
-        setResults(allResults);
-      } else {
-        setProgress(95);
-        const zipBlob = await zip.generateAsync({ type: "blob" });
-        setResults([{
-          filename: `${baseName}_pages.zip`,
-          blob: zipBlob,
-          originalSize: pdf.size,
-          outputSize: zipBlob.size,
-          metadata: { Pages: numPages.toString(), Format: format.toUpperCase() },
-        }]);
-      }
-      setProgress(100);
+      const result = await pdfToImages(pdf, format, parseInt(dpi, 10), setProgress);
+      setResults([result]);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to convert PDF.";
-      setError(message);
+      setError(friendlyPdfError(err, "Failed to convert PDF."));
     } finally {
       setIsProcessing(false);
     }

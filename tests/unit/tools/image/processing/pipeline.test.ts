@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { outputTypeForExt } from "./pipeline";
+import { outputTypeForExt } from "@/tools/image/processing/pipeline";
 
 describe("image/processing pipeline", () => {
   it("outputTypeForExt: maps extensions correctly", () => {

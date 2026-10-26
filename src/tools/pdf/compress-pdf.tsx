@@ -16,7 +16,7 @@ import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
-import { PDFDocument } from "pdf-lib";
+import { compressPdf, friendlyPdfError } from "./processing/pipeline";
 import { useCallback, useState } from "react";
 
 export function CompressPdf({ tool }: ToolComponentProps) {
@@ -40,59 +40,10 @@ export function CompressPdf({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      setProgress(20);
-      const originalBytes = await pdf.arrayBuffer();
-      const doc = await PDFDocument.load(originalBytes, {
-        ignoreEncryption: true,
-      });
-
-      setProgress(50);
-      doc.setTitle("");
-      doc.setAuthor("");
-      doc.setSubject("");
-      doc.setKeywords([]);
-      doc.setProducer("");
-      doc.setCreator("");
-
-      setProgress(80);
-      const useObjectStreams = level !== "low";
-      const compressedBytes = await doc.save({ useObjectStreams });
-
-      setProgress(90);
-
-      // Be honest: if re-saving grew the file, deliver the original bytes
-      // instead of pretending we saved space.
-      const grew = compressedBytes.byteLength >= originalBytes.byteLength;
-      const finalBytes: Uint8Array<ArrayBuffer> = grew
-        ? new Uint8Array(originalBytes)
-        : new Uint8Array(compressedBytes);
-      const blob = new Blob([finalBytes], { type: "application/pdf" });
-
-      const savings = ((pdf.size - blob.size) / pdf.size) * 100;
-      const savedBytes = pdf.size - blob.size;
-
-      setResults([{
-        filename: pdf.name,
-        blob,
-        originalSize: pdf.size,
-        outputSize: blob.size,
-        metadata: {
-          "Original size": formatFileSize(pdf.size),
-          "Compressed size": formatFileSize(blob.size),
-          ...(grew
-            ? {
-                Note: "Already fully optimized — original file returned unchanged.",
-              }
-            : {
-                "Space saved": `${formatFileSize(savedBytes)} (${savings.toFixed(1)}%)`,
-              }),
-          "Compression level": level,
-        },
-      }]);
-      setProgress(100);
+      const result = await compressPdf(pdf, level, setProgress);
+      setResults([result]);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to compress PDF.";
-      setError(message);
+      setError(friendlyPdfError(err, "Failed to compress PDF."));
     } finally {
       setIsProcessing(false);
     }

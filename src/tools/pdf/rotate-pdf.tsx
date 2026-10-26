@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
-import { PDFDocument, degrees } from "pdf-lib";
+import { rotatePdf } from "./processing/pipeline";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -44,56 +44,8 @@ export function RotatePdf({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      setProgress(20);
-      const bytes = await pdf.arrayBuffer();
-      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-      const pages = doc.getPages();
-      const totalPages = pages.length;
-
-      setProgress(40);
-      const pagesToRotate: number[] = [];
-      if (allPages) {
-        for (let i = 0; i < totalPages; i++) pagesToRotate.push(i);
-      } else if (pageRanges.trim()) {
-        const parts = pageRanges.split(",").map((p) => p.trim());
-        for (const part of parts) {
-          const match = part.match(/^(\d+)(?:-(\d+))?$/);
-          if (!match) throw new Error(`Invalid range: "${part}"`);
-          const start = parseInt(match[1], 10);
-          const end = match[2] ? parseInt(match[2], 10) : start;
-          if (start < 1 || end > totalPages || start > end) {
-            throw new Error(`Range "${part}" is out of bounds (${totalPages} pages)`);
-          }
-          for (let i = start; i <= end; i++) pagesToRotate.push(i - 1);
-        }
-      }
-
-      setProgress(60);
-      const rotation = parseInt(angle, 10);
-      for (let i = 0; i < pagesToRotate.length; i++) {
-        const pageIdx = pagesToRotate[i];
-        const page = pages[pageIdx];
-        const currentRotation = page.getRotation().angle;
-        const newRotation = (currentRotation + rotation) % 360;
-        page.setRotation(degrees(newRotation));
-        setProgress(60 + Math.round((i / pagesToRotate.length) * 30));
-      }
-
-      setProgress(90);
-      const rotatedBytes = await doc.save();
-      const blob = new Blob([new Uint8Array(rotatedBytes)], { type: "application/pdf" });
-
-      setResults([{
-        filename: pdf.name,
-        blob,
-        originalSize: pdf.size,
-        outputSize: blob.size,
-        metadata: {
-          "Pages rotated": `${pagesToRotate.length} of ${totalPages}`,
-          "Rotation": `${angle}°`,
-        },
-      }]);
-      setProgress(100);
+      const result = await rotatePdf(pdf, angle, pageRanges, allPages, setProgress);
+      setResults([result]);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to rotate PDF.";
       setError(message);

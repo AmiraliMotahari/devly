@@ -17,7 +17,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { PDFDocument } from "pdf-lib";
+import { mergePdfs } from "./processing/pipeline";
 import { useCallback, useState } from "react";
 
 interface PdfFile {
@@ -55,28 +55,11 @@ export function MergePdf({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const merged = await PDFDocument.create();
-      for (let i = 0; i < pdfs.length; i++) {
-        const pdfFile = pdfs[i];
-        setProgress(Math.round((i / pdfs.length) * 80));
-        const bytes = await pdfFile.file.arrayBuffer();
-        const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-        const pages = await merged.copyPages(doc, doc.getPageIndices());
-        pages.forEach((page) => merged.addPage(page));
-      }
-
-      setProgress(90);
-      const mergedBytes = await merged.save();
-      const blob = new Blob([new Uint8Array(mergedBytes)], { type: "application/pdf" });
-
-      setResults([
-        {
-          filename: "merged.pdf",
-          blob,
-          outputSize: blob.size,
-        },
-      ]);
-      setProgress(100);
+      const result = await mergePdfs(
+        pdfs.map((p) => p.file),
+        setProgress,
+      );
+      setResults([result]);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to merge PDFs.";

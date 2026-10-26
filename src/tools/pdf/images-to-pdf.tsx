@@ -10,7 +10,7 @@ import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
 import { AlertCircle, GripVertical, Image as ImageIcon, Loader2, Play, Upload, X } from "lucide-react";
-import { PDFDocument } from "pdf-lib";
+import { imagesToPdf, friendlyPdfError } from "./processing/pipeline";
 import { useCallback, useState } from "react";
 
 interface ImageFile {
@@ -64,38 +64,13 @@ export function ImagesToPdf({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const pdf = await PDFDocument.create();
-      for (let i = 0; i < images.length; i++) {
-        setProgress(Math.round((i / images.length) * 85));
-        const bytes = await images[i].file.arrayBuffer();
-        let embedded;
-        if (/\.png$/i.test(images[i].file.name) || images[i].file.type === "image/png") {
-          embedded = await pdf.embedPng(bytes);
-        } else {
-          embedded = await pdf.embedJpg(bytes);
-        }
-        const page = pdf.addPage([embedded.width, embedded.height]);
-        page.drawImage(embedded, {
-          x: 0,
-          y: 0,
-          width: embedded.width,
-          height: embedded.height,
-        });
-      }
-
-      setProgress(92);
-      const pdfBytes = await pdf.save();
-      const blob = new Blob([new Uint8Array(pdfBytes)], { type: "application/pdf" });
-      setProgress(100);
-      setResults([
-        { filename: "images.pdf", blob, outputSize: blob.size },
-      ]);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? `Failed to create PDF: ${err.message}`
-          : "Failed to create PDF.",
+      const result = await imagesToPdf(
+        images.map((i) => i.file),
+        setProgress,
       );
+      setResults([result]);
+    } catch (err) {
+      setError(friendlyPdfError(err, "Failed to create PDF."));
     } finally {
       setIsProcessing(false);
     }

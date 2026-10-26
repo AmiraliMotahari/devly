@@ -15,33 +15,10 @@ import {
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
-import JSZip from "jszip";
+import { splitPdf, friendlyPdfError, zipBlobs } from "./processing/pipeline";
+import type { SplitMode } from "./processing/model";
 import { AlertCircle, FileText, Loader2, Play, Upload, X } from "lucide-react";
-import { PDFDocument } from "pdf-lib";
 import { useCallback, useState } from "react";
-
-function parseRanges(input: string, maxPages: number): number[][] {
-  const ranges: number[][] = [];
-  const parts = input.split(",").map((p) => p.trim());
-  for (const part of parts) {
-    const match = part.match(/^(\d+)(?:-(\d+))?$/);
-    if (!match)
-      throw new Error(
-        `Invalid range: "${part}". Use format like 1-3, 5, 8-10.`,
-      );
-    const start = parseInt(match[1], 10);
-    const end = match[2] ? parseInt(match[2], 10) : start;
-    if (start < 1 || end > maxPages || start > end) {
-      throw new Error(
-        `Range "${part}" is out of bounds (document has ${maxPages} pages).`,
-      );
-    }
-    const pages: number[] = [];
-    for (let i = start; i <= end; i++) pages.push(i - 1);
-    ranges.push(pages);
-  }
-  return ranges;
-}
 
 export function SplitPdf({ tool }: ToolComponentProps) {
   void tool;
@@ -66,53 +43,10 @@ export function SplitPdf({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const bytes = await pdf.arrayBuffer();
-      const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-      const totalPages = doc.getPageCount();
-
-      let splitPlans: number[][] = [];
-      if (mode === "ranges") {
-        splitPlans = parseRanges(ranges, totalPages);
-      } else if (mode === "each") {
-        for (let i = 0; i < totalPages; i++) splitPlans.push([i]);
-      } else if (mode === "interval") {
-        const step = Math.max(1, interval);
-        for (let i = 0; i < totalPages; i += step) {
-          const pages: number[] = [];
-          for (let j = i; j < Math.min(i + step, totalPages); j++)
-            pages.push(j);
-          splitPlans.push(pages);
-        }
-      }
-
-      const allResults: ToolResult[] = [];
-      const baseName = pdf.name.replace(/\.pdf$/i, "");
-
-      for (let i = 0; i < splitPlans.length; i++) {
-        const pages = splitPlans[i];
-        setProgress(Math.round((i / splitPlans.length) * 90));
-        const newDoc = await PDFDocument.create();
-        const copiedPages = await newDoc.copyPages(doc, pages);
-        copiedPages.forEach((page) => newDoc.addPage(page));
-        const newBytes = await newDoc.save();
-        const blob = new Blob([new Uint8Array(newBytes)], { type: "application/pdf" });
-        const pageLabel =
-          pages.length === 1
-            ? `page-${pages[0] + 1}`
-            : `pages-${pages[0] + 1}-${pages[pages.length - 1] + 1}`;
-        allResults.push({
-          filename: `${baseName}_${pageLabel}.pdf`,
-          blob,
-          outputSize: blob.size,
-        });
-      }
-
-      setProgress(100);
+      const allResults = await splitPdf(pdf, mode as SplitMode, ranges, interval, setProgress);
       setResults(allResults);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to split PDF.";
-      setError(message);
+      setError(friendlyPdfError(err, "Failed to split PDF."));
     } finally {
       setIsProcessing(false);
     }
@@ -126,11 +60,7 @@ export function SplitPdf({ tool }: ToolComponentProps) {
   };
 
   const handleDownloadAll = useCallback(async () => {
-    const zip = new JSZip();
-    for (const result of results) {
-      zip.file(result.filename, result.blob);
-    }
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await zipBlobs(results);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

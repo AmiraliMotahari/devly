@@ -31,7 +31,7 @@
 - [x]: Update readme.md (roadmap CI/CD line dropped; pointer to per-layer AGENTS.md guides added)
 
 - [x]: Cleanup: Remove unused packages (15 removed: three/@react-three-*, marked, papaparse, json-2-csv, fast-xml-parser, html-minifier, diff, qrcode, clsx, tailwind-merge + 2 @types)
-- [x]: pdf, file and images needs to be rewritten from ground up with a real architecture (file domain done: 6 tools behind src/tools/files/processing/pipeline.ts; image domain done: src/tools/image/processing/pipeline.ts (decodeToCanvas + convertImage + outputTypeForExt) now the shared module; PDF domain still pending — see processing-architecture.md)
+- [x]: pdf, file and images needs to be rewritten from ground up with a real architecture (all three domains done: file (6 tools) + image (15 simple tools) + PDF (8 tools) behind src/tools/<domain>/processing/pipeline.ts; no tool file imports pdf-lib/pdfjs-dist/JSZip/createImageBitmap directly; progress/errors/downloads come from shared pipelines; unit tests added for pure logic; E2E suites untouched as regression net)
 
 - [x]: Optimization: Add instant navigation, prefetching, cache-components
 - [x]: CI/CD: add github workflow (.github/workflows/ci.yml — lint + type:check + vitest + build on push/PR; Playwright e2e deliberately left local for now)

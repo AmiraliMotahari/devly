@@ -20,7 +20,7 @@ The heart of the app: 88 tool definitions in `definitions.ts` — the single sou
 | `image/editor/` | Advanced Image Editor UI: `state.ts` (reducer, `EditorMode`, `HISTORY_LIMIT`), canvas, layers panel, toolbar, export dialog, collage, overlays |
 | `image/processing/` | Pure render/geometry/adjustment/export logic (`render.ts`, `geometry.ts`, `adjustments.ts`, `export.ts`, `errors.ts`) — no UI imports |
 | `image/types/`, `image/shared.ts` | Editor types + shared image helpers |
-| `processors/` | Empty today — reserved landing spot for the one-pipeline-per-domain rewrite in `processing-architecture.md` (file → image → PDF migration order) |
+| `<domain>/processing/` | One pipeline per domain: `files/processing/` (model, pipeline, errors), `image/processing/` (pipeline + render/geometry/adjustments/export/errors), `pdf/processing/` (model, pipeline, errors). Tools are now UI + one pipeline call |
 | `converters/currency.ts` | The only networked module: Frankfurter exchange rates. Sends currency codes only, never files |
 
 ## Rules
