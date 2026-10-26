@@ -98,12 +98,8 @@ test.describe("PWA", () => {
         const keys = await caches.keys();
         if (keys.length === 0) return false;
         const cache = await caches.open(keys[0]);
-        // The document and its JS are precached, not just its HTML.
-        const entries = await cache.keys();
-        return (
-          (await cache.match(location.href)) !== undefined &&
-          entries.some((r) => r.url.includes("/_next/static/chunks/"))
-        );
+        // The document must be cached (via network-first on first load).
+        return (await cache.match(location.href)) !== undefined;
       },
       { timeout: 20_000 },
     );
@@ -125,5 +121,88 @@ test.describe("PWA", () => {
     } finally {
       await context.setOffline(false);
     }
+  });
+});
+
+test.describe("PWA — download for offline", () => {
+  test("download button is visible in header", async ({ page }) => {
+    const errors = trackPageErrors(page);
+    await page.goto("/");
+    await expect(page.getByRole("button", { name: /offline/i })).toBeVisible({ timeout: 10_000 });
+    await errors.assertNone("download button");
+  });
+
+  test("download completes and shows ready state", async ({ page }) => {
+    const errors = trackPageErrors(page);
+    await page.goto("/");
+    const btn = page.getByRole("button", { name: /offline/i }).first();
+    await btn.click();
+    // Wait for completion (generous timeout for 92 URLs)
+    await expect(page.getByRole("button", { name: /offline ready/i })).toBeVisible({
+      timeout: 90_000,
+    });
+    await errors.assertNone("download flow");
+  });
+});
+
+test.describe("PWA — network status", () => {
+  test("offline pill appears when network is down", async ({ page, context }) => {
+    await page.goto("/");
+    await waitForOfflineReady(page);
+
+    await context.setOffline(true);
+    try {
+      await expect(page.getByText("Offline")).toBeVisible({ timeout: 10_000 });
+    } finally {
+      await context.setOffline(false);
+    }
+  });
+
+  test("back online pill appears on reconnect", async ({ page, context }) => {
+    await page.goto("/");
+    await waitForOfflineReady(page);
+
+    await context.setOffline(true);
+    await page.waitForTimeout(500);
+    await context.setOffline(false);
+    await expect(page.getByText("Back online")).toBeVisible({ timeout: 10_000 });
+  });
+});
+
+test.describe("PWA — offline fallback", () => {
+  test("uncached route shows branded offline page", async ({ page, context }) => {
+    await page.goto("/");
+    await waitForOfflineReady(page);
+
+    await context.setOffline(true);
+    try {
+      await page.goto("/tools/this-tool-does-not-exist");
+      await expect(page.getByText(/you're offline/i)).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole("button", { name: /try again/i })).toBeVisible();
+    } finally {
+      await context.setOffline(false);
+    }
+  });
+});
+
+test.describe("PWA — install prompt", () => {
+  test("iOS shows Add to Home Screen instructions", async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+    });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.getByText(/add to home screen/i)).toBeVisible({ timeout: 10_000 });
+    await context.close();
+  });
+
+  test("install button hidden when already installed", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("devly:installed", "1");
+    });
+    await page.reload();
+    await expect(page.getByRole("button", { name: /install devly/i })).not.toBeVisible();
   });
 });

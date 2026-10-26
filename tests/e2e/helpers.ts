@@ -244,3 +244,17 @@ export async function expectNoHorizontalOverflow(page: Page) {
   );
   expect(overflow, "horizontal overflow detected").toBeLessThanOrEqual(0);
 }
+
+/** Wait for the service worker to take control and cache the current page. */
+export async function waitForOfflineReady(page: Page, timeout = 20_000) {
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null, { timeout });
+  await page.waitForFunction(
+    async () => {
+      const keys = await caches.keys();
+      if (keys.length === 0) return false;
+      const cache = await caches.open(keys[0]);
+      return (await cache.match(location.href)) !== undefined;
+    },
+    { timeout },
+  );
+}

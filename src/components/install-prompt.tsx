@@ -10,30 +10,44 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const DISMISSED_KEY = "devly:install-dismissed";
+const INSTALLED_KEY = "devly:installed";
+
+function isStandaloneMode(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.matchMedia("(display-mode: standalone)").matches) return true;
+  if ((navigator as { standalone?: boolean }).standalone === true) return true;
+  return false;
+}
 
 export function InstallPrompt() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstalled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      localStorage.getItem(INSTALLED_KEY) === "1" || isStandaloneMode()
+    );
+  });
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem(DISMISSED_KEY) === "1";
   });
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS] = useState(() => {
     if (typeof window === "undefined") return false;
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
   });
 
   useEffect(() => {
+    if (isInstalled) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
-      setDismissed(localStorage.getItem(DISMISSED_KEY) === "1");
     };
     window.addEventListener("beforeinstallprompt", handler);
 
     const onInstalled = () => {
+      localStorage.setItem(INSTALLED_KEY, "1");
       setDeferred(null);
-      localStorage.removeItem(DISMISSED_KEY);
     };
     window.addEventListener("appinstalled", onInstalled);
 
@@ -41,9 +55,11 @@ export function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", onInstalled);
     };
-  }, []);
+  }, [isInstalled]);
 
+  if (isInstalled || isStandaloneMode()) return null;
   if (dismissed) return null;
+
   if (isIOS) {
     return (
       <div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
@@ -72,6 +88,7 @@ export function InstallPrompt() {
       </div>
     );
   }
+
   if (!deferred) return null;
 
   return (
@@ -83,6 +100,7 @@ export function InstallPrompt() {
           await deferred.prompt();
           const { outcome } = await deferred.userChoice;
           if (outcome === "accepted") {
+            localStorage.setItem(INSTALLED_KEY, "1");
             setDeferred(null);
           } else {
             localStorage.setItem(DISMISSED_KEY, "1");
