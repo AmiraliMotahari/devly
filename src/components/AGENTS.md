@@ -20,6 +20,7 @@ Every reusable UI building block in the app. Pages and tools must never hand-rol
 | `search/`, `general-search.tsx`, `command-palette.tsx` | Search UIs over `src/tools/search.ts` index |
 | `providers/` | `theme.provider.tsx` (next-themes), mounted in `src/app/layout.tsx` |
 | `offline-indicator.tsx`, `service-worker.tsx` | PWA surface (pairs with `public/sw.js`) |
+| `install-prompt.tsx`, `download-offline.tsx` | Install prompt (dismissible, iOS instructions) and opt-in "Download for offline" button |
 | `code-block/` | Shiki-based themed code blocks with line numbers; `highlighter.tsx` uses lazy grammars (`LAZY_GRAMMARS`) |
 | `copy-to-clipboard.tsx`, `favorite-button.tsx`, `theme-toggle.tsx`, `logo.tsx`, `site-header.tsx`, `site-footer.tsx`, `error-boundary.tsx` (#ErrorFallback) | App chrome |
 | `ui/` | 26 shadcn primitives (button, card, dialog, dropdown-menu, select, sheet, slider, sonner, tabs, tooltip, kbd, …). Managed by shadcn CLI — don't hand-edit structure |

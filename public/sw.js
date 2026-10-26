@@ -8,7 +8,7 @@
  * Cache name includes a build version so old caches are evicted on deploy.
  * The version is injected at build time by scripts/build-sw.mjs.
  */
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const RUNTIME_CACHE = `devly-runtime-${CACHE_VERSION}`;
 const SHELL_CACHE = `devly-shell-${CACHE_VERSION}`;
 const MAX_RUNTIME_ENTRIES = 200;

@@ -15,7 +15,7 @@ Next.js App Router shell. Every URL the app serves lives here, plus all generate
 | `tools/page.tsx` | `/tools` directory listing all registered tools |
 | `tools/[slug]/page.tsx` | One page per tool: `generateStaticParams()` + `generateMetadata()` from `toolDefinitions`; renders the tool via the `tool-loader` registry |
 | `category/[category]/page.tsx` | One page per tool category from `CATEGORY_META` |
-| `about/`, `privacy/` | Static content pages |
+| `about/`, `privacy/`, `offline/` | Static content pages; `/offline` is the branded PWA fallback served by the SW for uncached navigations |
 | `graphify/page.tsx` | Dev-only page displaying graphify usage (not a tool, not in the catalog) |
 | `error.tsx`, `global-error.tsx`, `not-found.tsx` | Error/fallback boundaries |
 | `sitemap.ts`, `robots.ts`, `manifest.ts` | Generated from `toolDefinitions` / constants |

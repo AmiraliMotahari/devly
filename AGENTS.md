@@ -10,7 +10,7 @@ Generated from verified repo sources (README, package.json, next.config.ts, tool
 - **Icons**: Lucide React
 - **Purpose**: A browser-first file/media/dev/toolkit — most tools run entirely in the client (no uploads, no server). Privacy is a core guarantee.
 - **Signature feature**: the Advanced Image Editor (`src/tools/image/`) — layers, text/shapes, adjustments/filters, crop, merge, split, collage; all in-browser.
-- **PWA/offline**: service worker `public/sw.js` (network-first, precached app shell at idle, offline request queue, branded `/offline` fallback, LRU cache cap), plus `useOffline` experimental switch. Manifest at `src/app/manifest.ts`. Install prompt + update flow + security headers make it installable-quality.
+- **PWA/offline**: service worker `public/sw.js` (network-first, precached app shell at idle, offline request queue, branded `/offline` fallback, LRU cache cap, cache versioning via `CACHE_VERSION`), plus `useOffline` experimental switch. Manifest at `src/app/manifest.ts`. Install prompt + update flow + security headers + Download for offline (opt-in precache of all routes + chunks) make it installable-quality.
 - **Only networked tool**: the currency converter (`src/tools/converters/currency.ts`) fetches reference rates from the public Frankfurter API — it sends currency codes only, never files. Any new networked tool must respect the same privacy line and be called out in its definition.
 
 ## Planning Docs & Roadmap
@@ -117,6 +117,7 @@ The app is driven by a catalog of *tool definitions* that auto-generate pages, r
 - **Sitemap**: Auto‑generated from `toolDefinitions` in `src/app/sitemap.ts`. Each available tool gets `/tools/<slug>` entry with `priority: 0.7`. The `/tools` directory page must exist (it's in the sitemap).
 - **Privacy banner** on the home page emphasizes: "Files never leave your device."
 - **Branding**: use `appName` from `src/lib/constants.ts` — never hardcode "Devly"/"UtilityHub" in copy. GitHub link comes from `githubProfileUrl`.
+- **Cache version bump**: before committing any change that affects served assets (HTML, JS, CSS, SW), bump `CACHE_VERSION` in `public/sw.js` (e.g. `v2` → `v3`). This evicts stale caches on activation and prevents ChunkLoadError from old cached HTML referencing deleted chunk filenames. The activate handler deletes all caches whose name doesn't include the current version string.
 
 ## What to Check Before Submitting a New Tool
 
