@@ -83,7 +83,7 @@ test.describe("Offline navigation", () => {
 
     await context.setOffline(true);
     try {
-      await expect(page.getByText("Offline")).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole("status").getByText("Offline")).toBeVisible({ timeout: 10_000 });
     } finally {
       await context.setOffline(false);
     }

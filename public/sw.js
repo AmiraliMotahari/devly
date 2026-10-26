@@ -114,10 +114,10 @@ self.addEventListener("fetch", (event) => {
           (await caches.match(request, { cacheName: RUNTIME_CACHE })) ||
           (await caches.match(request, { cacheName: SHELL_CACHE }));
         if (cached) return cached;
+        // For navigation requests to uncached routes, serve the branded
+        // offline page instead of the app shell (which made every route
+        // look like the homepage).
         if (request.mode === "navigate") {
-          const shell = await caches.match("/");
-          if (shell) return shell;
-          // Branded offline fallback.
           const offline = await caches.match("/offline");
           if (offline) return offline;
         }

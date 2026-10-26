@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { navigateToTool, trackPageErrors } from "./helpers";
+import { navigateToTool, trackPageErrors, waitForOfflineReady } from "./helpers";
 
 /**
  * PWA contract: the manifest must be installable (every icon resolves)
@@ -152,7 +152,7 @@ test.describe("PWA — network status", () => {
 
     await context.setOffline(true);
     try {
-      await expect(page.getByText("Offline")).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole("status").getByText("Offline")).toBeVisible({ timeout: 10_000 });
     } finally {
       await context.setOffline(false);
     }
@@ -165,7 +165,7 @@ test.describe("PWA — network status", () => {
     await context.setOffline(true);
     await page.waitForTimeout(500);
     await context.setOffline(false);
-    await expect(page.getByText("Back online")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("status").getByText("Back online")).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -173,6 +173,19 @@ test.describe("PWA — offline fallback", () => {
   test("uncached route shows branded offline page", async ({ page, context }) => {
     await page.goto("/");
     await waitForOfflineReady(page);
+    // Wait for /offline to be precached
+    await page.waitForFunction(
+      async () => {
+        const keys = await caches.keys();
+        if (keys.length === 0) return false;
+        for (const k of keys) {
+          const c = await caches.open(k);
+          if (await c.match("/offline")) return true;
+        }
+        return false;
+      },
+      { timeout: 10_000 },
+    );
 
     await context.setOffline(true);
     try {
@@ -202,7 +215,8 @@ test.describe("PWA — install prompt", () => {
     await page.evaluate(() => {
       localStorage.setItem("devly:installed", "1");
     });
-    await page.reload();
+    await page.goto("/tools");
+    await page.goto("/");
     await expect(page.getByRole("button", { name: /install devly/i })).not.toBeVisible();
   });
 });
