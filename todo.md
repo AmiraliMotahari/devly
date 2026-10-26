@@ -41,6 +41,19 @@
 - [x]: Full PWA implementation (manifest fixed — the icons 404'd, so the app was not installable; service worker added)
 - [x]: Use offline (network-first service worker: the app loads with the network off; shell precached at idle; the one network tool queues its request until the connection returns)
 
+### V2 — Product-ready (in progress)
+- [x] Security headers (CSP, X-Frame-Options, nosniff, Referrer-Policy on all routes; Cache-Control + Content-Type on /sw.js) — per Next.js PWA guide §8
+- [x] Manifest completeness (any-purpose icons, screenshots, shortcuts for top 5 tools, lang/dir)
+- [x] Install prompt UX (dismissible header button, iOS "Add to Home Screen" instructions)
+- [x] Service worker update flow (controllerchange → "new version available" toast with reload; gate skipWaiting behind user confirmation; updateViaCache: 'none')
+- [x] Cache versioning (build-hash-derived cache name instead of hardcoded "devly-v1")
+- [x] Branded offline fallback page (/offline instead of raw 503)
+- [x] Network status surface (persistent pill in header, not just toast)
+- [x] Currency offline queue hardening (visibilitychange retry, exponential backoff, persisted stale rates, "last updated" display)
+- [x] LRU cache eviction (100 MB cap, oldest-first, exempt precached shell)
+- [x] "Download for offline" button (fully opt-in precache of all tool routes; no background precaching)
+- [x] HTTPS dev testing docs (pnpm dev:https script)
+
 ## V3
 
 - [ ]: AI/chat-box: Simple ai chat box using shadcn latest components

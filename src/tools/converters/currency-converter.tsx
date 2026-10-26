@@ -49,6 +49,7 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
   /** True when the request failed because the browser is offline: it is
    *  queued and retried automatically once the connection returns. */
   const [queued, setQueued] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const loading = data?.base !== base;
 
@@ -73,12 +74,22 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
     async (baseCode: string, signal?: AbortSignal) => {
       const list = await fetchRates(baseCode, signal);
       if (signal?.aborted) return;
+      const rateMap = toRateMap(list);
       setData({
         base: baseCode,
-        rates: toRateMap(list),
+        rates: rateMap,
         date: list[0]?.date ?? null,
       });
       setError(null);
+      setLastUpdated(new Date().toLocaleTimeString());
+      try {
+        localStorage.setItem(
+          `devly:currency:${baseCode}`,
+          JSON.stringify({ rates: [...rateMap.entries()], date: list[0]?.date ?? null, ts: Date.now() }),
+        );
+      } catch {
+        // localStorage may be unavailable (private mode) — non-fatal.
+      }
     },
     [],
   );
@@ -90,7 +101,22 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
         await loadRates(base, controller.signal);
       } catch (err) {
         if (controller.signal.aborted) return;
-        setData({ base, rates: new Map(), date: null });
+        // Try to show stale cached rates so the tool stays useful offline.
+        let staleLoaded = false;
+        try {
+          const cached = localStorage.getItem(`devly:currency:${base}`);
+          if (cached) {
+            const parsed = JSON.parse(cached) as { rates: [string, number][]; date: string | null; ts: number };
+            setData({ base, rates: new Map(parsed.rates), date: parsed.date });
+            setLastUpdated(new Date(parsed.ts).toLocaleTimeString());
+            staleLoaded = true;
+          }
+        } catch {
+          // ignore
+        }
+        if (!staleLoaded) {
+          setData({ base, rates: new Map(), date: null });
+        }
         // A network-level failure (offline, DNS, unreachable host) is not a
         // dead end: queue the request for when the connection is back.
         if (err instanceof TypeError) {
@@ -106,15 +132,33 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
     return () => controller.abort();
   }, [base, loadRates]);
 
-  // Offline queue: retry as soon as the browser is online again.
+  // Offline queue: retry with exponential backoff when online or tab becomes visible.
   useEffect(() => {
     if (!queued) return;
-    const onOnline = () => {
+    let attempt = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const retry = () => {
       setQueued(false);
-      void loadRates(base).catch(() => setQueued(true));
+      void loadRates(base).catch(() => {
+        attempt++;
+        const delay = Math.min(1000 * Math.pow(2, attempt), 30000);
+        timer = setTimeout(() => setQueued(true), delay);
+      });
     };
+
+    const onOnline = () => retry();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible" && queued) retry();
+    };
+
     window.addEventListener("online", onOnline);
-    return () => window.removeEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (timer) clearTimeout(timer);
+    };
   }, [queued, base, loadRates]);
 
   const rate = useMemo(() => {
@@ -196,6 +240,11 @@ export function CurrencyConverter({ tool }: ToolComponentProps) {
         <CardContent className="flex items-center justify-between gap-4 p-6">
           <div>
             <p className="text-xs text-muted-foreground">Result</p>
+            {lastUpdated && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Last updated: {lastUpdated}
+              </p>
+            )}
             <p
               className="text-2xl font-bold tabular-nums"
               data-testid="currency-result"

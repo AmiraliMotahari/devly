@@ -2,6 +2,8 @@
 
 import { CommandPalette } from "@/components/command-palette";
 import { ModeToggle } from "@/components/theme-toggle";
+import { InstallPrompt } from "@/components/install-prompt";
+import { DownloadOffline } from "@/components/download-offline";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -220,6 +222,8 @@ export function SiteHeader() {
                 </Link>
               </Button>
             )}
+            <DownloadOffline />
+            <InstallPrompt />
             <MobileNav />
           </div>
         </div>

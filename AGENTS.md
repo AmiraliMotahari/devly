@@ -10,7 +10,7 @@ Generated from verified repo sources (README, package.json, next.config.ts, tool
 - **Icons**: Lucide React
 - **Purpose**: A browser-first file/media/dev/toolkit — most tools run entirely in the client (no uploads, no server). Privacy is a core guarantee.
 - **Signature feature**: the Advanced Image Editor (`src/tools/image/`) — layers, text/shapes, adjustments/filters, crop, merge, split, collage; all in-browser.
-- **PWA/offline**: service worker `public/sw.js` (network-first, precached app shell at idle, offline request queue), plus `useOffline` experimental switch. Manifest at `src/app/manifest.ts`.
+- **PWA/offline**: service worker `public/sw.js` (network-first, precached app shell at idle, offline request queue, branded `/offline` fallback, LRU cache cap), plus `useOffline` experimental switch. Manifest at `src/app/manifest.ts`. Install prompt + update flow + security headers make it installable-quality.
 - **Only networked tool**: the currency converter (`src/tools/converters/currency.ts`) fetches reference rates from the public Frankfurter API — it sends currency codes only, never files. Any new networked tool must respect the same privacy line and be called out in its definition.
 
 ## Planning Docs & Roadmap
@@ -51,6 +51,7 @@ Dependency flow: `types` → `lib`/`hooks` → `tools` → `components` → `app
 | `pnpm lint` | Run ESLint (`eslint .`) |
 | `pnpm test` | Vitest unit + component tests |
 | `pnpm test:e2e` | Playwright E2E (prod build; Chromium + @critical webkit/firefox) |
+| `pnpm dev:https` | Start dev server over HTTPS (needed to test service worker locally) |
 
 > **Note**: This repo uses **pnpm v10.15.1** (package.json). Always use `pnpm`; do not switch to npm/yarn.
 

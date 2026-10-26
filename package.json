@@ -16,7 +16,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:dev": "E2E_USE_DEV=1 playwright test",
-    "type:check": "tsc"
+    "type:check": "tsc",
+    "prebuild": "node scripts/generate-precache-manifest.mjs",
+    "dev:https": "next dev --experimental-https"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
