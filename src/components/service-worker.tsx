@@ -34,11 +34,15 @@ export function ServiceWorker() {
           });
         });
 
-        // Precache the page's own assets when idle (only if not already cached).
+        // Precache the page's own assets when idle (current page only, no background precache of all routes).
         const cacheUrls = (r: ServiceWorkerRegistration) => {
-          void location.href;
-          r.active?.postMessage({ type: "cache-url", url: location.href });
-          // Only cache-url (single) for the current page — no background precache.
+          const urls = [
+            location.href,
+            ...[...document.documentElement.outerHTML.matchAll(/(?:src|href)="(\/_next\/[^"]+)"/g)].map(
+              (m) => m[1],
+            ),
+          ];
+          r.active?.postMessage({ type: "cache-urls", urls });
         };
 
         navigator.serviceWorker.ready.then((r) => {

@@ -58,12 +58,28 @@ export function InstallPrompt() {
     };
     void checkRelated();
 
-    const handler = (e: Event) => {
+    const handler = async (e: Event) => {
       // Already installed — ignore the event entirely.
       if (isInstalledPersisted() || isStandalone()) {
         localStorage.setItem(INSTALLED_KEY, "1");
         setInstalled(true);
         return;
+      }
+      // Chrome/Edge: double-check via getInstalledRelatedApps.
+      const nav = navigator as Navigator & {
+        getInstalledRelatedApps?: () => Promise<{ id?: string }[]>;
+      };
+      if (typeof nav.getInstalledRelatedApps === "function") {
+        try {
+          const apps = await nav.getInstalledRelatedApps();
+          if (apps.length > 0) {
+            localStorage.setItem(INSTALLED_KEY, "1");
+            setInstalled(true);
+            return;
+          }
+        } catch {
+          // ignore
+        }
       }
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
