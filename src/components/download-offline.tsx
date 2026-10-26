@@ -48,7 +48,7 @@ export function DownloadOffline() {
 
   if (status === "done") {
     return (
-      <Button size="sm" variant="ghost" disabled>
+      <Button size="sm" variant="ghost" disabled title="Available offline">
         <Check data-icon="inline-start" className="size-3.5" />
         Offline ready
       </Button>
@@ -58,9 +58,10 @@ export function DownloadOffline() {
   return (
     <Button
       size="sm"
-      variant="outline"
+      variant="ghost"
       onClick={handleDownload}
       disabled={status === "downloading"}
+      title="Download for offline use"
     >
       {status === "downloading" ? (
         <>
@@ -70,7 +71,7 @@ export function DownloadOffline() {
       ) : (
         <>
           <Download data-icon="inline-start" className="size-3.5" />
-          Download for offline
+          <span className="hidden sm:inline">Offline</span>
         </>
       )}
     </Button>
