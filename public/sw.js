@@ -8,7 +8,7 @@
  * Cache name includes a build version so old caches are evicted on deploy.
  * The version is injected at build time by scripts/build-sw.mjs.
  */
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v5";
 const RUNTIME_CACHE = `devly-runtime-${CACHE_VERSION}`;
 const SHELL_CACHE = `devly-shell-${CACHE_VERSION}`;
 const MAX_RUNTIME_ENTRIES = 200;
@@ -96,6 +96,12 @@ self.addEventListener("fetch", (event) => {
   // Skip Next.js HMR / dev endpoints.
   if (url.pathname.startsWith("/_next/webpack-hmr")) return;
 
+  // For static assets, serve from cache if available; if not cached,
+  // reject (network error) instead of returning 503 — a 503 response
+  // causes ChunkLoadError in Turbopack/Next.js. A network error is
+  // handled gracefully by the chunk loader (retry/error boundary).
+  const isStaticAsset = url.pathname.startsWith("/_next/static/");
+
   event.respondWith(
     fetch(request, { cache: "no-store" })
       .then((response) => {
@@ -114,9 +120,13 @@ self.addEventListener("fetch", (event) => {
           (await caches.match(request, { cacheName: RUNTIME_CACHE })) ||
           (await caches.match(request, { cacheName: SHELL_CACHE }));
         if (cached) return cached;
+        // For static assets not in cache, reject (network error) instead
+        // of returning 503 — avoids ChunkLoadError in Turbopack.
+        if (isStaticAsset) {
+          return Promise.reject(new Error("offline"));
+        }
         // For navigation requests to uncached routes, serve the branded
-        // offline page instead of the app shell (which made every route
-        // look like the homepage).
+        // offline page.
         if (request.mode === "navigate") {
           const offline = await caches.match("/offline");
           if (offline) return offline;
