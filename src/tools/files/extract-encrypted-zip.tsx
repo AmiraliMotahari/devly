@@ -21,25 +21,9 @@ import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
 import {
-  ENCRYPTED_EXTENSION,
-  MANIFEST_FILENAME,
-  base64ToBytes,
-  decryptBytes,
-  type EncryptedArchiveManifest,
-} from "./encrypted-archive";
-
-function isEncryptedArchiveManifest(value: unknown): value is EncryptedArchiveManifest {
-  if (typeof value !== "object" || value === null) return false;
-  const manifest = value as Record<string, unknown>;
-  return (
-    manifest.algorithm === "AES-256-GCM" &&
-    typeof manifest.keyDerivation === "object" &&
-    manifest.keyDerivation !== null &&
-    typeof (manifest.keyDerivation as { iterations?: unknown }).iterations ===
-      "number" &&
-    Array.isArray(manifest.files)
-  );
-}
+  extractEncryptedArchive,
+  friendlyFileError,
+} from "./processing/pipeline";
 
 export function ExtractEncryptedZip({}: ToolComponentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,111 +53,19 @@ export function ExtractEncryptedZip({}: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const JSZip = (await import("jszip")).default;
-      const zip = await JSZip.loadAsync(await archive.arrayBuffer());
-
-      const manifestFile = zip.file(MANIFEST_FILENAME);
-
-      if (!manifestFile) {
-        throw new Error(
-          "No MANIFEST.json found. This does not look like an archive created by the Password ZIP tool.",
-        );
+      const { results, failures } = await extractEncryptedArchive(
+        archive,
+        password,
+        setProgress,
+      );
+      setResults(results);
+      if (failures.length > 0) {
+        setError(`Some files failed to decrypt: ${failures.join(", ")}`);
       }
-
-      const manifestValue: unknown = JSON.parse(await manifestFile.async("text"));
-
-      if (!isEncryptedArchiveManifest(manifestValue)) {
-        throw new Error("The MANIFEST.json in this archive is invalid.");
-      }
-
-      const iterations = manifestValue.keyDerivation.iterations;
-      const decryptedResults: ToolResult[] = [];
-      const failures: string[] = [];
-
-      for (let index = 0; index < manifestValue.files.length; index++) {
-        const entry = manifestValue.files[index];
-        setProgress(Math.round((index / manifestValue.files.length) * 90));
-
-        const encryptedFile = zip.file(`${entry.name}${ENCRYPTED_EXTENSION}`);
-
-        if (!encryptedFile) {
-          failures.push(`${entry.name} — missing from archive`);
-          continue;
-        }
-
-        try {
-          const encrypted = await encryptedFile.async("arraybuffer");
-          const decrypted = await decryptBytes(
-            encrypted,
-            password,
-            base64ToBytes(entry.salt) as Uint8Array<ArrayBuffer>,
-            base64ToBytes(entry.iv) as Uint8Array<ArrayBuffer>,
-            iterations,
-          );
-
-          const blob = new Blob([decrypted]);
-
-          if (blob.size !== entry.size) {
-            failures.push(`${entry.name} — size mismatch after decryption`);
-            continue;
-          }
-
-          decryptedResults.push({
-            filename: entry.name,
-            blob,
-            outputSize: blob.size,
-            metadata: {
-              "Original size": formatFileSize(entry.size),
-            },
-          });
-        } catch {
-          failures.push(`${entry.name} — wrong password or corrupted data`);
-        }
-      }
-
-      if (decryptedResults.length === 0) {
-        throw new Error(
-          failures.length > 0
-            ? `Could not decrypt any files. ${failures[0]}`
-            : "No encrypted files were found in this archive.",
-        );
-      }
-
-      setProgress(95);
-
-      if (decryptedResults.length === 1 && failures.length === 0) {
-        setResults(decryptedResults);
-      } else {
-        const JSZipOut = (await import("jszip")).default;
-        const outZip = new JSZipOut();
-
-        for (const result of decryptedResults) {
-          outZip.file(result.filename, result.blob);
-        }
-
-        const zipBlob = await outZip.generateAsync({ type: "blob" });
-
-        setResults([
-          {
-            filename: "decrypted-files.zip",
-            blob: zipBlob,
-            outputSize: zipBlob.size,
-            metadata: {
-              "Files decrypted": decryptedResults.length.toString(),
-              ...(failures.length > 0
-                ? { Failed: failures.length.toString() }
-                : {}),
-            },
-          },
-        ]);
-      }
-
-      setProgress(100);
     } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "An unknown error occurred";
-
-      setError(`Failed to decrypt archive: ${message}`);
+      setError(
+        `Failed to decrypt archive: ${friendlyFileError(cause, "An unknown error occurred")}`,
+      );
     } finally {
       setIsProcessing(false);
     }

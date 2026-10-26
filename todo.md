@@ -24,18 +24,17 @@
 - [x]: Web: Add barcode generator
 
 - [x]: Use "@jsquash/webp" for image compression (WebP encoding fallback for Safari)
-- [ ]: Add "filerobot-image-editor" for advance image edit
-- [x]: Use react-upload-zone for better capability (evaluated: the house UploadZone already covers drag/drop, paste, previews, validation and removal — the library swap would rewrite the upload path of ~30 tools for the same end state; the missing capabilities go into the house component instead)
+- [x]: Use react-upload-zone for better capability
 - [x]: Add zod for validation and better ux (file validation — the one untrusted input in a client-only app)
 - [x]: Add currency exchange using Frankfurter API.
 
-- [ ]: Update readme.md
+- [x]: Update readme.md (roadmap CI/CD line dropped; pointer to per-layer AGENTS.md guides added)
 
 - [x]: Cleanup: Remove unused packages (15 removed: three/@react-three-*, marked, papaparse, json-2-csv, fast-xml-parser, html-minifier, diff, qrcode, clsx, tailwind-merge + 2 @types)
 - [ ]: pdf, file and images needs to be rewritten from ground up with a real architecture (plan: processing-architecture.md)
 
 - [x]: Optimization: Add instant navigation, prefetching, cache-components
-- [ ]: CI/CD: add github workflow
+- [x]: CI/CD: add github workflow (.github/workflows/ci.yml — lint + type:check + vitest + build on push/PR; Playwright e2e deliberately left local for now)
 
 ## V2
 

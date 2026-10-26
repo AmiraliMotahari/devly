@@ -13,19 +13,12 @@ import { ResultPanel } from "@/components/result-panel";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import {
-  ENCRYPTED_EXTENSION,
-  MANIFEST_FILENAME,
-  PBKDF2_ITERATIONS,
-  bytesToBase64,
-  createManifest,
-  encryptFile,
-  type ManifestEntry,
-} from "./encrypted-archive";
+  createEncryptedArchive,
+  friendlyFileError,
+} from "./processing/pipeline";
 
 const MAX_FILES = 200;
 
-const ARCHIVE_FILENAME = "encrypted-archive.zip";
-const README_FILENAME = "README.txt";
 
 interface UploadedFile {
   id: string;
@@ -35,23 +28,6 @@ interface UploadedFile {
 interface Result {
   filename: string;
   blob: Blob;
-}
-
-function createReadme(entries: ManifestEntry[]): string {
-  return [
-    "Encrypted Archive",
-    "",
-    `This archive contains ${entries.length} encrypted file(s).`,
-    `Encryption: AES-256-GCM`,
-    `Key derivation: PBKDF2-SHA256 (${PBKDF2_ITERATIONS.toLocaleString()} iterations)`,
-    "",
-    "To decrypt the files, open this archive with the Decrypt Encrypted ZIP tool using the same password.",
-    "",
-    "Files in this archive:",
-    ...entries.map(
-      (entry) => `  - ${entry.name} (${formatFileSize(entry.size)})`,
-    ),
-  ].join("\n");
 }
 
 function validateFiles(files: UploadedFile[]): string | null {
@@ -142,60 +118,19 @@ export function CreateEncryptedZip({}: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const JSZip = (await import("jszip")).default;
-      const zip = new JSZip();
-      const manifestEntries: ManifestEntry[] = [];
+      const { filename, blob } = await createEncryptedArchive(
+        files.map((uploaded) => uploaded.file),
+        password,
+        setProgress,
+      );
 
-      for (let index = 0; index < files.length; index++) {
-        const uploaded = files[index];
-
-        const { encrypted, salt, iv } = await encryptFile(
-          uploaded.file,
-          password,
-        );
-
-        zip.file(`${uploaded.file.name}${ENCRYPTED_EXTENSION}`, encrypted);
-
-        manifestEntries.push({
-          name: uploaded.file.name,
-          salt: bytesToBase64(salt),
-          iv: bytesToBase64(iv),
-          size: uploaded.file.size,
-          encryptedSize: encrypted.byteLength,
-        });
-
-        setProgress(Math.round(((index + 1) / files.length) * 85));
-      }
-
-      const manifest = createManifest(manifestEntries);
-
-      zip.file(MANIFEST_FILENAME, JSON.stringify(manifest, null, 2));
-
-      zip.file(README_FILENAME, createReadme(manifestEntries));
-
-      setProgress(95);
-
-      const blob = await zip.generateAsync({
-        type: "blob",
-        compression: "DEFLATE",
-        compressionOptions: {
-          level: 9,
-        },
-      });
-
-      setResults([
-        {
-          filename: ARCHIVE_FILENAME,
-          blob,
-        },
-      ]);
+      setResults([{ filename, blob }]);
 
       setProgress(100);
     } catch (cause) {
-      const message =
-        cause instanceof Error ? cause.message : "An unknown error occurred";
-
-      setError(`Failed to create encrypted archive: ${message}`);
+      setError(
+        `Failed to create encrypted archive: ${friendlyFileError(cause, "An unknown error occurred")}`,
+      );
     } finally {
       setIsProcessing(false);
     }

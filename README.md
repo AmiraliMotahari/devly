@@ -262,6 +262,8 @@ cd devly
 pnpm install
 ```
 
+Per development-layer guides live in `AGENTS.md` at the root and in `src/app`, `src/components`, `src/tools`, `src/lib`, `src/hooks`, `src/types` and `tests` — check the one for the directory you're touching.
+
 Start the development server:
 
 ```bash
@@ -338,7 +340,6 @@ The project is under active development. Planned work includes:
 - Improve and simplify the file and PDF processing architecture
 - Expand shared validation and upload components
 - Improve test organization and coverage
-- Add CI/CD
 - Improve documentation
 
 ### More utility tools

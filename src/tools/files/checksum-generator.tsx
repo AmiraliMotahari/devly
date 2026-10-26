@@ -13,124 +13,20 @@ import {
 import { formatFileSize } from "@/lib/file-security";
 import { CodeBlock } from "@/components/code-block";
 import type { ToolComponentProps } from "@/tools/tool-props";
+import { type FileHashes, type HashAlgorithm, computeFileHashes } from "./processing/pipeline";
 import { FileIcon, Loader2, Trash2, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 
 interface UploadedFile {
   id: string;
   file: File;
-  hashes: {
-    md5?: string;
-    sha1?: string;
-    sha256?: string;
-    sha384?: string;
-    sha512?: string;
-  } | null;
+  hashes: FileHashes | null;
   isProcessing: boolean;
-}
-
-async function md5(buffer: ArrayBuffer): Promise<string> {
-  const s = [
-    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14,
-    20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16,
-    23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10,
-    15, 21, 6, 10, 15, 21,
-  ];
-
-  const K = new Uint32Array(64);
-  for (let i = 0; i < 64; i++) {
-    K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 0x100000000);
-  }
-
-  const bytes: number[] = Array.from(new Uint8Array(buffer));
-  const bitLen = bytes.length * 8;
-  const ml = bitLen % 0x20000000;
-  bytes.push(0x80);
-  while ((bytes.length % 64) !== 56) bytes.push(0);
-  for (let i = 0; i < 8; i++) bytes.push((ml / Math.pow(2, i * 8)) % 256);
-
-  let a0 = 0x67452301;
-  let b0 = 0xefcdab89;
-  let c0 = 0x98badcfe;
-  let d0 = 0x10325476;
-
-  for (let i = 0; i < bytes.length / 64; i++) {
-    const M = new Uint32Array(16);
-    for (let j = 0; j < 16; j++) {
-      M[j] =
-        bytes[i * 64 + j * 4] +
-        (bytes[i * 64 + j * 4 + 1] << 8) +
-        (bytes[i * 64 + j * 4 + 2] << 16) +
-        (bytes[i * 64 + j * 4 + 3] << 24);
-    }
-
-    let A = a0,
-      B = b0,
-      C = c0,
-      D = d0;
-
-    for (let j = 0; j < 64; j++) {
-      let F: number, g: number;
-      if (j < 16) {
-        F = (B & C) | (~B & D);
-        g = j;
-      } else if (j < 32) {
-        F = (D & B) | (~D & C);
-        g = (5 * j + 1) % 16;
-      } else if (j < 48) {
-        F = B ^ C ^ D;
-        g = (3 * j + 5) % 16;
-      } else {
-        F = C ^ (B | ~D);
-        g = (7 * j) % 16;
-      }
-
-      const temp = B + (((A + F + K[j] + M[g]) << s[j]) | ((A + F + K[j] + M[g]) >>> (32 - s[j])));
-      A = D;
-      D = C;
-      C = B;
-      B = temp;
-    }
-
-    a0 += A;
-    b0 += B;
-    c0 += C;
-    d0 += D;
-  }
-
-  const toHex = (n: number) => ((n >>> 0) & 0xff).toString(16).padStart(2, "0");
-  return (
-    toHex(a0) +
-    toHex((a0 >> 8) & 0xff) +
-    toHex((a0 >> 16) & 0xff) +
-    toHex((a0 >> 24) & 0xff) +
-    toHex(b0) +
-    toHex((b0 >> 8) & 0xff) +
-    toHex((b0 >> 16) & 0xff) +
-    toHex((b0 >> 24) & 0xff) +
-    toHex(c0) +
-    toHex((c0 >> 8) & 0xff) +
-    toHex((c0 >> 16) & 0xff) +
-    toHex((c0 >> 24) & 0xff) +
-    toHex(d0) +
-    toHex((d0 >> 8) & 0xff) +
-    toHex((d0 >> 16) & 0xff) +
-    toHex((d0 >> 24) & 0xff)
-  );
-}
-
-async function shaHash(
-  buffer: ArrayBuffer,
-  algorithm: "SHA-1" | "SHA-256" | "SHA-384" | "SHA-512"
-): Promise<string> {
-  const hashBuffer = await crypto.subtle.digest(algorithm, buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export function ChecksumGenerator({}: ToolComponentProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [algorithm, setAlgorithm] = useState<string>("all");
+  const [algorithm, setAlgorithm] = useState<HashAlgorithm>("all");
 
   const handleFiles = (fileList: FileList) => {
     const newFiles = Array.from(fileList).map((f) => ({
@@ -152,24 +48,10 @@ export function ChecksumGenerator({}: ToolComponentProps) {
     );
 
     try {
-      const buffer = await file.file.arrayBuffer();
-      const hashes: UploadedFile["hashes"] = {};
-
-      if (algorithm === "all" || algorithm === "md5") {
-        hashes.md5 = await md5(buffer);
-      }
-      if (algorithm === "all" || algorithm === "sha1") {
-        hashes.sha1 = await shaHash(buffer, "SHA-1");
-      }
-      if (algorithm === "all" || algorithm === "sha256") {
-        hashes.sha256 = await shaHash(buffer, "SHA-256");
-      }
-      if (algorithm === "all" || algorithm === "sha384") {
-        hashes.sha384 = await shaHash(buffer, "SHA-384");
-      }
-      if (algorithm === "all" || algorithm === "sha512") {
-        hashes.sha512 = await shaHash(buffer, "SHA-512");
-      }
+      const hashes = await computeFileHashes(
+        file.file,
+        algorithm as HashAlgorithm,
+      );
 
       setFiles((prev) =>
         prev.map((f) => (f.id === file.id ? { ...f, hashes, isProcessing: false } : f))
@@ -242,7 +124,7 @@ export function ChecksumGenerator({}: ToolComponentProps) {
           <label htmlFor="checksum-algorithm" className="text-sm font-medium">
             Algorithm
           </label>
-          <Select value={algorithm} onValueChange={setAlgorithm}>
+          <Select value={algorithm} onValueChange={(v) => setAlgorithm(v as HashAlgorithm)}>
             <SelectTrigger id="checksum-algorithm" className="w-44">
               <SelectValue />
             </SelectTrigger>

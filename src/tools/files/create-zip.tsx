@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
-import JSZip from "jszip";
+import { createArchive, friendlyFileError } from "./processing/pipeline";
 import { AlertCircle, FileIcon, Loader2, Play, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -44,18 +44,13 @@ export function CreateZip({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const zip = new JSZip();
-      for (let i = 0; i < files.length; i++) {
-        setProgress(Math.round((i / files.length) * 80));
-        const buffer = await files[i].file.arrayBuffer();
-        zip.file(files[i].file.name, buffer);
-      }
-      setProgress(85);
-      const blob = await zip.generateAsync({ type: "blob" });
-      setResults([{ filename: "archive.zip", blob, outputSize: blob.size }]);
-      setProgress(100);
+      const { filename, blob } = await createArchive(
+        files.map((f) => f.file),
+        setProgress,
+      );
+      setResults([{ filename, blob, outputSize: blob.size }]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create ZIP.");
+      setError(friendlyFileError(err, "Failed to create ZIP."));
     } finally {
       setIsProcessing(false);
     }

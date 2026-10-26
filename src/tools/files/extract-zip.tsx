@@ -5,10 +5,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { formatFileSize, sanitizeFilename } from "@/lib/file-security";
+import { formatFileSize } from "@/lib/file-security";
 import type { ToolComponentProps } from "@/tools/tool-props";
 import type { ToolResult } from "@/types/tool";
-import JSZip from "jszip";
+import { extractArchive, friendlyFileError, zipBlobs } from "./processing/pipeline";
 import {
   AlertCircle,
   Download,
@@ -44,37 +44,10 @@ export function ExtractZip({ tool }: ToolComponentProps) {
     setProgress(0);
 
     try {
-      const buffer = await zipFile.arrayBuffer();
-      const zip = await JSZip.loadAsync(buffer);
-      const entries = Object.values(zip.files).filter((e) => !e.dir);
-      if (entries.length === 0) {
-        throw new Error("The ZIP archive is empty.");
-      }
-      const allResults: ToolResult[] = [];
-      const usedNames = new Set<string>();
-      let renamedCount = 0;
-      for (let i = 0; i < entries.length; i++) {
-        setProgress(Math.round((i / entries.length) * 90));
-        const entry = entries[i];
-        const baseName = sanitizeFilename(
-          entry.name.split("/").pop() || "file",
-        );
-        let safeName = baseName;
-        let suffix = 2;
-        let didRename = false;
-        while (usedNames.has(safeName)) {
-          const dot = baseName.lastIndexOf(".");
-          const stem = dot > 0 ? baseName.slice(0, dot) : baseName;
-          const ext = dot > 0 ? baseName.slice(dot) : "";
-          safeName = `${stem}-${suffix}${ext}`;
-          suffix++;
-          didRename = true;
-        }
-        if (didRename) renamedCount++;
-        usedNames.add(safeName);
-        const blob = await entry.async("blob");
-        allResults.push({ filename: safeName, blob, outputSize: blob.size });
-      }
+      const { results: allResults, renamedCount } = await extractArchive(
+        zipFile,
+        setProgress,
+      );
       setProgress(100);
       setResults(allResults);
       if (renamedCount > 0) {
@@ -83,7 +56,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
         );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to extract ZIP.");
+      setError(friendlyFileError(err, "Failed to extract ZIP."));
     } finally {
       setIsProcessing(false);
     }
@@ -98,11 +71,7 @@ export function ExtractZip({ tool }: ToolComponentProps) {
   };
 
   const handleDownloadAll = useCallback(async () => {
-    const zip = new JSZip();
-    for (const result of results) {
-      zip.file(result.filename, result.blob);
-    }
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await zipBlobs(results);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
