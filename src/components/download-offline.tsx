@@ -10,8 +10,8 @@ export function DownloadOffline() {
   const [progress, setProgress] = useState(0);
 
   const handleDownload = async () => {
-    if (!("serviceWorker" in navigator)) {
-      toast.error("Offline download requires a supported browser.");
+    if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) {
+      toast.error("Offline download requires a production build (pnpm build && pnpm start).");
       return;
     }
     const reg = await navigator.serviceWorker.ready;

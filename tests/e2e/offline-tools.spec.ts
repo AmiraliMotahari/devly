@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { fixture, navigateToTool, trackPageErrors, waitForOfflineReady } from "./helpers";
+import { navigateToTool, trackPageErrors, waitForOfflineReady } from "./helpers";
 
 test.describe("Offline tool usage", () => {
   test("text case converter works offline", async ({ page, context }) => {

@@ -63,6 +63,9 @@ const MobileNav = () => {
       </SheetTrigger>
       <SheetContent side="right" className="w-72 pt-14">
         <SheetTitle className="sr-only">Navigation</SheetTitle>
+        <div className="px-2 pb-2">
+          <DownloadOffline />
+        </div>
         <nav className="flex flex-col gap-1 px-2" aria-label="Main">
           <SheetClose asChild>
             <Link
