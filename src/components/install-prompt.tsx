@@ -12,48 +12,57 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISSED_KEY = "devly:install-dismissed";
 const INSTALLED_KEY = "devly:installed";
 
-function checkStandalone(): boolean {
+function isStandalone(): boolean {
   if (typeof window === "undefined") return false;
   if (window.matchMedia("(display-mode: standalone)").matches) return true;
   if ((navigator as { standalone?: boolean }).standalone === true) return true;
   return false;
 }
 
-function checkInstalled(): boolean {
+function isInstalledPersisted(): boolean {
   if (typeof window === "undefined") return false;
-  if (localStorage.getItem(INSTALLED_KEY) === "1") return true;
-  return checkStandalone();
+  return localStorage.getItem(INSTALLED_KEY) === "1";
 }
 
 export function InstallPrompt() {
-  const [isInstalled, setIsInstalled] = useState(checkInstalled);
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem(DISMISSED_KEY) === "1";
   });
+  const [installed, setInstalled] = useState(() => isInstalledPersisted() || isStandalone());
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS] = useState(() => {
     if (typeof window === "undefined") return false;
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
   });
 
-  // Re-check standalone mode on every render (browser may update it after install).
-  const standalone = checkStandalone();
-  if (standalone && !isInstalled) {
-    // Persist the installed state if we detect standalone mode at runtime.
-    if (typeof window !== "undefined") {
-      localStorage.setItem(INSTALLED_KEY, "1");
-    }
-  }
-  const installed = isInstalled || standalone;
-
   useEffect(() => {
     if (installed) return;
 
+    // Chrome/Edge: check if already installed via getInstalledRelatedApps.
+    const checkRelated = async () => {
+      const nav = navigator as Navigator & {
+        getInstalledRelatedApps?: () => Promise<{ id?: string }[]>;
+      };
+      if (typeof nav.getInstalledRelatedApps === "function") {
+        try {
+          const apps = await nav.getInstalledRelatedApps();
+          if (apps.length > 0) {
+            localStorage.setItem(INSTALLED_KEY, "1");
+            setInstalled(true);
+          }
+        } catch {
+          // Not supported or failed — ignore.
+        }
+      }
+    };
+    void checkRelated();
+
     const handler = (e: Event) => {
-      // Don't show if already installed (handles re-fire on refresh).
-      if (checkInstalled() || checkStandalone()) {
+      // Already installed — ignore the event entirely.
+      if (isInstalledPersisted() || isStandalone()) {
         localStorage.setItem(INSTALLED_KEY, "1");
+        setInstalled(true);
         return;
       }
       e.preventDefault();
@@ -63,7 +72,7 @@ export function InstallPrompt() {
 
     const onInstalled = () => {
       localStorage.setItem(INSTALLED_KEY, "1");
-      setIsInstalled(true);
+      setInstalled(true);
       setDeferred(null);
     };
     window.addEventListener("appinstalled", onInstalled);
@@ -74,7 +83,15 @@ export function InstallPrompt() {
     };
   }, [installed]);
 
-  if (installed) return null;
+  useEffect(() => {
+    if (isStandalone() && !installed) {
+      localStorage.setItem(INSTALLED_KEY, "1");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setInstalled(true);
+    }
+  }, [installed]);
+
+  if (installed || isStandalone()) return null;
   if (dismissed) return null;
 
   if (isIOS) {
@@ -118,7 +135,7 @@ export function InstallPrompt() {
           const { outcome } = await deferred.userChoice;
           if (outcome === "accepted") {
             localStorage.setItem(INSTALLED_KEY, "1");
-            setIsInstalled(true);
+            setInstalled(true);
             setDeferred(null);
           } else {
             localStorage.setItem(DISMISSED_KEY, "1");
