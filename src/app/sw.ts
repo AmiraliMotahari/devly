@@ -30,4 +30,28 @@ const serwist = new Serwist({
   },
 });
 
+// When offline, RSC payload requests (?_rsc=) that aren't cached cause
+// hydration mismatches and crashes. Reject them (network error) so React
+// handles gracefully instead of hanging or crashing.
+serwist.registerCapture(
+  ({ request }) => {
+    const url = new URL(request.url);
+    return url.searchParams.has("_rsc");
+  },
+  async ({ request }) => {
+    if (!navigator.onLine) {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      return Promise.reject(new Error("offline"));
+    }
+    try {
+      return await fetch(request);
+    } catch {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      return Promise.reject(new Error("offline"));
+    }
+  },
+);
+
 serwist.addEventListeners();
