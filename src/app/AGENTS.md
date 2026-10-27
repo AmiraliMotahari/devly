@@ -10,7 +10,7 @@ Next.js App Router shell. Every URL the app serves lives here, plus all generate
 
 | Path | Role |
 | --- | --- |
-| `layout.tsx` | Root layout: `ThemeProvider`, `SiteHeader`/`SiteFooter`, `Toaster` (sonner), `TooltipProvider`, `OfflineIndicator`, `ServiceWorker`; Geist + Geist Mono fonts; metadata built from `appName`/`siteUrl` (`src/lib/constants.ts`) |
+| `layout.tsx` | Root layout: `ThemeProvider`, `SiteHeader`/`SiteFooter`, `Toaster` (sonner), `TooltipProvider`, `OfflineIndicator`, `SerwistProvider`; Geist + Geist Mono fonts; metadata built from `appName`/`siteUrl` (`src/lib/constants.ts`) |
 | `page.tsx` | Home. Category cards via `CATEGORY_META` + `ICON_MAP`, `POPULAR_SLUGS` quick links, privacy banner ("Files never leave your device") |
 | `tools/page.tsx` | `/tools` directory listing all registered tools |
 | `tools/[slug]/page.tsx` | One page per tool: `generateStaticParams()` + `generateMetadata()` from `toolDefinitions`; renders the tool via the `tool-loader` registry |

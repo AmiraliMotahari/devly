@@ -13,7 +13,7 @@ export default function OfflinePage() {
           <div className="flex size-16 items-center justify-center rounded-full bg-muted">
             <WifiOff className="size-8 text-muted-foreground" />
           </div>
-          <h1 className="text-xl font-semibold">You&apos;re offline</h1>
+          <h1 className="text-xl font-semibold" data-testid="offline-title">You&apos;re offline</h1>
           <p className="text-sm text-muted-foreground">
             {appName} needs a connection to load this page. Your previously
             visited tools are still available offline.
@@ -21,6 +21,7 @@ export default function OfflinePage() {
           <Button
             onClick={() => window.location.reload()}
             className="mt-2"
+            data-testid="offline-retry"
           >
             <RefreshCw data-icon="inline-start" className="size-4" />
             Try again

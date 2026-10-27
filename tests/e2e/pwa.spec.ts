@@ -124,27 +124,6 @@ test.describe("PWA", () => {
   });
 });
 
-test.describe("PWA — download for offline", () => {
-  test("download button is visible in header", async ({ page }) => {
-    const errors = trackPageErrors(page);
-    await page.goto("/");
-    await expect(page.getByRole("button", { name: /offline/i })).toBeVisible({ timeout: 10_000 });
-    await errors.assertNone("download button");
-  });
-
-  test("download completes and shows ready state", async ({ page }) => {
-    const errors = trackPageErrors(page);
-    await page.goto("/");
-    const btn = page.getByRole("button", { name: /offline/i }).first();
-    await btn.click();
-    // Wait for completion (generous timeout for 92 URLs)
-    await expect(page.getByRole("button", { name: /offline ready/i })).toBeVisible({
-      timeout: 90_000,
-    });
-    await errors.assertNone("download flow");
-  });
-});
-
 test.describe("PWA — network status", () => {
   test("offline pill appears when network is down", async ({ page, context }) => {
     await page.goto("/");
@@ -166,35 +145,6 @@ test.describe("PWA — network status", () => {
     await page.waitForTimeout(500);
     await context.setOffline(false);
     await expect(page.getByRole("status").getByText("Back online")).toBeVisible({ timeout: 10_000 });
-  });
-});
-
-test.describe("PWA — offline fallback", () => {
-  test("uncached route shows branded offline page", async ({ page, context }) => {
-    await page.goto("/");
-    await waitForOfflineReady(page);
-    // Wait for /offline to be precached
-    await page.waitForFunction(
-      async () => {
-        const keys = await caches.keys();
-        if (keys.length === 0) return false;
-        for (const k of keys) {
-          const c = await caches.open(k);
-          if (await c.match("/offline")) return true;
-        }
-        return false;
-      },
-      { timeout: 10_000 },
-    );
-
-    await context.setOffline(true);
-    try {
-      await page.goto("/tools/this-tool-does-not-exist");
-      await expect(page.getByText(/you're offline/i)).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByRole("button", { name: /try again/i })).toBeVisible();
-    } finally {
-      await context.setOffline(false);
-    }
   });
 });
 

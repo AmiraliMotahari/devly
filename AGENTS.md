@@ -10,7 +10,7 @@ Generated from verified repo sources (README, package.json, next.config.ts, tool
 - **Icons**: Lucide React
 - **Purpose**: A browser-first file/media/dev/toolkit — most tools run entirely in the client (no uploads, no server). Privacy is a core guarantee.
 - **Signature feature**: the Advanced Image Editor (`src/tools/image/`) — layers, text/shapes, adjustments/filters, crop, merge, split, collage; all in-browser.
-- **PWA/offline**: service worker `public/sw.js` (network-first, precached app shell at idle, offline request queue, branded `/offline` fallback, LRU cache cap, cache versioning via `CACHE_VERSION`), plus `useOffline` experimental switch. Manifest at `src/app/manifest.ts`. Install prompt + update flow + security headers + Download for offline (opt-in precache of all routes + chunks) make it installable-quality.
+- **PWA/offline**: Serwist (`@serwist/turbopack`) with service worker at `src/app/sw.ts`, served via `/serwist/sw.js` route handler. Network-first with precache manifest injected at build time (all pages + chunks). Branded `~offline` fallback, install prompt + update flow + security headers. Manifest at `src/app/manifest.ts`.
 - **Only networked tool**: the currency converter (`src/tools/converters/currency.ts`) fetches reference rates from the public Frankfurter API — it sends currency codes only, never files. Any new networked tool must respect the same privacy line and be called out in its definition.
 
 ## Planning Docs & Roadmap

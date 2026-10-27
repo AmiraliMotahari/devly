@@ -19,8 +19,9 @@ Every reusable UI building block in the app. Pages and tools must never hand-rol
 | `related-tools.tsx` | Renders `relatedToolSlugs` from the definition |
 | `search/`, `general-search.tsx`, `command-palette.tsx` | Search UIs over `src/tools/search.ts` index |
 | `providers/` | `theme.provider.tsx` (next-themes), mounted in `src/app/layout.tsx` |
-| `offline-indicator.tsx`, `service-worker.tsx` | PWA surface (pairs with `public/sw.js`) |
-| `install-prompt.tsx`, `download-offline.tsx` | Install prompt (dismissible, iOS instructions) and opt-in "Download for offline" button |
+| `offline-indicator.tsx` | PWA surface (online/offline pill + toast) |
+| `install-prompt.tsx` | Install prompt (dismissible, iOS instructions) |
+| Serwist (via `SerwistProvider` in `src/app/layout.tsx`) | Service worker is now served via `/serwist/sw.js` route handler (`src/app/serwist/[path]/route.ts`) with `swSrc: "app/sw.ts"` |
 | `code-block/` | Shiki-based themed code blocks with line numbers; `highlighter.tsx` uses lazy grammars (`LAZY_GRAMMARS`) |
 | `copy-to-clipboard.tsx`, `favorite-button.tsx`, `theme-toggle.tsx`, `logo.tsx`, `site-header.tsx`, `site-footer.tsx`, `error-boundary.tsx` (#ErrorFallback) | App chrome |
 | `ui/` | 26 shadcn primitives (button, card, dialog, dropdown-menu, select, sheet, slider, sonner, tabs, tooltip, kbd, …). Managed by shadcn CLI — don't hand-edit structure |

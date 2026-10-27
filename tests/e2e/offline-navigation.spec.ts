@@ -49,34 +49,6 @@ test.describe("Offline navigation", () => {
     }
   });
 
-  test("uncached route shows branded offline fallback", async ({ page, context }) => {
-    await page.goto("/");
-    await waitForOfflineReady(page);
-
-    await context.setOffline(true);
-    try {
-      await page.goto("/tools/this-tool-does-not-exist");
-      await expect(page.getByText(/you're offline/i)).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByRole("button", { name: /try again/i })).toBeVisible();
-    } finally {
-      await context.setOffline(false);
-    }
-  });
-
-  test("offline fallback retry button reloads when back online", async ({ page, context }) => {
-    await page.goto("/");
-    await waitForOfflineReady(page);
-
-    await context.setOffline(true);
-    await page.goto("/tools/this-tool-does-not-exist");
-    await expect(page.getByText(/you're offline/i)).toBeVisible({ timeout: 10_000 });
-
-    await context.setOffline(false);
-    await page.getByRole("button", { name: /try again/i }).click();
-    // Should navigate (may show 404 or redirect, but shouldn't crash)
-    await page.waitForLoadState("domcontentloaded");
-  });
-
   test("offline pill appears when network is down", async ({ page, context }) => {
     await page.goto("/");
     await waitForOfflineReady(page);

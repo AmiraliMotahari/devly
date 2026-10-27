@@ -1,24 +1,21 @@
 "use client";
 
-import { WifiOff, Wifi } from "lucide-react";
+import { Wifi, WifiOff } from "lucide-react";
 import { useOffline } from "next/offline";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 export function OfflineIndicator() {
   const offline = useOffline();
-  const toastId = useRef<string | number | undefined>(undefined);
   const [showReconnected, setShowReconnected] = useState(false);
+  const wasOffline = useRef(false);
 
   useEffect(() => {
     if (offline) {
-      toastId.current = toast.error("You're offline — reconnecting…", {
-        duration: Infinity,
-        icon: <WifiOff className="size-4" />,
-      });
-    } else if (toastId.current !== undefined) {
-      toast.dismiss(toastId.current);
-      toastId.current = undefined;
+      wasOffline.current = true;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowReconnected(false);
+    } else if (wasOffline.current) {
+      wasOffline.current = false;
       setShowReconnected(true);
       const timer = setTimeout(() => setShowReconnected(false), 3000);
       return () => clearTimeout(timer);
