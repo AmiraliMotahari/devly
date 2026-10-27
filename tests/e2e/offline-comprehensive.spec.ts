@@ -1,12 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { navigateToTool, trackPageErrors, waitForOfflineReady } from "./helpers";
-import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-
-const ALL_SLUGS = readFileSync("/tmp/slugs.txt", "utf8")
-  .trim()
-  .split("\n")
-  .filter(Boolean);
 
 test.describe("Offline — all tool pages load", () => {
   test("representative tool pages render offline", async ({ page, context }) => {
