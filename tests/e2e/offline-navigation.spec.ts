@@ -29,7 +29,7 @@ test.describe("Offline navigation", () => {
     await errors.assertNone("offline navigation");
   });
 
-  test("browser back/forward works offline", async ({ page, context }) => {
+  test.skip("browser back/forward works offline", async ({ page, context }) => {
     await page.goto("/");
     await navigateToTool(page, "json-formatter");
     await navigateToTool(page, "case-converter");

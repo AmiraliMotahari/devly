@@ -1,26 +1,36 @@
 "use client";
 
 import { Wifi, WifiOff } from "lucide-react";
-import { useOffline } from "next/offline";
 import { useEffect, useRef, useState } from "react";
 
 export function OfflineIndicator() {
-  const offline = useOffline();
+  const [offline, setOffline] = useState(() => {
+    if (typeof navigator === "undefined") return false;
+    return !navigator.onLine;
+  });
   const [showReconnected, setShowReconnected] = useState(false);
   const wasOffline = useRef(false);
 
   useEffect(() => {
-    if (offline) {
-      wasOffline.current = true;
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShowReconnected(false);
-    } else if (wasOffline.current) {
-      wasOffline.current = false;
-      setShowReconnected(true);
-      const timer = setTimeout(() => setShowReconnected(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [offline]);
+    const update = () => {
+      const isOffline = !navigator.onLine;
+      if (isOffline) {
+        wasOffline.current = true;
+        setShowReconnected(false);
+      } else if (wasOffline.current) {
+        wasOffline.current = false;
+        setShowReconnected(true);
+        setTimeout(() => setShowReconnected(false), 3000);
+      }
+      setOffline(isOffline);
+    };
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
 
   if (!offline && !showReconnected) return null;
 
