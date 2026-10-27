@@ -127,6 +127,7 @@ export function InstallPrompt() {
         <button
           type="button"
           aria-label="Dismiss"
+          data-testid="install-dismiss"
           className="ml-1 rounded p-0.5 hover:bg-accent"
           onClick={() => {
             localStorage.setItem(DISMISSED_KEY, "1");
@@ -146,6 +147,7 @@ export function InstallPrompt() {
       <Button
         size="sm"
         variant="outline"
+        data-testid="install-button"
         onClick={async () => {
           await deferred.prompt();
           const { outcome } = await deferred.userChoice;

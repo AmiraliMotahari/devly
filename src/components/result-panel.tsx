@@ -43,7 +43,7 @@ export function ResultPanel({ results, onProcessAnother, onDownloadAll }: Result
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {hasCompression && totalOutput > 0 && (
-          <div className="flex flex-wrap gap-3">
+          <div data-testid="result-panel" className="flex flex-wrap gap-3">
             <div className="rounded-lg border border-border bg-background px-3 py-2">
               <p className="text-xs text-muted-foreground">Original</p>
               <p className="text-sm font-semibold">{formatFileSize(totalOriginal)}</p>

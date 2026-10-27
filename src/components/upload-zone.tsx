@@ -136,7 +136,7 @@ export function UploadZone({
 
 
   return (
-    <div className="flex flex-col gap-3">
+    <div data-testid="upload-zone" className="flex flex-col gap-3">
       <div
         role="button"
         tabIndex={0}

@@ -183,12 +183,13 @@ export function SiteHeader() {
 
           <div className="flex-1" />
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" data-testid="header-nav">
             <Button
               variant="outline"
               size="sm"
               className="hidden h-8 w-52 justify-start gap-2 text-muted-foreground lg:flex"
               onClick={() => setCommandPaletteOpen(true)}
+              data-testid="search-input"
             >
               <SearchIcon data-icon="inline-start" />
               <span className="flex-1 text-left text-sm font-normal">
